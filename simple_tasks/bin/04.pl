@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-
+use feature "say";
 =encoding UTF8
 =head1 SYNOPSYS
 
@@ -22,15 +22,17 @@ run(4) - печатает "2\n"
 run(6) - печатает "1\n"
 
 =cut
-#run (6);
+#run (1);
 sub run {
     my ($x) = @_;
     my $num = 0;
 
-    my $bin = sprintf "%b", $x;
-    #print $bin."\n";
-    $num = length($bin) - 1 - rindex ($bin, "1");
+    while (not $x & 1){
+        $num++;
+        $x = $x >> 1;    
+    }
 
+    
     print "$num\n";
 }
 
