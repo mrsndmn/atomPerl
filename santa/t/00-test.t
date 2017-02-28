@@ -61,6 +61,7 @@ for my $var (@list) {
 		$restrict{$var}{$var}  = 1;
 	}
 }
+p %restrict;
 
 my @res = SecretSanta::calculate(@list);
 is 0+@res, $members, "Result list have correct count";
