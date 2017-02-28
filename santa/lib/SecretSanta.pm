@@ -2,10 +2,9 @@ package SecretSanta;
 
 use 5.010;
 use strict;
-use warnings;
+#use warnings;
 use DDP;
-
-$" = ", ";
+use List::Util;
 
 sub calculate {
 	my @members = @_;
@@ -19,7 +18,7 @@ sub calculate {
 	die "There won't be any surprise to @names" if ($#names <= 2);
 
 	my %cantToGive; # hash of hashes
-	@cantToGive{@names} = map {[$_]} @names; # cause smb cant give present himself
+	@cantToGive{@names} = map { {$_ => '1'} } @names; # cause smb cant give present himself 
 	
 	foreach my $arrRef (@members) {		#cause husb cant give present his wife and vice versa
 		if (ref $arrRef) {				#checking arrays
@@ -27,35 +26,56 @@ sub calculate {
 			
 				my ($husb, $wife) = @$arrRef; # or $wife, $husb -- no matter
 
-				push @{$cantToGive{$husb}}, $wife;
-				push @{$cantToGive{$wife}}, $husb;				
+				$cantToGive{$husb}{$wife} = 1;
+				$cantToGive{$wife}{$husb} = 1;				
 
-			} else {die "Bad data: $arrRef"}
+			} else {
+				die "Bad data: $arrRef"
+			}
 		}
 	}
-
 	#p %cantToGive;	
 	# making random pairs, and adding each other to %cantToGive
 
-	my ($from, $to);
-	foreach (0..$#names) {
-		$from = shift @names;
-
+	my ($from, $to, $ind);
+	
+	for $from (@names) {
 		
-		
+		$ind = int(rand(scalar(@names)));	#get random '$to'
+		$to = $names[$ind];
 
+		if (isForbiddenToGive($from, $to, \%cantToGive)) { 
+			#check if we cant make any pair
+
+			# вот тут не разобрался, если честно, если не указать полное имя к 'any', выдаст:
+				#	Can't locate object method "any" via package "1" (perhaps you forgot to load "1"?) 
+				#	at /*path*/atomPerl/santa/t/../lib/SecretSanta.pm line 53.
+			# могу предположить, что это связано с тем, что в скалярном контексте ее вызываем, но не знаю
+			# видимо, это очень не явно
+			if ( List::Util::any { $cantToGive{$from}{$to} } @names  ) { 	# 'any' provided by List::Util
+					#say "ANY!!!";								# to see it really need
+					return 	calculate(@members);				#if bad way, do it again
+			}
+			# и, да, эта вещь нужна, т к может получиться, что распределились пары для всех, кроме 2 людей(или даже 1)
+			# и тогда они не смогут друг другу подарить подарки
+
+
+			redo;
+		} else {
+			$cantToGive{$from}->{$to} = 1;
+			$cantToGive{$to}->{$from} = 1;
+			push @res, [$from, $to];			
+		}
 	}
 	
-
-	exit;
-	
+	#p @res;
 	return @res;
 }
 
-sub isForbiddeToGive {		# returns true if prohibited
+sub isForbiddenToGive {		# returns true if prohibited
 	my ($from, $to, $href) = @_;
 
-	return grep { $_ eq $to } $href->{$from};
+	return grep { $_ } $href->{$from}->{$to};
 
 }
 
