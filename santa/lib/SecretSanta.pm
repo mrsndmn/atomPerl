@@ -16,8 +16,10 @@ sub calculate {
 	} @members;
 
 	die "There won't be any surprise to @names" if ($#names <= 2);
+	
+	# hash of hashes that realise logic of relations 
+	my %cantToGive;
 
-	my %cantToGive; # hash of hashes
 	@cantToGive{@names} = map { {$_ => '1'} } @names; # cause smb cant give present himself 
 	
 	foreach my $arrRef (@members) {		#cause husb cant give present his wife and vice versa
@@ -38,13 +40,17 @@ sub calculate {
 	# making random pairs, and adding each other to %cantToGive
 
 	my ($from, $to, $ind);
-	
+
+	# adding each person to %cantToGive{$to}{$everybody} is very slow
+	# its better to create new hash that marks persons with present
+	my %withGift;
+
 	for $from (@names) {
 		
 		$ind = int(rand(scalar(@names)));	#get random '$to'
 		$to = $names[$ind];
 
-		if (isForbiddenToGive($from, $to, \%cantToGive)) { 
+		if ( exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
 			#check if we cant make any pair
 
 			if ( any { $cantToGive{$from}{$to} } @names  ) { 	# 'any' provided by List::Util
@@ -53,23 +59,16 @@ sub calculate {
 			}
 			# и, да, эта вещь нужна, т к может получиться, что распределились пары для всех, кроме 2 людей(или даже 1)
 			# и тогда они не смогут друг другу подарить подарки
-
-
+			
+			# redo to get another random person
 			redo;
-		} else {
-			
-			foreach my $frm (@names) {			# its forbidden to give more than 1 gift to 1 person
-				$cantToGive{$frm}->{$to} = 1;	# but that is very slowly
-												# 
-												# >> [Done] exited with code=0 in 164.007 seconds
-												#
-												# so, think, its better to create new hash
-			}
-			
-			$cantToGive{$to}->{$from} = 1;
-			push @res, [$from, $to];
 
-			p %cantToGive;			
+		} else {
+
+			$withGift{$to} = '1';
+			
+			push @res, [$from, $to];
+	
 		}
 	}
 	
