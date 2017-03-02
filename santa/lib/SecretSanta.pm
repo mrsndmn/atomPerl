@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 #use warnings;
 use DDP;
-use List::Util;
+use List::Util qw(any);
 
 sub calculate {
 	my @members = @_;
@@ -47,14 +47,9 @@ sub calculate {
 		if (isForbiddenToGive($from, $to, \%cantToGive)) { 
 			#check if we cant make any pair
 
-			# вот тут не разобрался, если честно, если не указать полное имя к 'any', выдаст:
-				#	Can't locate object method "any" via package "1" (perhaps you forgot to load "1"?) 
-				#	at /*path*/atomPerl/santa/t/../lib/SecretSanta.pm line 53.
-			# могу предположить, что это связано с тем, что в скалярном контексте ее вызываем, но не знаю
-			# видимо, это очень не явно
-			if ( List::Util::any { $cantToGive{$from}{$to} } @names  ) { 	# 'any' provided by List::Util
+			if ( any { $cantToGive{$from}{$to} } @names  ) { 	# 'any' provided by List::Util
 					#say "ANY!!!";								# to see it really need
-					return 	calculate(@members);				#if bad way, do it again
+					return 	calculate(@members);				#if bad pairs, do it again
 			}
 			# и, да, эта вещь нужна, т к может получиться, что распределились пары для всех, кроме 2 людей(или даже 1)
 			# и тогда они не смогут друг другу подарить подарки
@@ -62,9 +57,16 @@ sub calculate {
 
 			redo;
 		} else {
-			$cantToGive{$from}->{$to} = 1;
+			
+			foreach my $frm (@names) {			# its forbidden to give more than 1 gift to 1 person
+				$cantToGive{$frm}->{$to} = 1;	# but that is very slowly
+												# so, think, its better to create new array
+			}
+			
 			$cantToGive{$to}->{$from} = 1;
-			push @res, [$from, $to];			
+			push @res, [$from, $to];
+
+			p %cantToGive;			
 		}
 	}
 	
@@ -75,7 +77,7 @@ sub calculate {
 sub isForbiddenToGive {		# returns true if prohibited
 	my ($from, $to, $href) = @_;
 
-	return grep { $_ } $href->{$from}->{$to};
+	return exists $href->{$from}->{$to};
 
 }
 
