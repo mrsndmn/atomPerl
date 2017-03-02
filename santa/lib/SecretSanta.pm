@@ -66,7 +66,8 @@ sub calculate {
 		} else {
 
 			$withGift{$to} = '1';
-			
+			$cantToGive{$to}{$from} = '1';
+
 			push @res, [$from, $to];
 	
 		}
