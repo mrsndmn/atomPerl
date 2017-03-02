@@ -63,7 +63,7 @@ sub calculate {
 												# 
 												# >> [Done] exited with code=0 in 164.007 seconds
 												#
-												# so, think, its better to create new array
+												# so, think, its better to create new hash
 			}
 			
 			$cantToGive{$to}->{$from} = 1;
