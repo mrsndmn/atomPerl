@@ -60,6 +60,9 @@ sub calculate {
 			
 			foreach my $frm (@names) {			# its forbidden to give more than 1 gift to 1 person
 				$cantToGive{$frm}->{$to} = 1;	# but that is very slowly
+												# 
+												# >> [Done] exited with code=0 in 164.007 seconds
+												#
 												# so, think, its better to create new array
 			}
 			
