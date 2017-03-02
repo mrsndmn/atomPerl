@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 #use warnings;
 use DDP;
-use List::Util qw(any);
+use List::Util qw(all);
 
 sub calculate {
 	my @members = @_;
@@ -53,8 +53,12 @@ sub calculate {
 		if ( exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
 			#check if we cant make any pair
 
-			if ( any { $cantToGive{$from}{$to} } @names  ) { 	# 'any' provided by List::Util
-					#say "ANY!!!";								# to see it really need
+
+			# too slow
+			# better to check if there 2 last has no gift and doesnt presented any gift
+
+			if ( all { exists $cantToGive{$from}{$_} } @names  ) { 	# 'all' provided by List::Util
+					#say "all!!!";								# to see it really need
 					return 	calculate(@members);				#if bad pairs, do it again
 			}
 			# и, да, эта вещь нужна, т к может получиться, что распределились пары для всех, кроме 2 людей(или даже 1)
