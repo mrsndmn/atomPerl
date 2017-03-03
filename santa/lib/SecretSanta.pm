@@ -53,6 +53,10 @@ sub calculate {
 		$toInd = int(rand(scalar(@names)));	#get random '$to'
 		$to = $names[$toInd];
 
+		# если нет подарка у последнего человека, то его бросили
+		# если у него есть подарок, то из остальны есть только 1 челшовек без подарка
+		# нужно узнать, может ли последний подарить этому подарок
+		# если да, то дарим и завершаем работу. если нет -- то перевызываем себя(мб exec??)
 		if (exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
 			
 			if ($index == $#names && ! exists $withGift{$index} ) { 
