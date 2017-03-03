@@ -73,7 +73,7 @@ sub calculate {
 							}			@names[0..$#names-1])) { #  => пересчет
 				
 					# tail goto
-					return &calculate;				#if bad distribution, do it again
+					goto &calculate;				#if bad distribution, do it again
 
 				} else { 
 					$to = first { !exists $withGift{$_} } @names;
