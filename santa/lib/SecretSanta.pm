@@ -4,7 +4,7 @@ use 5.010;
 use strict;
 use warnings;
 use DDP;
-
+use List::Util qw(first);
 
 sub calculate {
 	#say "CALCULATE";
@@ -47,6 +47,8 @@ sub calculate {
 	my %withGift;
 
 	for my $index (0..$#names) {
+		# say $index;
+		# say sort keys %withGift;
 
 		$from = $names[$index];
 
@@ -54,14 +56,30 @@ sub calculate {
 		$to = $names[$toInd];
 
 		# если нет подарка у последнего человека, то его бросили
-		# если у него есть подарок, то из остальны есть только 1 челшовек без подарка
+		# если у него есть подарок, то из остальны есть только 1 человек без подарка
 		# нужно узнать, может ли последний подарить этому подарок
 		# если да, то дарим и завершаем работу. если нет -- то перевызываем себя(мб exec??)
 		if (exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
 			
-			if ($index == $#names && ! exists $withGift{$index} ) { 
+			#say grep { ! exists $withGift{$_} &&  $cantToGive{$from}{$_} } @names;
 
-				return	calculate(@members);				#if bad distribution, do it again
+			if ($index == $#names) {
+				
+				if (!(exists $withGift{$from}) 				# 	если последнего обделили и он без подарка, то пиши пропало, некому ему дарить свой подарок
+												||			# 	или
+					(first 	{!exists $withGift{$_} 			#	если среди @names найдется без подарка 
+												&& 			#	и 
+							$cantToGive{$from}{$_} 			#	наш последний $from не может ему ничего подарить
+							}			@names[0..$#names-1])) { #  => пересчет
+				
+					# tail goto
+					goto &calculate;				#if bad distribution, do it again
+
+				} else { 
+					$to = first { !exists $withGift{$_} } @names;
+					push @res, [$from, $to];
+					return @res;
+				 }
 
 			}
 			
