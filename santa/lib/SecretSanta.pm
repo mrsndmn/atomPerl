@@ -38,7 +38,7 @@ sub calculate {
 		}
 	}
 	#p %cantToGive;	
-	# making random pairs, and adding each other to %cantToGive
+	# making random pairs, and adding each of them to %cantToGive
 
 	my ($from, $to, $toInd);
 
@@ -47,28 +47,20 @@ sub calculate {
 	my %withGift;
 
 	for my $index (0..$#names) {
-		#say $index;
-		#say $names[$index];
 
 		$from = $names[$index];
 
 		$toInd = int(rand(scalar(@names)));	#get random '$to'
 		$to = $names[$toInd];
 
-		if ( exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
+		if (exists $withGift{$to} || isForbiddenToGive($from, $to, \%cantToGive)) { 
 			
-			# 
-
-			if ($index == $#names && ! exists $withGift{$index} ) { # 
+			if ($index == $#names && ! exists $withGift{$index} ) { 
 
 				return	calculate(@members);				#if bad distribution, do it again
 
 			}
-			# и, да, эта вещь нужна, т к может получиться, что распределились пары для всех, кроме 2 людей(или даже 1)
-			# и тогда они не смогут друг другу подарить подарки
 			
-			# redo to get another random person
-			#say "REDO";
 			redo;
 
 		} else {
