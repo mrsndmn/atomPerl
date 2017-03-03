@@ -25,21 +25,25 @@ run(1, 1, 0) - печатает "0, -1\n"
 run(1, 1, 1) - печатает "No solution!\n"
 
 =cut
-run (-2, 0, 128);
 sub run {
     my ($a_value, $b_value, $c_value) = @_;
 
-    my $x1 = undef;
-    my $x2 = undef;
-    my $D=$b_value*$b_value - 4*$a_value*$c_value;
-    if ($a_value == 0 || $D < 0 ) {
-        print "No solution!\n";
-    } else{
-        $x1 = ( -$b_value + sqrt($D) ) / ( 2 * $a_value ) ; 
-        $x2 = ( -$b_value - sqrt($D) ) / ( 2 * $a_value ) ; 
-        print "$x1, $x2\n";    
-    }
+    if($a_value == 0){
+        print "No solution!\n"
+    } else {
 
+        my $x1 = undef;
+        my $x2 = undef;
+        my $D=$b_value*$b_value - 4*$a_value*$c_value;
+        if ( $D < 0 ) {
+            print "No solution!\n";
+        } else{
+            $x1 = ( -$b_value + sqrt($D) ) / ( 2 * $a_value ) ; 
+            $x2 = ( -$b_value - sqrt($D) ) / ( 2 * $a_value ) ; 
+            print "$x1, $x2\n";    
+        }
+
+    }
 }
 
 1;
