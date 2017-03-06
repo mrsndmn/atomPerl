@@ -37,9 +37,18 @@ use warnings;
 sub clone {
 	my $orig = shift;
 	my $cloned;
-	# ...
-	# deep clone algorith here
-	# ...
+	
+	if ($orig == undef) {
+		return undef;
+	} elsif (ref $orig eq 'SCALAR') {
+		
+	} elsif (ref $orig eq 'ARRAY') {
+		
+	} elsif (ref $orig eq 'HASH') {
+
+	} else { return undef }
+
+
 	return $cloned;
 }
 
