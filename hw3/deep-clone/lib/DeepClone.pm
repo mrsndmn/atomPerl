@@ -37,6 +37,7 @@ use warnings;
 sub clone {
 	my $orig = shift;
 	my $cloned;
+	
 	#say ref $orig;
 	if (! defined $orig){
 		return undef;
@@ -58,6 +59,7 @@ sub clone {
 		}
 
 	}
+
 
 	return $cloned;
 }
