@@ -37,9 +37,28 @@ use warnings;
 sub clone {
 	my $orig = shift;
 	my $cloned;
-	# ...
-	# deep clone algorith here
-	# ...
+	#say ref $orig;
+	if (! defined $orig){
+		return undef;
+	} elsif (ref $orig eq 'SCALAR') {
+		
+		$cloned = @{ [$orig] };
+
+	} elsif (ref $orig eq 'HASH') {
+
+		foreach my $k (keys %$orig) {
+			$$cloned{$k} = clone($$orig{$k})
+		}
+
+
+	} elsif (ref $orig eq 'ARRAY') {
+		
+		foreach my $elem (@$orig){
+			push @$cloned, clone($elem);
+		}
+
+	}
+
 	return $cloned;
 }
 
