@@ -4,6 +4,8 @@ use 5.010;
 use strict;
 use warnings;
 
+use DDP;
+
 =encoding UTF8
 
 =head1 SYNOPSIS
@@ -34,34 +36,71 @@ use warnings;
 
 =cut
 
+#   p clone (
+# [ 1, 2, 3, { a => 1, b => 2, c => [ qw/x y z/, sub {} ] } ]
+#  	);
 sub clone {
 	my $orig = shift;
+
+	my $recursionLevel = shift;		# when recursionLevel > 0 return CODEref else return undef
+	if (!defined $recursionLevel) {$recursionLevel = '0'}
+
 	my $cloned;
+
+	my $cl; 	# really my $cl
+	#p $orig;
 	
-	#say ref $orig;
-	if (! defined $orig){
+	if (!defined $orig) {
 		return undef;
-	} elsif (ref $orig eq 'SCALAR') {
-		
-		$cloned = @{ [$orig] };
-
 	} elsif (ref $orig eq 'HASH') {
-
+		#say 'hAsh';
+		my $val;
 		foreach my $k (keys %$orig) {
-			$$cloned{$k} = clone($$orig{$k})
-		}
+			$val = $$orig{$k};
+			if (defined $val && $val ne $orig) {
 
+				$cl = clone($$orig{$k}, $recursionLevel + 1);
+				if (ref $val eq 'CODE' || ref $cl eq 'CODE') {
+					if (!$recursionLevel){
+						return undef;
+					} else {
+						return sub {};
+					}
+				}
+
+				$$cloned{$k} = $cl
+
+			} else {
+				$$cloned{$k} = $$orig{$k};
+			}
+		}
 
 	} elsif (ref $orig eq 'ARRAY') {
-		
-		foreach my $elem (@$orig){
-			push @$cloned, clone($elem);
+		#say 'ARR';
+		foreach my $elem (@$orig){	
+			if ( defined $elem && $elem ne $orig){ 		# сделать массив ссылок и чекать их тупо, это неполная проверка на уикличные ссылки
+				$cl = clone($elem, $recursionLevel + 1 );
+				if (ref $elem eq 'CODE'|| ref $cl eq 'CODE') {
+					if (!$recursionLevel){
+						return undef;
+					} else {
+						return sub {};
+					}
+				}
+
+				push @$cloned, $cl;				
+			} else {
+				push @$cloned, $elem;				
+			}
 		}
 
+	} else {$cloned = $orig}
+
+	if (ref $cloned eq 'CODE') {
+		return undef;
+	} else {
+		return $cloned;
 	}
-
-
-	return $cloned;
 }
 
 1;
