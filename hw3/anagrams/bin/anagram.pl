@@ -25,7 +25,7 @@ use Data::Dumper;
 use lib "$FindBin::Bin/../lib";
 use Anagram;
 
-open(my $fh, '<', "$FindBin::Bin/../dict.1.txt") or die $!;
+open(my $fh, '<', "$FindBin::Bin/../dict.txt") or die $!;
 my @list = map {
 	my @v = split /\s+/, $_;
 	@v == 1 ? $v[0] : \@v;
