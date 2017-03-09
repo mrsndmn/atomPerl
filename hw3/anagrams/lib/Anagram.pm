@@ -67,7 +67,7 @@ sub anagram {
     for (my $i=0; $i < scalar (@$words_list); $i++){
         
         $word = $words_list->[$i];        
-        next if (any { isAnagram($word, decode ('UTF8', $_)) } keys %result);
+        next if (any { isAnagram($word,  $_) } keys %result);
         
         for (my $j=$i+1; $j < scalar(@$words_list); $j++){
 
@@ -76,12 +76,12 @@ sub anagram {
 
             if (isAnagram($word, $anagram)){
 
-                $key = first { isAnagram($anagram, decode ('UTF8', $_)) } keys %result;
+                $key = first { isAnagram($anagram, $_) } keys %result;
 
                 if (defined $key && none { (lc $anagram) eq $_ } @{$result{$key}}) {
                     push @{$result{$key}}, lc $anagram;
                } elsif (!defined $key) {
-                    push @{$result{encode ('utf8',lc $word)}}, lc $word, lc $anagram;                    
+                    push @{$result{lc $word}}, lc $word, lc $anagram;                    
                 }
                 
             }
@@ -95,7 +95,7 @@ sub anagram {
         if (scalar(@{$result{$key}} == 1)){
             delete $result{$key};
         } else{
-            @{$result{$key}} = map {encode ('utf8', $_)} sort @{$result{$key}};
+            @{$result{$key}} = sort @{$result{$key}};
         }
     }
 

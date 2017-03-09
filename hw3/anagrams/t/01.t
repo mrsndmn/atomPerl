@@ -22,7 +22,7 @@ use constant RESULT => "{'пятка' => ['пятак','пятка','тяпка'
 
 plan tests => 1;
 
-my $result = Anagram::anagram([qw(пятка слиток пятак ЛиСток стул ПяТаК тяпка столик слиток)]);
+my $result = Anagram::anagram([qw(пятка слиток пятак ЛиСток стул ПяТаК тяпка столик слиток окошко шпонка)]);
 my $dump = Data::Dumper->new([$result])->Purity(1)->Terse(1)->Indent(0)->Sortkeys(1);
 
 is($dump->Dump, RESULT, "example");
