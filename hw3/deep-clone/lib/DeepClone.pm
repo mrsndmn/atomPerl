@@ -6,6 +6,8 @@ use warnings;
 
 use DDP;
 
+use Devel::Peek;
+
 =encoding UTF8
 
 =head1 SYNOPSIS
