@@ -50,11 +50,7 @@ anagram(['пятак', 'ЛиСток', 'пятка', 'стул', 'ПяТаК', '
 =cut
 
 $, = ', ';
-# my $k = "�";
-# $k = decode('utf8', $k);
-# say $k;
-# say "\x{fffd}";
-# Dump $k;
+
 #anagram (['ЛиСток', 'слиток']);
 
 sub anagram {
@@ -66,22 +62,23 @@ sub anagram {
 
     for (my $i=0; $i < scalar (@$words_list); $i++){
         
-        $word = $words_list->[$i];        
+        $word = lc $words_list->[$i];        
         next if (any { isAnagram($word, decode ('UTF8', $_)) } keys %result);
         
         for (my $j=$i+1; $j < scalar(@$words_list); $j++){
 
-            $anagram = $words_list->[$j];
-            #say $word, $anagram;
+            $anagram = lc $words_list->[$j];
+            next if $word eq $anagram;
+            #say $word, $anagram
 
             if (isAnagram($word, $anagram)){
 
                 $key = first { isAnagram($anagram, decode ('UTF8', $_)) } keys %result;
 
-                if (defined $key && none { (lc $anagram) eq $_ } @{$result{$key}}) {
-                    push @{$result{$key}}, lc $anagram;
+                if (defined $key && none { $anagram eq $_ } @{$result{$key}}) {
+                    push @{$result{$key}}, $anagram;
                } elsif (!defined $key) {
-                    push @{$result{encode ('utf8',lc $word)}}, lc $word, lc $anagram;                    
+                    push @{$result{encode ('utf8', $word)}}, $word, $anagram;                    
                 }
                 
             }
@@ -109,7 +106,7 @@ sub isAnagram {
 
     return (
         length ($word) == length ($anagram) &&
-        all {$word =~ /$_/i == $anagram =~ /$_/i} split //, $anagram
+        all {$word =~ s/$_//i} split //, $anagram
         );
 
 } 
