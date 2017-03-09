@@ -94,7 +94,7 @@ sub anagram {
         }
     }
 
-    p %result;
+    #p %result;
     return \%result;
 }
 
