@@ -6,8 +6,6 @@ use warnings;
 
 use DDP;
 
-use Devel::Peek;
-
 =encoding UTF8
 
 =head1 SYNOPSIS
@@ -37,16 +35,20 @@ use Devel::Peek;
 Элементами ссылок на массив или хеш, не могут быть ссылки на массивы и хеши исходной структуры данных.
 
 =cut
+# my $CYCLE_ARRAY = [ 1, 2, 3 ];
+# $CYCLE_ARRAY->[4] = $CYCLE_ARRAY;
+# $CYCLE_ARRAY->[5] = $CYCLE_ARRAY;
 
-#   p clone (
-# [ 1, 2, 3, { a => 1, b => 2, c => [ qw/x y z/, sub {} ] } ]
-#  	);
+ #p clone ( $CYCLE_ARRAY	);
 sub clone {
 	my $orig = shift;
 
 	my $recursionLevel = shift;		# when recursionLevel > 0 return CODEref else return undef
 	if (!defined $recursionLevel) {$recursionLevel = '0'}
 
+	my $refs = shift;
+	#p $refs;
+	
 	my $cloned;
 
 	my $cl; 	# really my $cl
@@ -59,9 +61,9 @@ sub clone {
 		my $val;
 		foreach my $k (keys %$orig) {
 			$val = $$orig{$k};
-			if (defined $val && $val ne $orig) {
-
-				$cl = clone($$orig{$k}, $recursionLevel + 1);
+			if (defined $val && ! exists $refs->{$val}) {
+				$refs->{$orig} = 1;						
+				$cl = clone($$orig{$k}, $recursionLevel + 1, \%$refs);
 				if (ref $val eq 'CODE' || ref $cl eq 'CODE') {
 					if (!$recursionLevel){
 						return undef;
@@ -79,11 +81,14 @@ sub clone {
 
 	} elsif (ref $orig eq 'ARRAY') {
 		#say 'ARR';
+
 		foreach my $elem (@$orig){	
-			if ( defined $elem && $elem ne $orig){ 		# сделать массив ссылок и чекать их тупо, это неполная проверка на уикличные ссылки
-				$cl = clone($elem, $recursionLevel + 1 );
+			if ( defined $elem && ! exists $refs->{$elem}){ 	
+		
+				$refs->{$orig} = 1;						
+				$cl = clone($elem, $recursionLevel + 1, \%$refs );
 				if (ref $elem eq 'CODE'|| ref $cl eq 'CODE') {
-					if (!$recursionLevel){
+					if (!$recursionLevel) {
 						return undef;
 					} else {
 						return sub {};
