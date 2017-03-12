@@ -10,9 +10,6 @@ use List::Util qw(all first none any);
 use Devel::Peek;
 use Encode qw(encode decode);
 
-BEGIN {
-    binmode(STDOUT,':utf8');
-}
 
 =encoding UTF8
 

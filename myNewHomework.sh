@@ -1,10 +1,17 @@
  #!/bin/bash
 
 #echo $1;
+sample=$1
+# while [$sample = "\n"]
+#     do  
+#     echo "Print sample:"
+#     read $sample
+#     echo "$sample"
+#     done
 
-echo "Копирование";
+echo "Копирование"
 
-list=`ls ./../Technosfera-perl/homeworks/ | grep ^$1`
+list=`ls ./../Technosfera-perl/homeworks/ | grep ^$sample`
 
 echo -e "\033[1;32m$list\033[0m"
 
