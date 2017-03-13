@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use Date::Calc qw(Delta_DHMS Date_to_Time);
+
+#use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
 
@@ -56,7 +57,7 @@ sub parse_file {
     push @{$result->{$ip}}, {%+};
 
     # save here 1 request time
-    $result->{'total'}->{'avg'} = [$+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second}] if ($. == 1);
+    #$result->{'total'}->{'avg'} = [$+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second}] if ($. == 1);
     
     #total
     
@@ -65,9 +66,6 @@ sub parse_file {
 
     if (eof($fd)) {
         $result->{'total'}->{'count'} = $.;
-        $time = Date_to_Time(Delta_DHMS(@{$result->{'total'}->{'avg'}}, # first request time
-                                        $+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second} # second request time
-                                      ));
         $result->{'total'}->{'avg'} = $./$time;
     }
 
