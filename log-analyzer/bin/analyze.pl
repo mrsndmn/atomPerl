@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-
+use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
 
@@ -25,11 +25,12 @@ sub parse_file {
 
     my $result;
     my $ip;
+    my $time;
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
     while (my $log_line = <$fd>) {
     #chomp $log_line;
     
-    say $log_line if (not $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
+    $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
                         \[ 
                              (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
                              (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
@@ -38,7 +39,7 @@ sub parse_file {
                         
                         \"(?:   (?<method>\w+) \s*
                                 (?<URI>.+)\s*
-                                (?<proto>\S+?)
+                                (?<protocol>\S+?)
                         )\" \s*
                         
                         (?<status>\d{3}) \s*
@@ -46,29 +47,40 @@ sub parse_file {
                         \"(?<refferer>.*?)\" \s*
                         \"(?<userAgent>.*?)\" \s*
                         \"(?<ratio>.*?)\"
-                        /x);
+                        /x;
     
     #privetik)))) =*** lublu tebya)))  \andrushke i sane vseh blag, schastya,zdorovya\
 
     $ip = $+{'ip'};
-    #say $ip;
 
-    $result->{$ip} = [];
-    push @{$result->{$ip}}, \{%+};
+    push @{$result->{$ip}}, {%+};
 
+    # save here 1 request time
+    $result->{'total'}->{'avg'} = [$+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second}] if ($. == 1);
+    
     #total
-    $result->{'total'}->{'count'} += 1;
+    
+    $result->{'total'}->{'data'} += $+{'bytes'};
     $result->{'total'}->{"data_@{[$+{'status'}]}"} += $+{'bytes'};
+
+    if (eof($fd)) {
+        $result->{'total'}->{'count'} = $.;
+        $time = Date_to_Time(Delta_DHMS(@{$result->{'total'}->{'avg'}}, # first request time
+                                        $+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second} # second request time
+                                      ));
+        $result->{'total'}->{'avg'} = $./$time;
+    }
 
     }
     close $fd;
     
     p $result->{'total'};
-    for (keys %$result) {
-        if ($_ ne 'total' && scalar @{($result->{$_})} > 1){
-            p $result->{$_};
-        }
-    }
+    #p $result;
+    # for (keys %$result) {
+    #     if ($_ ne 'total' && scalar @{($result->{$_})} > 1){
+    #         #p $result->{$_};
+    #     }
+    # }
 
     # you can put your code here, a mogu i ne put   /ahahah/ 
 
@@ -78,6 +90,17 @@ sub parse_file {
 
 sub report {
     my $result = shift;
+    my @dataCode = qw(data data_200 data_301 data_302 data_400 data_403 data_404 data_408 data_414 data_499 data_500);
+    # head
+    say join "\t", qw(IP count avg), @dataCode;
+
+    # total
+    print "total\n";
+
+
+    # requests
+
+
 
     # you can put your code here
 
