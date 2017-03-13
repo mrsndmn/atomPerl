@@ -23,3 +23,4 @@ read item
     *) echo -e "Ok, bye\n"
         ;;
 esac
+

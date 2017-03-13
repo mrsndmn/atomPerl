@@ -20,39 +20,58 @@ sub parse_file {
     my $file = shift;
 
     my %total;
-    my %log;
+
     # you can put your code here
 
     my $result;
+    my $ip;
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
     while (my $log_line = <$fd>) {
-
-    $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
+    #chomp $log_line;
+    
+    say $log_line if (not $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
                         \[ 
                              (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
                              (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
                              (?<offset>[\-\+].{4})
                         \] \s*
                         
-                        \"(?:   (?<method>\w*) \s*
-                                (?<URI>\S*?)\s*
-                                (?<proto>\S*?)
-                                    )\" \s*
+                        \"(?:   (?<method>\w+) \s*
+                                (?<URI>.+)\s*
+                                (?<proto>\S+?)
+                        )\" \s*
+                        
                         (?<status>\d{3}) \s*
-                        (?<bytes>\d*) \s*
+                        (?<bytes>\d+) \s*
                         \"(?<refferer>.*?)\" \s*
                         \"(?<userAgent>.*?)\" \s*
-                        \"(?<ratio>.+?)\"
-                        /x;
+                        \"(?<ratio>.*?)\"
+                        /x);
     
-    
+    #privetik)))) =*** lublu tebya)))  \andrushke i sane vseh blag, schastya,zdorovya\
 
+    $ip = $+{'ip'};
+    #say $ip;
+
+    $result->{$ip} = [];
+    push @{$result->{$ip}}, \{%+};
+
+    #total
+    $result->{'total'}->{'count'} += 1;
+    $result->{'total'}->{"data_@{[$+{'status'}]}"} += $+{'bytes'};
 
     }
     close $fd;
+    
+    p $result->{'total'};
+    for (keys %$result) {
+        if ($_ ne 'total' && scalar @{($result->{$_})} > 1){
+            p $result->{$_};
+        }
+    }
 
+    # you can put your code here, a mogu i ne put   /ahahah/ 
 
-    # you can put your code here
 
     return $result;
 }

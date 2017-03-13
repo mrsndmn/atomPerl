@@ -8,7 +8,8 @@ sub test_bin {
     my ($name, $output) = @_;
 
     system("$^X bin/analyze.pl access.log.bz2 >output.tmp 2>stderr.tmp");
-
+   # <<<<<<<<<<<<<<<<<<<<<<<<<<<3 #
+   
     my $real_output;
     {
         local $/ = undef;
