@@ -53,7 +53,7 @@ sub parse_file {
                             \"(?<ratio>.*?)\"
                             /x;
         
-        #privetik)))) =*** lublu tebya)))  \andrushke i sane vseh blag, schastya,zdorovya\
+        
 
         $ip = $+{'ip'};
         
