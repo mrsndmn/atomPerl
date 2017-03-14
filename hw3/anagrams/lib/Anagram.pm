@@ -6,8 +6,8 @@ use warnings;
 
 use DDP;
 #use utf8;
-use List::Util qw(all first none any);
-use Devel::Peek;
+use List::Util qw(all);
+#use Devel::Peek;
 use Encode qw(encode decode);
 
 =encoding UTF8
