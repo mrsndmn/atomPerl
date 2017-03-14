@@ -24,15 +24,18 @@ exit;
 sub parse_file {
     my $file = shift;
 
-    my %total;
-
     # you can put your code here
 
     my $result;
     my ($ip, $ratio);
+    
     $result->{'requests'} = {};
+    $result->{'total'} = {};    
+
     my $req = $result->{'requests'};
-    $result->{'total'}->{'time'} = -1;    
+    my $total = $result->{'total'};
+    
+    $total->{'time'} = -1;    
 
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
 
@@ -81,20 +84,20 @@ sub parse_file {
       
         #total
         
-        $result->{'total'}->{'data'} += $+{'bytes'} * $ratio;
-        $result->{'total'}->{"data_@{[$+{'status'}]}"} += $+{'bytes'} * $ratio;
+        $total->{'data'} += $+{'bytes'} * $ratio;
+        $total->{"data_@{[$+{'status'}]}"} += $+{'bytes'} * $ratio;
 
-        if($result->{'total'}->{'time'} != $+{'minute'}) { # counting minutes, with any request
-            $result->{'total'}->{'countMinutes'} += 1;
-            $result->{'total'}->{'time'} = $+{'minute'};
+        if($total->{'time'} != $+{'minute'}) { # counting minutes, with any request
+            $total->{'countMinutes'} += 1;
+            $total->{'time'} = $+{'minute'};
         }
 
         if (eof($fd)) {
-            $result->{'total'}->{'count'} = $.;
+            $total->{'count'} = $.;
             # опять буду грешить на тест, т к не вижу здесь ошибки
             # в тесте могло получиться больше, если там рассчет был такой: общее среднее = сумме средних за каждую минуту
             # но это маловероятно, на самом деле. не знаю, что у меня не так тут((
-            $result->{'total'}->{'avg'} = sprintf("%.2f", $./$result->{'total'}->{'countMinutes'});
+            $total->{'avg'} = sprintf("%.2f", $./$total->{'countMinutes'});
         }
         
 
@@ -112,35 +115,36 @@ sub parse_file {
 
 sub report {
     my $result = shift;
+    
+    my $total = $result->{'total'};
+    my $req = $result->{'requests'};
+    my $ip;
+    
     # head
     say join "\t", qw(IP count avg), @dataCode;
 
     # total
     print "total\t";
-    say join "\t", @{$result->{'total'}}{qw(count avg)}, map {round($_ / 1024)} @{$result->{'total'}}{@dataCode};
+    say join "\t", @{$total}{qw(count avg)}, map {round($_ / 1024)} @{$total}{@dataCode};
+
+
+    #requests
 
     # еще получить первые 10 я снаачала думал, получится с помощью grep
     # но там не работал $., а свой счетчик было неохота вводить (сделал с помощью среза, но получилось нечитаемо)
     # еще вариант(мне тоже не нравится, но новый массив делать неохота):
-    my $req = $result->{'requests'};
-    my $ip;
-
     say join "\n", 
             map {   $ip = $_;
-                    join "\t", $ip, (map { $req->{$ip}->{$_} }  qw(count avg)),
-                                     (map {    (exists($req->{$ip}->{$_})) ?
-                                                round($req->{$ip}->{$_} / 1024)
-                                                                            :
-                                                                0 
-                                    } @dataCode)
+                    join "\t", $ip, 
+                                (map { $req->{$ip}->{$_} }  qw(count avg)),
+                                (map {    (exists($req->{$ip}->{$_})) ?
+                                                                        round($req->{$ip}->{$_} / 1024)
+                                                                      :
+                                                                        0 
+                                    } @dataCode
+                                )
                 } @{[]}[0..9] = sort { $req->{$b}->{'count'} 
                                                          <=> 
                                     $req->{$a}->{'count'} }    keys %{$req};
-
-    # requests
-
-
-
-    # you can put your code here
 
 }

@@ -1,2 +1,0 @@
-Argument "-" isn't numeric in division (/) at bin/analyze.pl line 77, <$fd> line 6.
-Illegal division by zero at bin/analyze.pl line 77, <$fd> line 6.
