@@ -26,8 +26,7 @@ sub parse_file {
 
     my $result;
     my $ip;
-    my %tmp;
-    $tmp{'time'} = -1;
+    
 
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
 
@@ -93,10 +92,10 @@ sub parse_file {
     #суммируем для кадого ip data'ы и считаем avg
     
     for (keys %{$result->{'requests'}}) {
-            $result->{$_}->{avg} = sprintf("%.2f", $result->{'requests'}->{$ip}->{'count'} / $result->{'requests'}->{$_}->{'countMinutes'});
+            $result->{'requests'}->{$_}->{'avg'} = sprintf("%.2f", $result->{'requests'}->{$_}->{'count'} / $result->{'requests'}->{$_}->{'countMinutes'});
     }
 
-    #p $result;    
+    p $result;    
 
     return $result;
 }
