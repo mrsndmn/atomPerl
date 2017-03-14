@@ -12,6 +12,7 @@ use Encode qw(encode decode);
 
 =encoding UTF8
 
+
     =head1 SYNOPSIS
 
     Поиск анаграмм
