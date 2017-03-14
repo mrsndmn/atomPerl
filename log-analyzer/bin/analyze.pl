@@ -26,75 +26,107 @@ sub parse_file {
 
     my $result;
     my $ip;
-    my $time;
+    my %tmp;
+    $tmp{'time'} = -1;
+
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
+
     while (my $log_line = <$fd>) {
-    #chomp $log_line;
-    
-    $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
-                        \[ 
-                             (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
-                             (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
-                             (?<offset>[\-\+].{4})
-                        \] \s*
-                        
-                        \"(?:   (?<method>\w+) \s*
-                                (?<URI>.+)\s*
-                                (?<protocol>\S+?)
-                        )\" \s*
-                        
-                        (?<status>\d{3}) \s*
-                        (?<bytes>\d+) \s*
-                        \"(?<refferer>.*?)\" \s*
-                        \"(?<userAgent>.*?)\" \s*
-                        \"(?<ratio>.*?)\"
-                        /x;
-    
-    #privetik)))) =*** lublu tebya)))  \andrushke i sane vseh blag, schastya,zdorovya\
+        #chomp $log_line; # в общем-то, регулярка все равно эту строчку обработает, но для красоты можно, хотя лишенее действие
 
-    $ip = $+{'ip'};
+        # знаю, что парсинг излишний, но вдруг еще что-нибудь понадобится, а туту все так красиво уже есть
+        $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
+                            \[ 
+                                (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
+                                (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
+                                (?<offset>[\-\+].{4})
+                            \] \s*
+                            
+                            \"(?:   (?<method>\w+) \s*
+                                    (?<URI>.+)\s*
+                                    (?<protocol>\S+?)
+                            )\" \s*
+                            
+                            (?<status>\d{3}) \s*
+                            (?<bytes>\d+) \s*
+                            \"(?<refferer>.*?)\" \s*
+                            \"(?<userAgent>.*?)\" \s*
+                            \"(?<ratio>.*?)\"
+                            /x;
+        
+        #privetik)))) =*** lublu tebya)))  \andrushke i sane vseh blag, schastya,zdorovya\
 
-    push @{$result->{$ip}}, {%+};
+        $ip = $+{'ip'};
+        
+        $result->{'requests'}->{$ip}->{'count'} += 1;                        
+        $result->{'requests'}->{$ip}->{'data'} += $+{'bytes'};        
+        $result->{'requests'}->{$ip}->{"data_@{[$+{'status'}]}"} += $+{'bytes'};
 
-    # save here 1 request time
-    #$result->{'total'}->{'avg'} = [$+{year}, $+{month}, $+{date}, $+{hour}, $+{minute}, $+{second}] if ($. == 1);
-    
-    #total
-    
-    $result->{'total'}->{'data'} += $+{'bytes'};
-    $result->{'total'}->{"data_@{[$+{'status'}]}"} += $+{'bytes'};
+        # ой, не нравится мне это
+        # кажется, за это наругаете
+        if (!exists $result->{'requests'}->{$ip}->{'time'} 
+                || $result->{'requests'}->{$ip}->{'time'} != $+{'minute'}) {
+            $result->{'requests'}->{$ip}->{'countMinutes'} += 1;
+            $result->{'requests'}->{$ip}->{'time'} = $+{'minute'};
+        }
 
-    if (eof($fd)) {
-        $result->{'total'}->{'count'} = $.;
-        $result->{'total'}->{'avg'} = $./$time;
-    }
+        
+        #total
+        
+        $result->{'total'}->{'data'} += $+{'bytes'};
+        $result->{'total'}->{"data_@{[$+{'status'}]}"} += $+{'bytes'};
+
+        if(!exists $result->{'total'}->{'time'} || $result->{'total'}->{'time'} != $+{'minute'}) { # counting minutes, with any request
+            $result->{'total'}->{'time'} = $+{'minute'};
+            $result->{'total'}->{'countMinutes'} += 1;
+        }
+
+        if (eof($fd)) {
+            $result->{'total'}->{'count'} = $.;
+            $result->{'total'}->{'avg'} = sprintf("%.2f", $./$result->{'total'}->{'countMinutes'});
+        }
+        
 
     }
     close $fd;
     
-    p $result->{'total'};
-    #p $result;
-    # for (keys %$result) {
-    #     if ($_ ne 'total' && scalar @{($result->{$_})} > 1){
-    #         #p $result->{$_};
-    #     }
-    # }
+    #суммируем для кадого ip data'ы и считаем avg
+    
+    for (keys %{$result->{'requests'}}) {
+            $result->{$_}->{avg} = sprintf("%.2f", $result->{'requests'}->{$ip}->{'count'} / $result->{'requests'}->{$_}->{'countMinutes'});
+    }
 
-    # you can put your code here, a mogu i ne put   /ahahah/ 
-
+    #p $result;    
 
     return $result;
 }
 
 sub report {
     my $result = shift;
-    my @dataCode = qw(data data_200 data_301 data_302 data_400 data_403 data_404 data_408 data_414 data_499 data_500);
+    my @dataCode = qw(count avg data data_200 data_301 data_302 data_400 data_403 data_404 data_408 data_414 data_499 data_500);
     # head
-    say join "\t", qw(IP count avg), @dataCode;
+    say join "\t", qw(IP), @dataCode;
 
     # total
-    print "total\n";
+    print "total\t";
+    say join "\t", @{$result->{'total'}}{@dataCode};
 
+    # еще получить первые 10 я снаачала думал, получится с помощью grep
+    # но там не работал $., а свой счетчик было неохота вводить (сделал с помощью среза, но получилось нечитаемо)
+    # еще вариант(мне тоже не нравится, но новый массив делать неохота):
+    my $req = $result->{'requests'};
+    my $ip;
+
+    say join "\n", 
+            map {   $ip = $_;
+                    join "\t", $ip, map {    exists($req->{$ip}->{$_})?
+                                                 $req->{$ip}->{$_} 
+                                                                :
+                                                                0 
+                                    } @dataCode
+                } @{[]}[0..9] = sort { $req->{$b}->{'count'} 
+                                                         <=> 
+                                    $req->{$a}->{'count'} }    keys %{$req};
 
     # requests
 
