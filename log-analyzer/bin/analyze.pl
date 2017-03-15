@@ -66,15 +66,15 @@ sub parse_file {
         } else {
              $ratio = $+{'ratio'}
         }
-        #say $ratio, ($+{'ratio'} eq '-');
+        
         $ip = $+{'ip'};
         
         $result->{'requests'}->{$ip}->{'count'} += 1;
         
         $req = $result->{'requests'}->{$ip};
 
-        ## dubug
-        #$req->{'myreq'} = $log_line;
+## dubug
+        #push @{$req->{'myreq'}},  $+{'hour'}.$+{'minute'};
 
         foreach ($req, $total) {
             $_->{'data'} += int($+{'bytes'} * $ratio) if ($+{'status'} == 200);
@@ -85,9 +85,8 @@ sub parse_file {
                     || $_->{'time'} ne $+{'hour'}.$+{'minute'}) {
                 $_->{'countMinutes'} += 1;
                 $_->{'time'} = $+{'hour'}.$+{'minute'};
-                
-                # проверил, он правильно считает минуты
-                #push @{$_->{'min'}}, $_->{'time'};
+##  debug              
+                push @{$_->{'min'}}, $_->{'time'};
             }
         }
 
@@ -100,8 +99,8 @@ sub parse_file {
 
     }
     close $fd;
-
-    #p $result->{'requests'};
+## debug
+    p $result->{'requests'}->{'68.51.312.236'};
 
     return $result;
 }
