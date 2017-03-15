@@ -6,7 +6,7 @@ use warnings;
 #use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
-use POSIX qw(round);
+#use POSIX qw(round);
 
 my $filepath = $ARGV[0];
 die "USAGE:\n$0 <log-file.bz2>\n"  unless $filepath;
@@ -27,7 +27,7 @@ sub parse_file {
     # you can put your code here
 
     my $result;
-    my ($ip, $ratio);
+    my ($ip, $ratio, $time);
     
     $result->{'requests'} = {};
     $result->{'total'} = {};    
@@ -35,7 +35,6 @@ sub parse_file {
     my $req = $result->{'requests'};
     my $total = $result->{'total'};
     
-    $total->{'time'} = -1;    
 
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
 
@@ -68,6 +67,8 @@ sub parse_file {
         }
         
         $ip = $+{'ip'};
+        $time = $+{'hour'}.$+{'minute'};
+        
         
         $result->{'requests'}->{$ip}->{'count'} += 1;
         
@@ -79,29 +80,28 @@ sub parse_file {
         foreach ($req, $total) {
             $_->{'data'} += int($+{'bytes'} * $ratio) if ($+{'status'} == 200);
             $_->{$+{'status'}} += $+{'bytes'};
-
-
-            if (!exists $_->{'time'} 
-                    || $_->{'time'} ne $+{'hour'}.$+{'minute'}) {
-                $_->{'countMinutes'} += 1;
-                $_->{'time'} = $+{'hour'}.$+{'minute'};
+            
+            if ( !(exists $_->{'time'}) || !(exists $_->{'time'}->{$time})) {
+                
+                $_->{'time'}->{$time} = $time;
+                $_->{'time'}->{'countMinutes'} += 1;
 ##  debug              
-                push @{$_->{'min'}}, $_->{'time'};
+                #push @{$_->{'min'}}, $_->{'time'};
             }
         }
 
 
         if (eof($fd)) {
             $total->{'count'} = $.;
-            $total->{'avg'} = sprintf("%.2f", $./$total->{'countMinutes'});
+            $total->{'avg'} = sprintf("%.2f", $./$total->{'time'}->{'countMinutes'});
         }
         
 
     }
     close $fd;
 ## debug
-    p $result->{'requests'}->{'68.51.312.236'};
-
+    #p $result->{'requests'}->{'68.51.312.236'};
+    #p $result->{'total'};
     return $result;
 }
 
@@ -112,7 +112,7 @@ sub report {
     my $ip;
 
      for (keys %{$req}) {
-            $req->{$_}->{'avg'} = sprintf("%.2f", $req->{$_}->{'count'} / $req->{$_}->{'countMinutes'});
+            $req->{$_}->{'avg'} = sprintf("%.2f", $req->{$_}->{'count'} / $req->{$_}->{'time'}->{'countMinutes'});
     }
     
     # head
