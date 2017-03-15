@@ -6,7 +6,7 @@ use warnings;
 #use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
-use POSIX qw(floor);
+use POSIX qw(floor round ceil);
 
 my $filepath = $ARGV[0];
 die "USAGE:\n$0 <log-file.bz2>\n"  unless $filepath;
@@ -35,14 +35,19 @@ sub parse_file {
     my $req = $result->{'requests'};
     my $total = $result->{'total'};
     
+    my %again;
 
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
 
     while (my $log_line = <$fd>) {
+        
+        # dublicated nodes
+        if (!exists $again{$log_line}){
+            $again{$log_line} = 1;
+        }   else {
+            next;
+        }
 
-        #say $log_line if ($. == 1774|| $. == 2126);
-
-        # знаю, что парсинг излишний, но вдруг еще что-нибудь понадобится, а туту все так красиво уже есть
         $log_line =~ m/     ^
                             (?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s
                             \[ 
@@ -78,8 +83,6 @@ sub parse_file {
         
         $req = $result->{'requests'}->{$ip};
 
-## dubug
-        #push @{$req->{'myreq'}},  $+{'hour'}.$+{'minute'};
 
         foreach ($req, $total) {
             $_->{'data'} += floor($+{'bytes'} * $ratio) if ($+{'status'} == 200);
@@ -89,8 +92,7 @@ sub parse_file {
                 
                 $_->{'time'}->{$time} = $time;
                 $_->{'time'}->{'countMinutes'} += 1;
-##  debug              
-                #push @{$_->{'min'}}, $_->{'time'};
+                
             }
         }
 
@@ -103,9 +105,6 @@ sub parse_file {
 
     }
     close $fd;
-## debug
-    #p $result->{'requests'}->{'68.51.312.236'};
-    #p $result->{'total'};
     return $result;
 }
 
@@ -128,7 +127,6 @@ sub report {
 
 
     #requests
-
     say join "\n", 
             map {   $ip = $_;
                     join "\t", $ip, 
