@@ -6,7 +6,7 @@ use warnings;
 #use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
-#use POSIX qw(round);
+use POSIX qw(round);
 
 my $filepath = $ARGV[0];
 die "USAGE:\n$0 <log-file.bz2>\n"  unless $filepath;
@@ -78,7 +78,7 @@ sub parse_file {
         #push @{$req->{'myreq'}},  $+{'hour'}.$+{'minute'};
 
         foreach ($req, $total) {
-            $_->{'data'} += int($+{'bytes'} * $ratio) if ($+{'status'} == 200);
+            $_->{'data'} += round($+{'bytes'} * $ratio) if ($+{'status'} == 200);
             $_->{$+{'status'}} += $+{'bytes'};
             
             if ( !(exists $_->{'time'}) || !(exists $_->{'time'}->{$time})) {
@@ -120,7 +120,7 @@ sub report {
 
     # total
     print "total\t";
-    say join "\t", @{$total}{qw(count avg)}, map {int($_ / 1024)} @{$total}{@dataCode};
+    say join "\t", @{$total}{qw(count avg)}, map {round($_ / 1024)} @{$total}{@dataCode};
 
 
     #requests
@@ -130,7 +130,7 @@ sub report {
                     join "\t", $ip, 
                                 (map { $req->{$ip}->{$_} }  qw(count avg)),
                                 (map {    (exists($req->{$ip}->{$_})) ?
-                                                                        int($req->{$ip}->{$_} / 1024)
+                                                                        round($req->{$ip}->{$_} / 1024)
                                                                       :
                                                                         0 
                                     } @dataCode
