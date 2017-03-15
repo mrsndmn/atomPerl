@@ -12,7 +12,7 @@ my $filepath = $ARGV[0];
 die "USAGE:\n$0 <log-file.bz2>\n"  unless $filepath;
 die "File '$filepath' not found\n" unless -f $filepath;
 
-my @dataCode = qw(data data_200 data_301 data_302 data_400 data_403 data_404 data_408 data_414 data_499 data_500);
+my @dataCode = qw(data 200 301 302 400 403 404 408 414 499 500);
 
 my $parsed_data = parse_file($filepath);
 report($parsed_data);
@@ -69,76 +69,69 @@ sub parse_file {
         #say $ratio, ($+{'ratio'} eq '-');
         $ip = $+{'ip'};
         
-        $req->{$ip}->{'count'} += 1;                        
-        $req->{$ip}->{'data'} += $+{'bytes'} * $ratio;        
-        $req->{$ip}->{"data_@{[$+{'status'}]}"} += $+{'bytes'} * $ratio;
-
-        # ой, не нравится мне это
-        # кажется, за это наругаете
-        # но вроде я правильно понял условие
-        if (!exists $req->{$ip}->{'time'} 
-                || $req->{$ip}->{'time'} != $+{'minute'}) {
-            $req->{$ip}->{'countMinutes'} += 1;
-            $req->{$ip}->{'time'} = $+{'minute'};
-        }
-      
-        #total
+        $result->{'requests'}->{$ip}->{'count'} += 1;
         
-        $total->{'data'} += $+{'bytes'} * $ratio;
-        $total->{"data_@{[$+{'status'}]}"} += $+{'bytes'} * $ratio;
+        $req = $result->{'requests'}->{$ip};
 
-        if($total->{'time'} != $+{'minute'}) { # counting minutes, with any request
-            $total->{'countMinutes'} += 1;
-            $total->{'time'} = $+{'minute'};
+        ## dubug
+        #$req->{'myreq'} = $log_line;
+
+        foreach ($req, $total) {
+            $_->{'data'} += int($+{'bytes'} * $ratio) if ($+{'status'} == 200);
+            $_->{$+{'status'}} += $+{'bytes'};
+
+
+            if (!exists $_->{'time'} 
+                    || $_->{'time'} ne $+{'hour'}.$+{'minute'}) {
+                $_->{'countMinutes'} += 1;
+                $_->{'time'} = $+{'hour'}.$+{'minute'};
+                
+                # проверил, он правильно считает минуты
+                #push @{$_->{'min'}}, $_->{'time'};
+            }
         }
+
 
         if (eof($fd)) {
             $total->{'count'} = $.;
-            # опять буду грешить на тест, т к не вижу здесь ошибки
-            # в тесте могло получиться больше, если там рассчет был такой: общее среднее = сумме средних за каждую минуту
-            # но это маловероятно, на самом деле. не знаю, что у меня не так тут((
             $total->{'avg'} = sprintf("%.2f", $./$total->{'countMinutes'});
         }
         
 
     }
     close $fd;
-    
-    for (keys %{$req}) {
-            $req->{$_}->{'avg'} = sprintf("%.2f", $req->{$_}->{'count'} / $req->{$_}->{'countMinutes'});
-    }
 
-    #p $result;    
+    #p $result->{'requests'};
 
     return $result;
 }
 
 sub report {
     my $result = shift;
-    
     my $total = $result->{'total'};
     my $req = $result->{'requests'};
     my $ip;
+
+     for (keys %{$req}) {
+            $req->{$_}->{'avg'} = sprintf("%.2f", $req->{$_}->{'count'} / $req->{$_}->{'countMinutes'});
+    }
     
     # head
     say join "\t", qw(IP count avg), @dataCode;
 
     # total
     print "total\t";
-    say join "\t", @{$total}{qw(count avg)}, map {round($_ / 1024)} @{$total}{@dataCode};
+    say join "\t", @{$total}{qw(count avg)}, map {int($_ / 1024)} @{$total}{@dataCode};
 
 
     #requests
 
-    # еще получить первые 10 я снаачала думал, получится с помощью grep
-    # но там не работал $., а свой счетчик было неохота вводить (сделал с помощью среза, но получилось нечитаемо)
-    # еще вариант(мне тоже не нравится, но новый массив делать неохота):
     say join "\n", 
             map {   $ip = $_;
                     join "\t", $ip, 
                                 (map { $req->{$ip}->{$_} }  qw(count avg)),
                                 (map {    (exists($req->{$ip}->{$_})) ?
-                                                                        round($req->{$ip}->{$_} / 1024)
+                                                                        int($req->{$ip}->{$_} / 1024)
                                                                       :
                                                                         0 
                                     } @dataCode
