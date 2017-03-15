@@ -58,9 +58,9 @@ sub parse_file {
                             
                             (?<status>\d{3}) \s
                             (?<bytes>\d+) \s
-                            \"(?<refferer>.*?)\" \s
-                            \"(?<userAgent>.*?)\" \s
-                            \"(?<ratio>.*?)\"
+                            \"(?<refferer>.+)\" \s
+                            \"(?<userAgent>.+)\" \s
+                            \"(?<ratio>.+?)\"
                             $
                             /x;
 
