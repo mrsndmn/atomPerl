@@ -40,26 +40,30 @@ sub parse_file {
 
     while (my $log_line = <$fd>) {
 
+        #say $log_line if ($. == 1774|| $. == 2126);
+
         # знаю, что парсинг излишний, но вдруг еще что-нибудь понадобится, а туту все так красиво уже есть
-        $log_line =~ m/(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
+        $log_line =~ m/     ^
+                            (?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s
                             \[ 
                                 (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
                                 (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
                                 (?<offset>[\-\+].{4})
-                            \] \s*
+                            \] \s
                             
-                            \"(?:   (?<method>\w+) \s*
-                                    (?<URI>.+)\s*
-                                    (?<protocol>\S+?)
-                            )\" \s*
+                            \"(?:   (?<method>\w+) \s
+                                    (?<URI>.+)\s?
+                                    (?<protocol>HTTP.*)?
+                            )\" \s
                             
-                            (?<status>\d{3}) \s*
-                            (?<bytes>\d+) \s*
-                            \"(?<refferer>.*?)\" \s*
-                            \"(?<userAgent>.*?)\" \s*
+                            (?<status>\d{3}) \s
+                            (?<bytes>\d+) \s
+                            \"(?<refferer>.*?)\" \s
+                            \"(?<userAgent>.*?)\" \s
                             \"(?<ratio>.*?)\"
+                            $
                             /x;
-        
+
         if ($+{'ratio'} eq '-') { 
             $ratio = 1 
         } else {
