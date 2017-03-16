@@ -6,7 +6,8 @@ use warnings;
 #use Date::Calc qw(Delta_DHMS Date_to_Time);
 use DDP;
 use 5.022;
-use POSIX qw(floor round ceil);
+use POSIX qw(floor);
+
 
 my $filepath = $ARGV[0];
 die "USAGE:\n$0 <log-file.bz2>\n"  unless $filepath;
@@ -23,8 +24,6 @@ exit;
 # 68.51.111.236 [03/Mar/2017:18:28:38 +0300] "GET /music/artists/Pink%20Floyd HTTP/1.1" 200 66477 "-" "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)" "6.51"
 sub parse_file {
     my $file = shift;
-
-    # you can put your code here
 
     my $result;
     my ($ip, $ratio, $time);
@@ -47,19 +46,20 @@ sub parse_file {
                                 (?<offset>[\-\+].{4})
                             \] \s
                             
-                            \"(?:   
-                                .*?
+                            \"(?:   (?<method>\w+) \s
+                                    (?<URI>.+?) \s?
+                                    (?<protocol>HTTP.+?)?
                             )\" \s
                             
                             (?<status>\d{3}) \s
                             (?<bytes>\d+) \s
-                            \"(?<refferer>.+)\" \s
-                            \"(?<userAgent>.+)\" \s
-                            \"(?<ratio>.+?)\"
+                            \"(?<refferer>.+?)\" \s
+                            \"(?<userAgent>.+?)\" \s
+                            \"(?<ratio> \- | \d+\.?\d* )\"
                             $
                             /x;
-        
-        
+
+        #if ($+{'ip'} eq '51.34.179.202' ) {say $log_line; p %+}
 
         if ($+{'ratio'} eq '-') { 
             $ratio = 1 
