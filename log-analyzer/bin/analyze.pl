@@ -34,19 +34,10 @@ sub parse_file {
 
     my $req = $result->{'requests'};
     my $total = $result->{'total'};
-    
-    my %again;
 
     open my $fd, "-|", "bunzip2 < $file" or die "Can't open '$file': $!";
 
     while (my $log_line = <$fd>) {
-        
-        # dublicated nodes
-        if (!exists $again{$log_line}){
-            $again{$log_line} = 1;
-        }   else {
-            next;
-        }
 
         $log_line =~ m/     ^
                             (?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s
@@ -56,9 +47,8 @@ sub parse_file {
                                 (?<offset>[\-\+].{4})
                             \] \s
                             
-                            \"(?:   (?<method>\w+) \s
-                                    (?<URI>.+)\s?
-                                    (?<protocol>HTTP.*)?
+                            \"(?:   
+                                .*?
                             )\" \s
                             
                             (?<status>\d{3}) \s
@@ -68,6 +58,8 @@ sub parse_file {
                             \"(?<ratio>.+?)\"
                             $
                             /x;
+        
+        
 
         if ($+{'ratio'} eq '-') { 
             $ratio = 1 
