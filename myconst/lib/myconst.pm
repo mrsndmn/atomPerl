@@ -18,12 +18,14 @@ our $VERSION = '1.00';
     
     $, = ', ';
 
+# блиииин, че-то 5 тест вообще все перевернул
+
  sub import {
     my $self = shift;
     my $caller = caller;
     
     my %wanted = @_;    
-    p %wanted;
+    #p %wanted;
 
     if (!scalar( keys %wanted ) ) {return;}
     say '%wanted not empty';
