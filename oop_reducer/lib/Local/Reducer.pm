@@ -5,7 +5,7 @@ package Local::Reducer;
 # class or self
 sub new {
     my ($class, %params) = @_;
-    
+    $params{'reduced'} = 0; # to avoid warnings
     return bless \%params, $class;
  }
  
@@ -16,13 +16,13 @@ sub reduce_n {
 
     for (1..$n) {
         # get next line
-        $line =  $self->{source}->next();  
 
+        $line =  $self->{'source'}->next();  
         # ф-я reduce будет определена в классах-наследниках, 
         #   в зависимости от их миссии по-разному будет обрабатывать $line          
-        $self->{reduced} = $self->reduce($line);
+        $self->{'reduced'} = $self->reduce($line);
     }   
-    return $self->{reduced};
+    return $self->{'reduced'};
 }
 
 sub reduce_all() {
@@ -30,16 +30,16 @@ sub reduce_all() {
 
     my $line;
 
-    while ( defined ($line =  $self->{source}->next()) ) {
+    while ( defined ($line =  $self->{'source'}->next()) ) {
 
-        $self->{reduced} = $self->reduce($line);
+        $self->{'reduced'} = $self->reduce($line);
     }   
-    return $self->{reduced};
+    return $self->{'reduced'};
 }
 
 sub reduced {
     my $self = shift;
-    $self->{reduced};
+    $self->{'reduced'};
 }
 
 =encoding utf8

@@ -1,5 +1,5 @@
 package Local::Reducer::Sum;
-{use parent Local::Reducer;
+use parent Local::Reducer;
 use feature "say";
 use strict;
 use warnings;
@@ -13,6 +13,4 @@ sub reduce {
 
 }
 
-
-}
 1;

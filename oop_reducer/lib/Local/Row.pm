@@ -10,7 +10,7 @@ sub new {
 
 sub get {
     my ($self, $name, $default) = @_;
-    my $line = $self->{str};
+    my $line = $self->{'str'};
     my $value = $self->parse($line, $name);
     (defined $value )? return $value : return $default;
 }

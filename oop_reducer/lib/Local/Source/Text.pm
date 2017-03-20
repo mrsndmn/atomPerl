@@ -6,7 +6,12 @@ use warnings;
 sub getLine {
     my $self = shift;
     my $line;
-    ($line, $self->{text}) = split m/\n/s, $self->{text}, 2;
+
+    if ( $self->{'text'} !~ /\w|\d/x) {
+        die "There is no more lines";
+    }
+
+    ($line, $self->{'text'}) = split m/\n/s, $self->{'text'}, 2;
     return $line;
 }
 
