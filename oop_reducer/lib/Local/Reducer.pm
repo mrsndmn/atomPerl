@@ -1,5 +1,5 @@
 package Local::Reducer;
-{   #use 5.022;
+    #use 5.022;
     use strict;
     use warnings;
 # class or self
@@ -62,4 +62,3 @@ our $VERSION = '1.00';
 
 
 1;
-}

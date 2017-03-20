@@ -1,8 +1,6 @@
-package Local::Row::Simple {
+package Local::Row::Simple;
 use parent Local::Row;
-use 5.022;
-use strict;
-use warnings;
+#use 5.022;
 
 sub parse {
     my ($self, $line, $name) = @_;
@@ -13,5 +11,4 @@ sub parse {
     return $value;
 }
 
-}
 1;

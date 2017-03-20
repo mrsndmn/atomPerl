@@ -1,4 +1,4 @@
-package Local::Row {
+package Local::Row;
 
 use strict;
 use warnings;
@@ -12,8 +12,9 @@ sub get {
     my ($self, $name, $default) = @_;
     my $line = $self->{'str'};
     my $value = $self->parse($line, $name);
-    (defined $value )? return $value : return $default;
+    
+    return $value if defined $value && $value =~ /\d+\.?\d*/ ;
+    return $default;
 }
 
-}
 1;

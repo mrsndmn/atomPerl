@@ -1,8 +1,6 @@
 package Local::Reducer::MaxDiff;
-{use parent Local::Reducer;
-use 5.022;
-use strict;
-use warnings;
+use parent Local::Reducer;
+#use 5.022;
 
 sub reduce {
     my ($self, $line) = @_;
@@ -16,9 +14,8 @@ sub reduce {
 
     #say $row->get($top,0), "+", $row->get($bottom,0);
     my $diff = $row->get($top,0) - $row->get($bottom,0);
-    say $diff." -- ".$self->{'reduced'};
+    #say $diff." -- ".$self->{'reduced'};
     ($diff > $self->{'reduced'})? return $diff : return $self->{'reduced'};
 }
 
-}
 1;

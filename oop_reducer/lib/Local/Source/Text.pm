@@ -1,20 +1,18 @@
 package Local::Source::Text;
-{use parent Local::Source;
-use strict;
-use warnings;
+use parent Local::Source;
+
 
 sub getLine {
     my $self = shift;
     my $line;
 
-    if ( $self->{'text'} !~ /\w|\d/x) {
-        die "There is no more lines";
+    if ( !defined $self->{'text'}) {
+        #print "\'@{[$self->{'text'}]}\'\n";
+        return undef;
     }
 
     ($line, $self->{'text'}) = split m/\n/s, $self->{'text'}, 2;
     return $line;
 }
 
-
-}
 1;
