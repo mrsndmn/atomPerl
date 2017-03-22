@@ -9,6 +9,8 @@ sub new {
     return bless \%params, $class;
  }
  
+
+
 sub reduce_n {
     my ($self, $n) =  @_;
 
