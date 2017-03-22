@@ -139,5 +139,4 @@ sub notValid {
     return (!defined $str) || ($str =~ m/^$ | ^\d | [@\'\"\\\/] /x);
 }
 
-}
 1;
