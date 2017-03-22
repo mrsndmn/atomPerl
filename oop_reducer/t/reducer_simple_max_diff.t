@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test::More tests => 6;
-use lib lib;
+
 use Local::Reducer::MaxDiff;
 use Local::Source::Text;
 use Local::Row::Simple;

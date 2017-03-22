@@ -18,7 +18,7 @@ read item
 
  case "$item" in
      y|Y)   echo "Копирование..."
-            cp -R ./../Technosfera-perl/homeworks/$1 ./
+            cp -R ./../Technosfera-perl/homeworks/$list ./
         ;;
     *) echo -e "Ok, bye\n"
         ;;

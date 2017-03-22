@@ -3,6 +3,10 @@ use 5.022;
 use warnings;
 
 use DDP;
+
+use strict;
+use warnings;
+
 =encoding utf8
 
 =head1 NAME
@@ -31,6 +35,7 @@ use DDP;
     print ZERO;             # 0
     print PI;               # 3.14
 =cut
+
 our $VERSION = '1.00';
     
     $, = ', ';
@@ -41,10 +46,9 @@ our $VERSION = '1.00';
     my $self = shift;
     my $caller = caller;
     
+
     my %wanted = @_;
     #warn p %wanted;
-
-
 
     return if (!scalar( keys %wanted ) );
     #say '%wanted not empty';
@@ -62,8 +66,7 @@ our $VERSION = '1.00';
 
             die "Bad arguments!\n" if (notValid($val));
 
-            foreach my $subname (keys %$val) {
-                
+            foreach my $subname (keys %$val) {                
                 die "Bad argument $subname\n" if (ref $val->{$subname} ne '' || notValid($subname));
 
                 ${"${caller}::"}{"EXPORT_TAGS"}->{'all'}->{$subname} = $subname;
@@ -128,12 +131,13 @@ our $VERSION = '1.00';
 
     }
     #require strict;
-    
+
  }
 
 sub notValid {
     my $str = shift;
     return (!defined $str) || ($str =~ m/^$ | ^\d | [@\'\"\\\/] /x);
-}        
+}
 
+}
 1;
