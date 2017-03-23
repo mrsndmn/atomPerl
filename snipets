@@ -1,11 +1,69 @@
-"base0": {
-		"prefix": "if",
-		"body": "if {\n\t$1\n}"
+ 	"more": {
+		"prefix": "usemore",
+		"body" : [
+				"use strict;", 
+				"use warnings;\n",
+				"use 5.022;",
+				"use DDP;"
+		],
+		"description": "use strict, warnings, DDP"
 	},
 
-	"base1": {
+	"list": {
+		"prefix": "list::Util",
+		"body" : ["use List::Util qw($0);"],
+		"description": "uses List::Util"
+	},
+	"oop": {
+		"prefix": "newClass",
+		"body" : [
+			"package $0;",
+			"",
+			"use strict;",
+			"use warnings;",
+			"",
+			"use 5.022",
+			"use DDP;",
+			"",
+			"sub new {",
+			"\t+my ($$class, %params) = shift;",
+			"\treturn bless \\%params, $$class;",
+			"}"
+		],
+		"description": "pckg, usesw, new()"
+	},
+
+	"ternar": {
+		"prefix": "?:;",
+		"body": "(${condition})? ${true} : ${false};",
+		"description": "(${condition})? ${true} : ${false}"
+	},
+
+	"perlSwitch":{
+		"prefix": "given",
+		"body": [
+			"given (${cond}) {",
+			"\twhen(${match}) {",
+			"\t\t$0",
+			"\t}"
+		]
+	},
+
+	"scalar": {
+		"prefix": "scalar",
+		"body": "scalar($arr)$0",
+		"description": "scalar(@arr) returns size of @arr"
+	},
+
+	"while": {
 		"prefix": "while",
-		"body": "while ($1) {\n\t$2\n}"
+		"body": "while($1) {\n\t$2\n}",
+		"description": "while cycle"
+	},
+
+	"base0": {
+		"prefix": "if",
+		"body": "if {\n\t$1\n}"
 	},
 
 	"base2": {
@@ -16,14 +74,4 @@
 	"base3": {
 		"prefix": "usews",
 		"body": "use 5.022;\nuse strict;\nuse warnings;"
-	},
-
-	"base4": {
-		"prefix": "newclass",
-		"body": "package $1;\n\nuse 5.022;\nuse strict;\nuse warnings;\n$2"
-	},
-
-	"base5": {
-		"prefix": "",
-		"body": ""
 	}
