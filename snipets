@@ -1,0 +1,29 @@
+"base0": {
+		"prefix": "if",
+		"body": "if {\n\t$1\n}"
+	},
+
+	"base1": {
+		"prefix": "while",
+		"body": "while ($1) {\n\t$2\n}"
+	},
+
+	"base2": {
+		"prefix": "for",
+		"body": "foreach my $1 ($2) {\n\t$3\n}"
+	},
+
+	"base3": {
+		"prefix": "usews",
+		"body": "use 5.022;\nuse strict;\nuse warnings;"
+	},
+
+	"base4": {
+		"prefix": "newclass",
+		"body": "package $1;\n\nuse 5.022;\nuse strict;\nuse warnings;\n$2"
+	},
+
+	"base5": {
+		"prefix": "",
+		"body": ""
+	}

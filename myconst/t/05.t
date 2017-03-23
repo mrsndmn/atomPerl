@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-
+use lib lib;
 use strict;
 use warnings;
 use Test::More tests => 26;
@@ -44,6 +44,7 @@ ok($@, "Missing constant does not exist");
 #####################################################
 
 #####################################################
+# №5
 $val = eval { bbb1::PI() };
 is($val, 3.14, "PI is correct");
 

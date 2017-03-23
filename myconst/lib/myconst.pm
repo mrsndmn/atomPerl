@@ -1,11 +1,10 @@
 package myconst;
 use 5.022;
 use warnings;
-
-use DDP;
-
 use strict;
-use warnings;
+
+#use DDP;
+
 
 =encoding utf8
 
@@ -38,61 +37,89 @@ use warnings;
 
 our $VERSION = '1.00';
     
-    $, = ', ';
-
-# блиииин, че-то 5 тест вообще все перевернул
+    #$, = ', ';
 
  sub import {
     my $self = shift;
     my $caller = caller;
+    my %wanted = @_;
+    #warn p %wanted;
+
+    return if (!scalar( keys %wanted ) );
+
+    my $exprtTgs = ${"${caller}::"}{"EXPORT_TAGS"};
+
+    no strict 'refs';
     
-    my %wanted = @_ if scalar(@_)>0;    
-    #p %wanted;
-
-    if (!scalar( keys %wanted ) ) {return;}
-    #say '%wanted not empty';
-
     while (scalar @_) {
         my $key = shift;
         my $val = shift;
         
-        if ( ref $key ne '' || notValid($key) ) {
-            die "Bad arguments!\n";
-        }
+        die "Bad arguments!\n" if ( ref $key ne '' || notValid($key) );
             
-        no strict 'refs';            
-        
         if (ref $val eq 'HASH') {
 
-            if (notValid($val)) {
-                die "Bad arguments!\n";                
-            }
+            die "Bad arguments!\n" if (notValid($val));
 
-            foreach my $subname (keys %$val) {
-                #say "2) ".$val, $subname, ref $subname;
-                
-                if (ref $val->{$subname} ne '' ||
-                             notValid($subname))    {
-                    die "Bad argument $subname\n";                
-                }
-                
-                *{"$caller::$subname"} = sub() {$val->{$subname}}
-            }
-        }
+            foreach my $subname (keys %$val) {                
+                die "Bad argument $subname\n" if (ref $val->{$subname} ne '' || notValid($subname));
 
-        elsif (ref $val eq '')  {
-            #say "3) ", $val;           
-            *{"$caller::$key"} = sub() {$val}
+                $exprtTgs->{'all'}->{$subname} = $subname;
+                $exprtTgs->{"$key"}->{$subname} = $subname;
+                *{"${caller}::${subname}"} = sub() {$val->{$subname}}
+            }
+        
+        } elsif (ref $val eq '')  {
+            $exprtTgs->{'all'}->{$key} = $key;
+
+            *{"${caller}::${key}"} = sub() {$val}
         } else {
             die "Bad argument $key\n";
         }
+
     }
-    require strict;        
+
+    # override other import          
+    *{"${caller}::import"} = sub() {
+
+        my $self = shift;
+        my %wanted;
+        my $exprtTgs = ${"${self}::"}{"EXPORT_TAGS"};
+        
+
+        foreach my $wanna (@_){
+            if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
+                #warn $tag;
+                die "Bad argument! $tag\n" if !exists $exprtTgs->{$tag};
+                my $tagHash = $exprtTgs->{"$tag"};
+                
+                foreach my $const (keys %{$tagHash}) {
+                    $wanted{$const} = $const;
+                }
+                last if $$tag eq 'all'; 
+            } else {
+                die "Bad arguments! $wanna \n" if ( ref $wanna ne '' || 
+                                                    !exists $exprtTgs->{'all'}->{"$wanna"});
+                #
+                $wanted{$wanna} = $wanna;
+            }
+        }
+
+        my $callerer = caller;
+
+        foreach my $subname (keys %wanted) {
+            *{"$callerer::$subname"} =  "$self::$subname";
+        }
+
+    };
+
+    require strict;
+
  }
 
 sub notValid {
     my $str = shift;
     return (!defined $str) || ($str =~ m/^$ | ^\d | [@\'\"\\\/] /x);
-
 }
+
 1;
