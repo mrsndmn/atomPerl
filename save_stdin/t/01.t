@@ -6,7 +6,9 @@ use Test::More tests => 26;
 #use IPC::Run qw/run start finish/;
 use IPC::Open3;
 use Data::Dumper;
-
+use DDP;
+use 5.022;
+$, = "::";
 my ($stdin, $stdout, $stderr) = ("","","");
 use Symbol 'gensym'; $stderr = gensym;
 my $buf;

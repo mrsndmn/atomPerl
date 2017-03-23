@@ -4,61 +4,67 @@ use strict;
 use warnings;
 use Getopt::Long qw(GetOptions);
 use Pod::Usage qw(pod2usage);
-use 5.022;
 use Data::Dumper;
 
 my ($needHelp, $fileName);
+my ($length, $count) = qw(0 0);
 
 GetOptions (
     "file=s" => \$fileName,
     'help|?' => \$needHelp
-) or pod2usage(-exitval => 0, -verbose => 1);
+) or pod2usage(1);
 
-pod2usage(2) if ($needHelp || !defined $fileName);
+ pod2usage(1) if ($needHelp || !defined $fileName);
 
 # die "No such file ${fileName}" if ( !(-e $fileName || -f $fileName || -r $fileName || !-z $fileName));
 
 local $SIG{'INT'} = \&secondChance;
 
-say $fileName;
-
-open (my $fh, "+>", $fileName) or die "Cant get fileHandler";
+open (my $fh, "+>:utf8", $fileName) or die "Cant get or create file";
 $fh->autoflush(1);
+
+# STDOUT autoflush
+$| = '1';
 
 die "Cannot interactive " if !is_interactive();
 
-say "Get ready";
+print STDOUT "Get ready\n";
 
 while(is_interactive()) {
     my $echo = <>;
-    if (!defined $echo){
-        say sastistic();
-    }
+    #Dumper($echo);
+    statistic ($echo);
     $SIG{'INT'} = \&secondChance;
-    
-    print $fh $echo;
+    print ($fh $echo);
 }
-my ($size, $length, $count) = qw(0 0 0);
 
-sub sastistic {
+sub statistic {
     my $str = shift;
     if (defined $str){
+        chomp($str);        
         $count++;
+        $length += length($str);
     } else {
+        exit if ($count == 0);
 
+        print (STDOUT (-s $fileName)."\n");    # size
+        print (STDOUT $count."\n");            # count
+        print (STDOUT sprintf "%d", $length/$count); # avg
         $fh->close();
+        exit;
     }
-
 }
 
 sub secondChance {
     print STDERR "Double Ctrl+C for exit";
-    $SIG{'INT'} = 'DEFAULT';   
+    $SIG{'INT'} = sub {
+        statistic();
+    };  
     return unless defined(<>);
 }
 
 sub is_interactive {
-return -t STDIN && -t STDOUT;
+    return -t STDIN && -t STDOUT;
 }
 
 __END__

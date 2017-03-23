@@ -1,4 +1,16 @@
 
+use utf8;
+use bytes;
+use Devel::Peek;
+$ascii = 'Lorem ipsum dolor sit amet';
+$unicode = 'Lørëm ípsüm dölör sît åmét';
+Dump($unicode);
+print "ASCII: " . length($ascii) . "\n";
+print "ASCII bytes: " . bytes::length($ascii) . "\n";
+print "Unicode: " . length($unicode) . "\n";
+print "Unicode bytes: " . bytes::length($unicode) . "\n"; 
+
+=cut
 use feature 'say';
 use DDP;
 $str = '185.168.176.199 [03/Mar/2017:18:32:44 +0300] "GET /music/search/03:22%20%D0%9D%D0%A0%D0%90%D0%9 HTTP" 414 458 "-" "-" "-"';
