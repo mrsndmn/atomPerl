@@ -1,39 +1,12 @@
+use strict;
+use warnings;
 
-use utf8;
-use bytes;
-use Devel::Peek;
-$ascii = 'Lorem ipsum dolor sit amet';
-$unicode = 'Lørëm ípsüm dölör sît åmét';
-Dump($unicode);
-print "ASCII: " . length($ascii) . "\n";
-print "ASCII bytes: " . bytes::length($ascii) . "\n";
-print "Unicode: " . length($unicode) . "\n";
-print "Unicode bytes: " . bytes::length($unicode) . "\n"; 
+use 5.022;
+use DDP;
+$| ="1";
+
 
 =cut
-use feature 'say';
-use DDP;
-$str = '185.168.176.199 [03/Mar/2017:18:32:44 +0300] "GET /music/search/03:22%20%D0%9D%D0%A0%D0%90%D0%9 HTTP" 414 458 "-" "-" "-"';
-$str =~ m/^(?<ip>(?:\d{1,3}\.){3} \d{1,3}) \s* 
-                            \[ 
-                                (?<date>\d\d) \/ (?<month>\w\w\w) \/ (?<year>\d{4}) \: 
-                                (?<hour>\d\d) \: (?<minute>\d\d) \: (?<second>\d\d) \s
-                                (?<offset>[\-\+].{4})
-                            \] \s*
-                            
-                            \"(?:   (?<method>\w+) \s*
-                                    (?<smthElse>.+)
-                            )\" \s*
-                            
-                            
-                            
-                            (?<status>\d{3}) \s*
-                            (?<bytes>\d+) \s*
-                            \"(?<refferer>.*?)\" \s*
-                            \"(?<userAgent>.*?)\" \s*
-                            \"(?<ratio>.*?)\"$
-                            /x;
-p %+;
 =======
 use 5.022;
 use strict;
