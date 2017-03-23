@@ -5,6 +5,11 @@ use warnings;
 use List::Util qw(any);
 use DDP;
 
+# сделал свой тест
+# было в идее сделать рандомный тест, который бы проверялся немногопоточным "умножателем"
+# но не хватает времени катострофически
+# может быть, попозже когда-нибудь
+
 sub mult {
     my ($mat_a, $mat_b, $max_child) = @_;
     my $res = [];
@@ -31,25 +36,27 @@ sub mult {
     my $avgCalculateCells = int( $cellsCount / $max_child );       
 
 
+    # WHOHANG i'm stupid
+
     my (@pids, @pipeRead);
-    my ($r, $w);            # parent
-    pipe ($r, $w);
+    
     for my $i (0..$max_child-1){
-        
+        my ($r, $w);            # parent
+        pipe ($r, $w);
         if (my $pid = fork()){
             
             push @pids, $pid;
             push @pipeRead, $r;
             
             close($w);
-            warn "parent".$i;
+            #warn "parent".$i;
 
         } else {                # child
             die "Cant fork" unless defined $pid;
             close($r);
             $w->autoflush(1);
 
-            warn "child.$i";
+            #warn "child.$i";
             my ($fromCell, $toCell); # each Cell number may be presented as 1, 2, 3 .. m*n or like this
                                                                             # [0][0], [0][1]  ... [1][0]... [m][n]
                                                                             # $Cell ~ [int($Cell / n)] [$Cell % n]
@@ -68,7 +75,7 @@ sub mult {
                 my $j =  $cell % $n ;   
 
                 foreach my $k (0..$pa-1) {
-                    $, = ", ";
+                    #$, = ", ";
                     #say $i, $j, $k, $mat_a->[$i]->[$k], $mat_b->[$k]->[$j];
                     $calculatedCells[$cell - $fromCell] += $mat_a->[$i]->[$k] * $mat_b->[$k]->[$j];
                 }
