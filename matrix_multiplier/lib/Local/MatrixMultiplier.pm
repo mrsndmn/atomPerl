@@ -32,9 +32,10 @@ sub mult {
 
 
     my (@pids, @pipeRead);
+    my ($r, $w);            # parent
+    pipe ($r, $w);
     for my $i (0..$max_child-1){
-        my ($r, $w);            # parent
-        pipe ($r, $w);
+        
         if (my $pid = fork()){
             
             push @pids, $pid;
@@ -77,7 +78,8 @@ sub mult {
             #p @calculatedCells;
             # waitpid !!!!!!!
             foreach (@calculatedCells){
-                print $w @calculatedCells;
+                #say $_;
+                print $w $_."\n";
             }
             close($w);
             exit;
@@ -85,15 +87,19 @@ sub mult {
     }
 
     # waitpid !!!!!!!
+    my $count = 0 ;
     foreach my $q (0..$#pids) {
         my $p = $pids[$q];
         my $r = shift @pipeRead;
-        p @pipeRead;
         while (<$r>) {
-            push @{$res}, @{[ @_ ]};
+            my $i = int($count / $n);
+            my $j = $count % $n;
+            chomp $_;
+            $res->[$i]->[$j] = $_;
+            $count++;
         }
+        waitpid ($p, 0); #?//        
         close($r);
-        waitpid ($p, 0);        #!!!        
     }
 
     # one line solution
