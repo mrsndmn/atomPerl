@@ -47,6 +47,8 @@ our $VERSION = '1.00';
 
     return if (!scalar( keys %wanted ) );
 
+    my $exprtTgs = ${"${caller}::"}{"EXPORT_TAGS"};
+
     no strict 'refs';
     
     while (scalar @_) {
@@ -62,13 +64,13 @@ our $VERSION = '1.00';
             foreach my $subname (keys %$val) {                
                 die "Bad argument $subname\n" if (ref $val->{$subname} ne '' || notValid($subname));
 
-                ${"${caller}::"}{"EXPORT_TAGS"}->{'all'}->{$subname} = $subname;
-                ${"${caller}::"}{"EXPORT_TAGS"}->{"$key"}->{$subname} = $subname;
+                $exprtTgs->{'all'}->{$subname} = $subname;
+                $exprtTgs->{"$key"}->{$subname} = $subname;
                 *{"${caller}::${subname}"} = sub() {$val->{$subname}}
             }
         
         } elsif (ref $val eq '')  {
-            ${"${caller}::"}{"EXPORT_TAGS"}->{'all'}->{$key} = $key;
+            $exprtTgs->{'all'}->{$key} = $key;
 
             *{"${caller}::${key}"} = sub() {$val}
         } else {
@@ -82,27 +84,27 @@ our $VERSION = '1.00';
 
         my $self = shift;
         my %wanted;
-        foreach my $wanna (@_){
+        my $exprtTgs = ${"${self}::"}{"EXPORT_TAGS"};
+        
 
+        foreach my $wanna (@_){
             if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
                 #warn $tag;
-                die "Bad argument! $tag\n" if !exists ${"${self}::"}{"EXPORT_TAGS"}->{$tag};
-                my $tagHash = ${"${self}::"}{"EXPORT_TAGS"}->{"$tag"};
+                die "Bad argument! $tag\n" if !exists $exprtTgs->{$tag};
+                my $tagHash = $exprtTgs->{"$tag"};
                 
                 foreach my $const (keys %{$tagHash}) {
                     $wanted{$const} = $const;
                 }
                 last if $$tag eq 'all'; 
-
             } else {
                 die "Bad arguments! $wanna \n" if ( ref $wanna ne '' || 
-                                                    !exists ${"${self}::"}{"EXPORT_TAGS"}->{'all'}->{"$wanna"});
+                                                    !exists $exprtTgs->{'all'}->{"$wanna"});
                 #
                 $wanted{$wanna} = $wanna;
             }
         }
 
-        my $val = shift;
         my $callerer = caller;
 
         foreach my $subname (keys %wanted) {
