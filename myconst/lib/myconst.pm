@@ -1,11 +1,10 @@
 package myconst;
 use 5.022;
 use warnings;
-
-use DDP;
-
 use strict;
-use warnings;
+
+#use DDP;
+
 
 =encoding utf8
 
@@ -38,21 +37,15 @@ use warnings;
 
 our $VERSION = '1.00';
     
-    $, = ', ';
-
-# блиииин, че-то 5 тест вообще все перевернул
+    #$, = ', ';
 
  sub import {
     my $self = shift;
     my $caller = caller;
-    
-
     my %wanted = @_;
     #warn p %wanted;
 
     return if (!scalar( keys %wanted ) );
-    #say '%wanted not empty';
-
 
     no strict 'refs';
     
@@ -71,12 +64,10 @@ our $VERSION = '1.00';
 
                 ${"${caller}::"}{"EXPORT_TAGS"}->{'all'}->{$subname} = $subname;
                 ${"${caller}::"}{"EXPORT_TAGS"}->{"$key"}->{$subname} = $subname;
-
                 *{"${caller}::${subname}"} = sub() {$val->{$subname}}
             }
         
-        }
-        elsif (ref $val eq '')  {
+        } elsif (ref $val eq '')  {
             ${"${caller}::"}{"EXPORT_TAGS"}->{'all'}->{$key} = $key;
 
             *{"${caller}::${key}"} = sub() {$val}
@@ -84,53 +75,43 @@ our $VERSION = '1.00';
             die "Bad argument $key\n";
         }
 
-        #warn p %{"${caller}::"};
-        # p %{"${caller}::"};
-        #p %{ ${"${caller}::"}{"EXPORT_TAGS"} };
     }
 
-    
-
-    # redefine other import          
+    # override other import          
     *{"${caller}::import"} = sub() {
-        # computing
-        #warn "!!!redefined import";
 
         my $self = shift;
         my %wanted;
-        foreach my $wanna (sort @_){             # дадада, валидная функция не может содержать :
-            warn $wanna;
+        foreach my $wanna (@_){
+
             if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
+                #warn $tag;
                 die "Bad argument! $tag\n" if !exists ${"${self}::"}{"EXPORT_TAGS"}->{$tag};
-                my $tagHash = ${"${self}::"}{"EXPORT_TAGS"}->{"$wanna"};
+                my $tagHash = ${"${self}::"}{"EXPORT_TAGS"}->{"$tag"};
                 
                 foreach my $const (keys %{$tagHash}) {
                     $wanted{$const} = $const;
                 }
+                last if $$tag eq 'all'; 
 
             } else {
                 die "Bad arguments! $wanna \n" if ( ref $wanna ne '' || 
-                                                    !exists ${"${self}::"}{"EXPORT_TAGS"}->{'all'}->{"$wanna"}
-                                                );
+                                                    !exists ${"${self}::"}{"EXPORT_TAGS"}->{'all'}->{"$wanna"});
                 #
                 $wanted{$wanna} = $wanna;
-
             }
         }
-        p %wanted;
 
         my $val = shift;
         my $callerer = caller;
 
         foreach my $subname (keys %wanted) {
-            
             *{"$callerer::$subname"} =  "$self::$subname";
-            #p %{"${callerer}::"};
-
         }
 
-    }
-    #require strict;
+    };
+
+    require strict;
 
  }
 
