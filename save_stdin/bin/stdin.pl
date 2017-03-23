@@ -18,8 +18,9 @@ pod2usage(2) if ($needHelp || !defined $fileName);
 
 # die "No such file ${fileName}" if ( !(-e $fileName || -f $fileName || -r $fileName || !-z $fileName));
 
+local $SIG{'INT'} = \&secondChance;
 
-$SIG{'INT'} = \&secondChance;
+say $fileName;
 
 open (my $fh, "+>", $fileName) or die "Cant get fileHandler";
 $fh->autoflush(1);
@@ -30,20 +31,30 @@ say "Get ready";
 
 while(is_interactive()) {
     my $echo = <>;
-    chop $echo;
-    say $echo;
+    if (!defined $echo){
+        say sastistic();
+    }
     $SIG{'INT'} = \&secondChance;
-    #Dump $SIG{'INT'};
-    print $fh, $echo;
+    
+    print $fh $echo;
 }
+my ($size, $length, $count) = qw(0 0 0);
 
-$fh->close();
+sub sastistic {
+    my $str = shift;
+    if (defined $str){
+        $count++;
+    } else {
 
+        $fh->close();
+    }
+
+}
 
 sub secondChance {
     print STDERR "Double Ctrl+C for exit";
     $SIG{'INT'} = 'DEFAULT';   
-    return unless defined(<>)
+    return unless defined(<>);
 }
 
 sub is_interactive {
