@@ -2,7 +2,7 @@
 use lib lib;
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 6;
 use_ok("Local::MatrixMultiplier");
 
 my $matrix_a = [
@@ -50,3 +50,21 @@ eval {
 };
 is(!$@, '', 'Wrong matrix');
 
+my $A = [
+    [1, 2, 3],
+    [4, 5, 6]
+];
+
+my $B = [
+    [7],
+    [8],
+    [9]
+];
+
+my $C = [
+    [50],
+    [122]
+];
+
+my $myMM = Local::MatrixMultiplier::mult($A, $B, 122);
+is_deeply($myMM, $C, 'My test ok');
