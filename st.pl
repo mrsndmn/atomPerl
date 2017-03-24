@@ -5,6 +5,9 @@ use 5.022;
 use DDP;
 $| ="1";
 
+my $i = 6;
+say $i >> 1;
+say $i >> 1;
 
 =cut
 =======
