@@ -6,18 +6,29 @@ use 5.010;
 use File::Basename;
 use File::Spec::Functions qw{catdir};
 use JSON::XS;
+use Encode qw(encode);
+# use JSON::XS::True;
+# use JSON::XS::False;
+
 no warnings 'experimental::smartmatch';
 
 sub mode2s {
-	# Тут был полезный код для распаковки численного представления прав доступа
-	# но какой-то злодей всё удалил.
+	
 }
 
 sub parse {
 	my $buf = shift;
-	
-	# Тут было готовое решение задачи, но выше упомянутый злодей добрался и
-	# сюда. Чтобы тесты заработали, вам предстоит написать всё заново.
+	my @buf = pack "b", $buf;
+	my $byte;
+	say join ", ",@buf;
+	my $op = map {chr($_)}(unpack "C", shift @buf);
+	say $op ," | ", @buf;
+	if ($op eq 'D') {
+		my $nameLenght = (unpack "n", shift @buf);
+		say $nameLenght;
+		
+	}
+
 }
 
 1;

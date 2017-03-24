@@ -1,0 +1,22 @@
+{"list" : [
+      {
+         "type" : "directory",
+         "name" : "Документы",
+         "mode" : {
+            "other" : {
+               "execute" : true,
+               "write" : false,
+               "read" : true
+            },
+            "group" : {
+               "execute" : true,
+               "write" : true,
+               "read" : true
+            },
+            "user" : {
+               "execute" : true,
+               "write" : true,
+               "read" : true
+            }
+         }
+}
