@@ -2,7 +2,7 @@ package myconst;
 use 5.022;
 use warnings;
 use strict;
-
+use List::Util qw(any);
 #use DDP;
 
 
@@ -42,14 +42,16 @@ our $VERSION = '1.00';
  sub import {
     my $self = shift;
     my $caller = caller;
+
+    return if (!scalar(@_));
+
+    die "invalid args" if (any { !defined($_) } @_ );
+    #say @_;
     my %wanted = @_;
-    #warn p %wanted;
-
-    return if (!scalar( keys %wanted ) );
-
-    my $exprtTgs = ${"${caller}::"}{"EXPORT_TAGS"};
 
     no strict 'refs';
+
+    my $exprtTgs = ${"${caller}::"}{"EXPORT_TAGS"};
     
     while (scalar @_) {
         my $key = shift;
