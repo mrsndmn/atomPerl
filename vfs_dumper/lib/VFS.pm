@@ -9,6 +9,7 @@ use JSON::XS;
 use Encode qw(encode decode);
 use Switch;
 use Devel::Peek;
+use DDP;
 
 # use JSON::XS::True;
 # use JSON::XS::False;
@@ -19,19 +20,16 @@ sub mode2s {
 	 	# Тут был полезный код для распаковки численного представления прав доступа
 		# но какой-то злодей всё удалил.
 		my $rights = shift;
-		
-		my $otherE = $rights % 2;	$rights = $rights>>1;
-		my $otherW = $rights % 2; 	$rights = $rights>>1;
-		my $otherR = $rights % 2; 	$rights = $rights>>1;
 
-		my $groupE = $rights % 2; 	$rights = $rights>>1;
-		my $groupW = $rights % 2; 	$rights = $rights>>1;
-		my $groupR = $rights % 2; 	$rights = $rights>>1;
-
-		my $userE = $rights % 2; 	$rights = $rights>>1;
-		my $userW = $rights % 2; 	$rights = $rights>>1;
-		my $userR = $rights % 2;	$rights = $rights>>1;
-		
+		my %mode;
+		foreach my $who (qw(other group user)) {
+			foreach my $what (qw(execute write read)) {
+				$mode{$who}->{$what} = $rights % 2;
+				$rights >>= 1;
+			}	
+				
+		}
+		return \%mode;
 
 }
 
@@ -58,6 +56,7 @@ sub parse {
 				say decode("utf8", $name);
 				my $rights = unpack "n2", $buf;
 				$buf = substr $buf, 2;
+				mode2s($rights);
 
 				if ($op eq 'F') {
 					my $size = unpack "N", $buf;
