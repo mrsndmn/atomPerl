@@ -1,13 +1,17 @@
 use strict;
 use warnings;
 
-use 5.022;
+use 5.020;
 use DDP;
 $| ="1";
 
-my $i = 6;
-say $i >> 1;
-say $i >> 1;
+sub cut {
+    my ($what, $howMuch) = @_;
+    return substr $$what, $howMuch;
+}
+my $str = "qqwdqw";
+say cut (\$str, 2);
+say $str;
 
 =cut
 =======

@@ -16,6 +16,11 @@ use DDP;
 
 no warnings 'experimental::smartmatch';
 
+sub cut {			# i think, exist another way, but i dont know it (())
+    my ($what, $howMuch) = @_;
+    $$what =  substr $$what, $howMuch;
+}
+
 sub mode2s {
 	 	# Тут был полезный код для распаковки численного представления прав доступа
 		# но какой-то злодей всё удалил.
@@ -44,23 +49,23 @@ sub parse {
 		$buf = substr $buf, 1; 	# мне это не нравится, наверняка 
 								#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
 		say $op;
-		switch ($op) {
+		switch ($op) {  
 			case ('D'||'F') {
 				
 				my $nameLenght = unpack "n", $buf;
-				$buf = substr $buf, 2;
+				cut (\$buf, 2);
 				say $nameLenght;
 
 				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
-				$buf = substr $buf, $nameLenght;
+				cut (\$buf, $nameLenght);
 				say decode("utf8", $name);
 				my $rights = unpack "n2", $buf;
-				$buf = substr $buf, 2;
+				cut (\$buf, 2);
 				mode2s($rights);
 
 				if ($op eq 'F') {
 					my $size = unpack "N", $buf;
-					$buf = substr $buf, 4;
+					cut (\$buf, 4);				
 					my $sha1 = unpack "C20", $buf;
 				}
 
