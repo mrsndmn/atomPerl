@@ -77,6 +77,7 @@ sub parse {
 					push @{$path->{'list'}}, $dir;
 				} else {
 					$path = $dir;
+					$res = $path;
 				}
 #				p $path;
 			}
@@ -125,8 +126,7 @@ sub parse {
 				
 			}
 			case 'Z' {
-				# I NEED RECURSION
-				#return
+				return $res;
 			}
 			else {
 				exit; die "invalid bin";
@@ -134,6 +134,8 @@ sub parse {
 		}
 	
 	}
+
+	die "binary must ended with Z"
 
 }
 
