@@ -42,42 +42,91 @@ sub parse {
 	$, = ", ";
 	my $buf = shift;
 	my $res;	
-	
+#	Dump $buf;
+	my $path;
+
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
 		$buf = substr $buf, 1; 	# мне это не нравится, наверняка 
-								#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
-		say $op;
+					#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
+#		say $op;
+
 		switch ($op) {  
-			case ('D'||'F') {
+			case ('D') {
+				my $dir;
+
+				$dir->{'type'} = 'directory';
+				$dir->{'list'} = [];
+
+				my $nameLenght = unpack "n", $buf;
+				cut (\$buf, 2);
+#				say $nameLenght;
+
+				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
+				cut (\$buf, $nameLenght);
+				my $utfName = decode("utf8", $name) or die "wrong name";
+				$dir->{'name'} = $utfName;
 				
+
+				my $rights = unpack "n", $buf;
+				cut (\$buf, 2);
+				$dir->{'mode'} = mode2s($rights);
+
+				if (exists $path->{'list'}){
+					push @{$path->{'list'}}, $dir;
+				} else {
+					$path = $dir;
+				}
+#				p $path;
+			}
+			case 'F' {
+				die "Cant create file out of directory" if (!defined $path);
+
+				my $file; 
+				$file->{'type'} = 'file';
+
+				## the same with dir				
 				my $nameLenght = unpack "n", $buf;
 				cut (\$buf, 2);
 				say $nameLenght;
 
 				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
-				say decode("utf8", $name);
-				my $rights = unpack "n2", $buf;
+				my $utfName = decode("utf8", $name) or die "wrong name";
+				$file->{'name'} = $utfName;
+				
+				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
-				mode2s($rights);
+				$file->{'mode'} = mode2s($rights);
+				## the same with dir
 
-				if ($op eq 'F') {
-					my $size = unpack "N", $buf;
-					cut (\$buf, 4);				
-					my $sha1 = unpack "C20", $buf;
-				}
+				my $size = unpack "N", $buf;
+				cut (\$buf, 4);				
+				my $sha1 = unpack "C20", $buf;
 
+				push @{$path->{'list'}}, $file;
+#				p $file;
 			}
 			case 'I' {
-				
+				if (scalar(@{$path->{'list'}})) {
+					my $lastCreatedDir = $#{$path->{'list'}};
+					$path = $path->{'list'}->[$lastCreatedDir];
+#					say "now in $path->{'name'}";
+#					p $path;
+				} else {
+					## what if 2 'I' 'I''
+					# die
+#					say "now in root directory $path->{'name'}";					
+				}
+
 			}
 			case 'U' {
 				
 			}
 			case 'Z' {
-				
+				# I NEED RECURSION
+				#return
 			}
 			else {
 				exit; die "invalid bin";
