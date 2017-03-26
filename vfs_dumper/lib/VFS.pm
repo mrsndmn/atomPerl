@@ -53,7 +53,7 @@ sub parse {
 #		say $op;
 
 		switch ($op) {  
-			case ('D') {
+			case 'D' {
 				my $dir;
 
 				$dir->{'type'} = 'directory';
@@ -61,7 +61,6 @@ sub parse {
 
 				my $nameLenght = unpack "n", $buf;
 				cut (\$buf, 2);
-#				say $nameLenght;
 
 				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
