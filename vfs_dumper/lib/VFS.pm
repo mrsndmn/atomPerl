@@ -10,6 +10,7 @@ use Encode qw(encode decode);
 use Switch;
 use Devel::Peek;
 use DDP;
+#use Types::Serialier;
 
 # use JSON::XS::True;
 # use JSON::XS::False;
@@ -29,7 +30,7 @@ sub mode2s {
 		my %mode;
 		foreach my $who (qw(other group user)) {
 			foreach my $what (qw(execute write read)) {
-				$mode{$who}->{$what} = $rights % 2;
+				$mode{$who}->{$what} = $rights % 2 ? JSON::XS::true : JSON::XS::false ;
 				$rights >>= 1;
 			}	
 				
@@ -42,15 +43,16 @@ sub parse {
 	$, = ", ";
 	my $buf = shift;
 	my $res;	
-#	Dump $buf;
+	Dump $buf;
 	my $path;
+
 
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
 		$buf = substr $buf, 1; 	# мне это не нравится, наверняка 
 					#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
-#		say $op;
+		say $op;
 
 		switch ($op) {  
 			case 'D' {
@@ -66,7 +68,7 @@ sub parse {
 				cut (\$buf, $nameLenght);
 				my $utfName = decode("utf8", $name) or die "wrong name";
 				$dir->{'name'} = $utfName;
-				
+#				say $utfName;
 
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -89,12 +91,13 @@ sub parse {
 				## the same with dir				
 				my $nameLenght = unpack "n", $buf;
 				cut (\$buf, 2);
-				say $nameLenght;
+				#say $nameLenght;
 
 				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
 				my $utfName = decode("utf8", $name) or die "wrong name";
 				$file->{'name'} = $utfName;
+				say $utfName;
 				
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -102,8 +105,13 @@ sub parse {
 				## the same with dir
 
 				my $size = unpack "N", $buf;
-				cut (\$buf, 4);				
-				my $sha1 = unpack "C20", $buf;
+				cut (\$buf, 4);
+				$file->{'size'} = $size;
+				
+				Dump $buf;
+				my $sha1 = join '', map {chr($_)} unpack "C20", $buf;
+				cut (\$buf, 20);
+				$file->{'hash'} = $sha1;
 
 				push @{$path->{'list'}}, $file;
 #				p $file;
@@ -115,7 +123,7 @@ sub parse {
 #					say "now in $path->{'name'}";
 #					p $path;
 				} else {
-					## what if 2 'I' 'I''
+					## what if 2 'I' 'I'
 					# die
 #					say "now in root directory $path->{'name'}";					
 				}
@@ -125,6 +133,7 @@ sub parse {
 				
 			}
 			case 'Z' {
+#				p $res;		
 				return $res;
 			}
 			else {
@@ -133,7 +142,7 @@ sub parse {
 		}
 	
 	}
-
+#	p $res;
 	die "binary must ended with Z"
 
 }

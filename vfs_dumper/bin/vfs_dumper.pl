@@ -7,7 +7,7 @@ use JSON::XS;
 use FindBin;
 use lib "$FindBin::Bin/../lib/";
 use VFS;
-use Devel::Peek;
+use DDP;
 
 our $VERSION = 1.0;
 
@@ -30,7 +30,7 @@ my $buf;
 	#say $buf;
 	#Dump $buf;
 }
-VFS::parse("D\0\4root\1\375ID\0\22\320\224\320\276\320\272\321\203\320\274\320\265\320\275\321\202\321\213\1\375I");
+p VFS::parse($buf);
 
 # Вот досада, JSON получается трудночитаемым, совсем не как в задании.
 #print JSON::XS->pretty->encode_json(VFS::parse($buf));
