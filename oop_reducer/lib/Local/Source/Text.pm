@@ -2,7 +2,7 @@ package Local::Source::Text;
 use parent Local::Source;
 
 
-sub getLine {
+sub next {
     my $self = shift;
     my $line;
 

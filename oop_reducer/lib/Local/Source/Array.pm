@@ -1,13 +1,13 @@
 package Local::Source::Array;
-{use parent Local::Source;
+
+use parent Local::Source;
 use strict;
 use warnings;
 
-sub getLine {
+sub next {
     my $self = shift;
-
-    return my $elem = shift @{$self->{array}};   
+    return shift @{$self->{array}};   
 }
 
-}
+
 1;
