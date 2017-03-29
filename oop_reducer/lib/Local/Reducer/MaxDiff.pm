@@ -15,7 +15,7 @@ sub reduce {
     #say $row->get($top,0), "+", $row->get($bottom,0);
     my $diff = $row->get($top,0) - $row->get($bottom,0);
     #say $diff." -- ".$self->{'reduced'};
-    ($diff > $self->{'reduced'})? return $diff : return $self->{'reduced'};
+    return ($diff > $self->{'reduced'})? $diff : $self->{'reduced'};
 }
 
 1;
