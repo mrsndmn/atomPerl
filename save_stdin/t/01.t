@@ -7,7 +7,7 @@ use Test::More tests => 26;
 use IPC::Open3;
 use Data::Dumper;
 use DDP;
-use 5.022;
+use 5.020;
 $, = "::";
 my ($stdin, $stdout, $stderr) = ("","","");
 use Symbol 'gensym'; $stderr = gensym;
