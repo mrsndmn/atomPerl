@@ -57,7 +57,7 @@ sub parse {
 	#$, = ", ";
 	my $buf = shift;
 	my $res = {};	
-	Dump $buf;
+	#Dump $buf;
 	
 	my @history;	# to avoid recursion
 					# хотя с рекурсией решение, может быть, было бы более элегантным
@@ -69,7 +69,7 @@ sub parse {
 		cut (\$buf, 1); 	# мне это не нравится, наверняка 
 							# должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без лишних телодвижений
 							# но как?
-		warn $op;
+		#warn $op;
 
 		switch ($op) {  
 			case 'D' {
@@ -86,7 +86,7 @@ sub parse {
 				die "Such directory already exists" if (any { $_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});
 
 				$dir->{'name'} = $name;
-				say "DIR: ", $dir->{'name'};
+				#say "DIR: ", $dir->{'name'};
 
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -113,7 +113,7 @@ sub parse {
 				die "Such file already exists" if (any { $_->{'type'} eq 'file' and $_->{'name'} eq $name } @{$res->{'list'}});				
 				
 				$file->{'name'} =  $name;
-				say "FILE: ", $file->{'name'};
+				#say "FILE: ", $file->{'name'};
 				
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -137,7 +137,7 @@ sub parse {
 					my $lastCreatedDir = $#{$res->{'list'}};
 					$res = $res->{'list'}->[$lastCreatedDir];
 					push @history, $res;
-					warn "!now in $res->{'name'}";
+					#warn "!now in $res->{'name'}";
 				} elsif (!scalar(keys %$res)) {
 					die "The blob should start from 'D' or 'Z'" 
 				}
@@ -154,13 +154,13 @@ sub parse {
 					#p $res;
 				} else {
 					if ('Z' eq chr(unpack "c", $buf)) {
-						warn "ok, you are in root";
+						#warn "ok, you are in root";
 						# but it changes nothing, i think
 					} else {
 						die "cant go upper here. Alredy in root. ";
 					}
 				}
-				warn "!upto ", $res->{'name'};
+				#warn "!upto ", $res->{'name'};
 			}
 			case 'Z' {
 				#p $res;
