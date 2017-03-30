@@ -9,12 +9,29 @@ use Data::Dumper;
 my ($needHelp, $fileName);
 my ($length, $count) = qw(0 0);
 
+=head1 NAME
+
+save_stdin - Script with save_stdin
+try '--help' to get more info
+
+=head1 SYNOPSIS
+
+stdin [options] [file ...]
+
+Options:
+
+--help                  : this help message
+
+--file [path_to_file]   : file for logging stdin
+
+=cut
+
 GetOptions (
     "file=s" => \$fileName,
     'help|?' => \$needHelp
 ) or pod2usage(1);
 
- pod2usage(1) if ($needHelp || !defined $fileName);
+ pod2usage(2) if ($needHelp || !defined $fileName);
 
 # die "No such file ${fileName}" if ( !(-e $fileName || -f $fileName || -r $fileName || !-z $fileName));
 
@@ -24,18 +41,18 @@ open (my $fh, "+>:utf8", $fileName) or die "Cant get or create file";
 $fh->autoflush(1);
 
 # STDOUT autoflush
-$| = '1';
+#$| = '1';
 
 die "Cannot interactive " if !is_interactive();
 
-print STDOUT "Get ready\n";
+syswrite STDOUT, "Get ready\n";
 
 while(is_interactive()) {
     my $echo = <>;
     #Dumper($echo);
     statistic ($echo);
     $SIG{'INT'} = \&secondChance;
-    print ($fh $echo);
+    syswrite $fh, $echo;
 }
 
 sub statistic {
@@ -66,16 +83,3 @@ sub secondChance {
 sub is_interactive {
     return -t STDIN && -t STDOUT;
 }
-
-__END__
-=head1 NAME
-=for pod2usage:
-save_stdin - Script with save_stdin
-try '--help' to get more info
-
-=head1 SYNOPSIS
-stdin [options] [file ...]
-Options:
---help                  : this help message
---file [path_to_file]   : file for logging stdin
-=cut
