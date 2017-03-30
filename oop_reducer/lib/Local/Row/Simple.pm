@@ -1,14 +1,15 @@
 package Local::Row::Simple;
 use parent Local::Row;
-#use 5.022;
+use 5.020;
+use feature 'state';
 
 sub parse {
     my ($self, $line, $name) = @_;
     #say "***".$line;
-    #say $line =~ /[\W\D]$name:([^:\,]*)/ . "**";
-    $line =~ /(?: ^ | [\,])$name:([^:\,]*)/x;
-    my $value = $1;
-    return $value;
+    
+    $line =~ /${name} \s* : s* (?<value>[^:\,\s]+) /x;
+    return $+{'value'};
+    
 }
 
 1;
