@@ -7,7 +7,7 @@ sub parse {
     my ($self, $line, $name) = @_;
     #say "***".$line;
     
-    $line =~ /${name}\s*:s*(?<value>[^:\,\s]+)/x;
+    $line =~ /${name} \s* : s* (?<value>[^:\,\s]+) /x;
     return $+{'value'};
     
 }
