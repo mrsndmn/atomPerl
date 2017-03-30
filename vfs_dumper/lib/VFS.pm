@@ -64,11 +64,11 @@ sub parse {
 				my $nameLenght = unpack "n", $buf;
 				cut (\$buf, 2);
 
-				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
+				my $name =  pack "U${nameLenght}",  unpack "W${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
-				my $utfName = decode("utf8", $name) or die "wrong name";
-				$dir->{'name'} = $utfName;
-#				say $utfName;
+
+				$dir->{'name'} = decode("utf8", $name);
+#				say $name;
 
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -93,11 +93,11 @@ sub parse {
 				cut (\$buf, 2);
 				#say $nameLenght;
 
-				my $name = join '', map { chr($_) } unpack "C${nameLenght}", $buf;
+				my $name =  pack "U${nameLenght}", unpack "W${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
-				my $utfName = decode("utf8", $name) or die "wrong name";
-				$file->{'name'} = $utfName;
-				say $utfName;
+				
+				$file->{'name'} =  decode("utf8", $name);
+				say $name;
 				
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -109,7 +109,7 @@ sub parse {
 				$file->{'size'} = $size;
 				
 				Dump $buf;
-				my $sha1 = join '', map {chr($_)} unpack "C20", $buf;
+				my $sha1 =  unpack "H40",  $buf;
 				cut (\$buf, 20);
 				$file->{'hash'} = $sha1;
 

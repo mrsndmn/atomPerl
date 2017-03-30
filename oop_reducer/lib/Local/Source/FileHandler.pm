@@ -1,7 +1,7 @@
 package Local::Source::Text;
-{use parent Local::Source;
-use strict;
-use warnings;
+use parent Local::Source;
+# use strict;
+# use warnings;
 #use Tie::File;
 
 sub getLine {
@@ -13,6 +13,4 @@ sub getLine {
     return shift @fileLines;
 }
 
-
-}
 1;
