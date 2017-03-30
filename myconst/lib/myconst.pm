@@ -50,7 +50,7 @@ our $VERSION = '1.00';
 
     no strict 'refs';
 
-    my $exprtTgs = ${"${caller}::"}{"EXPORT_TAGS"};
+    my $exprtTgs;
     
     while (scalar @_) {
         my $key = shift;
@@ -59,14 +59,15 @@ our $VERSION = '1.00';
         die "Bad arguments!\n" if ( ref $key ne '' || notValid($key) );
             
         if (ref $val eq 'HASH') {
+            #warn "val eq hash" , p $val;
+            #die "Bad aguments!\n" if (notValid($val));
 
-            die "Bad arguments!\n" if (notValid($val));
-
-            foreach my $subname (keys %$val) {                
-                die "Bad argument $subname\n" if (ref $val->{$subname} ne '' || notValid($subname));
+            foreach my $subname (keys %$val) {
+                #warn "subkey = ", $subname;
+                die "Bad argument $subname\n" if ( (ref $val->{$subname}) ne'' or notValid($subname));
 
                 $exprtTgs->{'all'}->{$subname} = $subname;
-                $exprtTgs->{"$key"}->{$subname} = $subname;
+                $exprtTgs->{$key}->{$subname} = $subname;
                 *{"${caller}::${subname}"} = sub() {$val->{$subname}}
             }
         
@@ -75,8 +76,11 @@ our $VERSION = '1.00';
 
             *{"${caller}::${key}"} = sub() {$val}
         } else {
+            #warn "main else";
             die "Bad argument $key\n";
         }
+        ${"${caller}::"}{"EXPORT_TAGS"} = $exprtTgs;
+        #p ${"${caller}::"}->{"EXPORT_TAGS"};
 
     }
 
@@ -87,10 +91,12 @@ our $VERSION = '1.00';
         my %wanted;
         my $exprtTgs = ${"${self}::"}{"EXPORT_TAGS"};
         
+        #warn "in overriden import",p %{"${self}::"};
 
         foreach my $wanna (@_){
+            #warn "wann -> ", $wanna;
             if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
-                #warn $tag;
+                #warn "tag", $tag;
                 die "Bad argument! $tag\n" if !exists $exprtTgs->{$tag};
                 my $tagHash = $exprtTgs->{"$tag"};
                 
@@ -99,8 +105,8 @@ our $VERSION = '1.00';
                 }
                 last if $$tag eq 'all'; 
             } else {
-                die "Bad arguments! $wanna \n" if ( ref $wanna ne '' || 
-                                                    !exists $exprtTgs->{'all'}->{"$wanna"});
+                die "Bad arguments! $wanna \n" if ( ref $wanna ne '' or 
+                                                    !exists $exprtTgs->{'all'}->{$wanna});
                 #
                 $wanted{$wanna} = $wanna;
             }
