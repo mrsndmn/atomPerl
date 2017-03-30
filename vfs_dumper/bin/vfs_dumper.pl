@@ -30,7 +30,7 @@ my $buf;
 	#say $buf;
 	#Dump $buf;
 }
-VFS::parse($buf);
+#VFS::parse($buf);
 
 # Вот досада, JSON получается трудночитаемым, совсем не как в задании.
-#print JSON::XS->new->pretty->encode(VFS::parse($buf));
+print JSON::XS->new->pretty->encode(VFS::parse($buf));

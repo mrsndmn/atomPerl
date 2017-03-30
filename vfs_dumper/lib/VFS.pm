@@ -10,7 +10,7 @@ use Encode qw(encode decode);
 use Switch;
 use Devel::Peek;
 use DDP;
- no warnings;
+use List::Util qw(any);
 #use Types::Serialier;
 
 # use JSON::XS::True;
@@ -45,17 +45,19 @@ sub mode2s {
 sub parse {
 	#$, = ", ";
 	my $buf = shift;
-	my $res;	
-	Dump $buf;
-	my $path;
-	my $history;
+	my $res = {};	
+	#Dump $buf;
+	
+	my @history;	# to avoid recursion
+					# хотя с рекурсией решение, может быть, было бы более элегантным
+					# но я с расчетом на то, что может быть большая вложенность, забьется стэк -> stack overflow, deep recursion по перловому
 
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
 		cut (\$buf, 1); 	# мне это не нравится, наверняка 
 							# должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без лишних телодвижений
-		say $op;
+		warn $op;
 
 		switch ($op) {  
 			case 'D' {
@@ -69,28 +71,30 @@ sub parse {
 
 				my $name =  pack "U${nameLenght}",  unpack "W${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
+				$name = decode("utf8", $name);
 
-				$dir->{'name'} = decode("utf8", $name);
+				die "Such directory already exists" if (any {$_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});
+
+				$dir->{'name'} = $name;
 				say "DIR: ", $dir->{'name'};
 
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
 				$dir->{'mode'} = mode2s($rights);
 
-				if (exists $path->{'list'}){
-					push @{$path->{'list'}}, $dir; # if already no file the same name
+				if (exists $res->{'list'}){
+					push @{$res->{'list'}}, $dir; # if already no file the same name
 	
 				} else {
 					# if its root directory
-					$path = $dir;
-					$history->{'now'} = $path;
-					$history->{'prev'} = undef;
-					$res = $path;
+					$res = $dir;
+					push @history, $res;
+					
 				}
-				#p $path;
+				#p $res;
 			}
 			case 'F' {
-				die "Cant create file out of directory" if (!defined $path);
+				die "Cant create file out of directory" if (!defined $res);
 
 				my $file; 
 				$file->{'type'} = 'file';
@@ -102,8 +106,11 @@ sub parse {
 
 				my $name =  pack "U${nameLenght}", unpack "W${nameLenght}", $buf;
 				cut (\$buf, $nameLenght);
+				$name = decode("utf8", $name);
 				
-				$file->{'name'} =  decode("utf8", $name);
+				die "Such directory already exists" if (any {$_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});				
+				
+				$file->{'name'} =  $name;
 				say "FILE: ", $file->{'name'};
 				
 				my $rights = unpack "n", $buf;
@@ -120,43 +127,48 @@ sub parse {
 				cut (\$buf, 20);
 				$file->{'hash'} = $sha1;
 
-				push @{$path->{'list'}}, $file;
+				push @{$res->{'list'}}, $file;
 				#p $file;
 			}
 			case 'I' {
-				if (scalar(@{$path->{'list'}})) {
-					my $lastCreatedDir = $#{$path->{'list'}};
-					$path = $path->{'list'}->[$lastCreatedDir];
-					#warn "inside", p $path;
-					#warn p $history->{'prev'};
-					warn $history->{'now'}->{'name'};
-					$history->{'prev'} = \%{$history};
-					warn $history->{'prev'}->{'now'}->{'name'};
-					$history->{'now'} = $path;
-					#say keys %{$history->{'prev'}};
-					#say keys %{$history->{'now'}};
-					warn "now in $path->{'name'}";
+				#warn "in I";
+				if (exists $res->{'list'} and scalar(@{$res->{'list'}})) {
+					my $lastCreatedDir = $#{$res->{'list'}};
+					$res = $res->{'list'}->[$lastCreatedDir];
+					push @history, $res;
+					warn "!now in $res->{'name'}";
 				} else {
-					warn "Why am i here", p @{$path->{'list'}};
+					die "The blob should start from 'D' or 'Z'" if (! keys %$res) ;
+					#warn "Why am i here", p @{$res->{'list'}};
 					## what if 2 'I' 'I'
 					# die
-					#warn "now in root directory $path->{'name'}";					
+					#warn "now in root directory $res->{'name'}";					
 				}
-				#warn "*******", $path->{'name'};				
+				#warn "*******", $res->{'name'};				
 
 			}
 			case 'U' {
-				print ($history->{'prev'}) ; print ($history);
-				#$history = $history->{'prev'}->{'now'};
-				$path = $history->{'now'};
-				warn "*******", $path->{'name'};
+				if (scalar(@history)>1) {
+					#p @history;
+					my $oldDir = pop @history;
+					$res = $history[$#history];
+					my $last = $#{$res->{'list'}};
+					$res->{'list'}->[$last] = $oldDir;
+					p $res;
+				} else {
+					#die "cant do back back";
+				}
+				warn "!upto ", $res->{'name'};
 			}
 			case 'Z' {
-				p $res;		
+				p $res;
+				if (length($buf)) {
+					die "Garbage ae the end of the buffer";
+				}
 				return $res;
 			}
 			else {
-				warn "!!!!its wrong", $op; 
+				#warn "!!!!its wrong", $op; 
 				exit;
 				die "invalid bin";
 			}
