@@ -129,7 +129,9 @@ sub parse {
 					$path = $path->{'list'}->[$lastCreatedDir];
 					#warn "inside", p $path;
 					#warn p $history->{'prev'};
+					warn $history->{'now'}->{'name'};
 					$history->{'prev'} = \%{$history};
+					warn $history->{'prev'}->{'now'}->{'name'};
 					$history->{'now'} = $path;
 					#say keys %{$history->{'prev'}};
 					#say keys %{$history->{'now'}};
@@ -144,8 +146,8 @@ sub parse {
 
 			}
 			case 'U' {
-				warn p $history->{'prev'};
-				$history = $history->{'prev'};
+				print ($history->{'prev'}) ; print ($history);
+				#$history = $history->{'prev'}->{'now'};
 				$path = $history->{'now'};
 				warn "*******", $path->{'name'};
 			}
