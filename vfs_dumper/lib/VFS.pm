@@ -30,7 +30,8 @@ sub mode2s {
 		my %mode;
 		foreach my $who (qw(other group user)) {
 			foreach my $what (qw(execute write read)) {
-				$mode{$who}->{$what} = $rights % 2 ? JSON::XS::true : JSON::XS::false ;
+				my $json = JSON::XS->new();
+				$mode{$who}->{$what} = $rights % 2 ? $json->true : $json->false ;
 				$rights >>= 1;
 			}	
 				
@@ -43,14 +44,14 @@ sub parse {
 	$, = ", ";
 	my $buf = shift;
 	my $res;	
-	Dump $buf;
+	#Dump $buf;
 	my $path;
-
+	my $history->{'prev'} = undef;
 
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
-		$buf = substr $buf, 1; 	# мне это не нравится, наверняка 
+		cut (\$buf, 1); 	# мне это не нравится, наверняка 
 					#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
 		say $op;
 
@@ -75,12 +76,20 @@ sub parse {
 				$dir->{'mode'} = mode2s($rights);
 
 				if (exists $path->{'list'}){
-					push @{$path->{'list'}}, $dir;
+					push @{$path->{'list'}}, $dir; # if already no file the same name
+	
 				} else {
+					# if its root directory
 					$path = $dir;
+
+					$history = {
+						now => $path,
+						prev => undef
+					};
+
 					$res = $path;
 				}
-#				p $path;
+				#p $path;
 			}
 			case 'F' {
 				die "Cant create file out of directory" if (!defined $path);
@@ -114,26 +123,33 @@ sub parse {
 				$file->{'hash'} = $sha1;
 
 				push @{$path->{'list'}}, $file;
-#				p $file;
+				#p $file;
 			}
 			case 'I' {
 				if (scalar(@{$path->{'list'}})) {
 					my $lastCreatedDir = $#{$path->{'list'}};
 					$path = $path->{'list'}->[$lastCreatedDir];
-#					say "now in $path->{'name'}";
+					
+					$history->{'prev'} = $history;
+					$history->{'now'} = $path;
+
+					#say "now in $path->{'name'}";
 #					p $path;
 				} else {
 					## what if 2 'I' 'I'
 					# die
 #					say "now in root directory $path->{'name'}";					
 				}
+				warn "*******", $path->{'name'};				
 
 			}
 			case 'U' {
-				
+				$history = $history->{'prev'};
+				$path = $history->{'now'};
+				warn "*******", $path->{'name'};
 			}
 			case 'Z' {
-#				p $res;		
+				p $res;		
 				return $res;
 			}
 			else {
