@@ -1,7 +1,7 @@
 package VFS;
 use utf8;
 use strict;
-use warnings;
+#use warnings;
 use 5.010;
 use File::Basename;
 use File::Spec::Functions qw{catdir};
@@ -10,12 +10,14 @@ use Encode qw(encode decode);
 use Switch;
 use Devel::Peek;
 use DDP;
+ no warnings;
 #use Types::Serialier;
 
 # use JSON::XS::True;
 # use JSON::XS::False;
 
 no warnings 'experimental::smartmatch';
+
 
 sub cut {			# i think, exist another way, but i dont know it (())
     my ($what, $howMuch) = @_;
@@ -41,18 +43,18 @@ sub mode2s {
 }
 
 sub parse {
-	$, = ", ";
+	#$, = ", ";
 	my $buf = shift;
 	my $res;	
-	#Dump $buf;
+	Dump $buf;
 	my $path;
-	my $history->{'prev'} = undef;
+	my $history;
 
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
 		cut (\$buf, 1); 	# мне это не нравится, наверняка 
-					#должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без таких лишних телодвижений
+							# должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без лишних телодвижений
 		say $op;
 
 		switch ($op) {  
@@ -69,7 +71,7 @@ sub parse {
 				cut (\$buf, $nameLenght);
 
 				$dir->{'name'} = decode("utf8", $name);
-#				say $name;
+				say "DIR: ", $dir->{'name'};
 
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -81,12 +83,8 @@ sub parse {
 				} else {
 					# if its root directory
 					$path = $dir;
-
-					$history = {
-						now => $path,
-						prev => undef
-					};
-
+					$history->{'now'} = $path;
+					$history->{'prev'} = undef;
 					$res = $path;
 				}
 				#p $path;
@@ -106,7 +104,7 @@ sub parse {
 				cut (\$buf, $nameLenght);
 				
 				$file->{'name'} =  decode("utf8", $name);
-				say $name;
+				say "FILE: ", $file->{'name'};
 				
 				my $rights = unpack "n", $buf;
 				cut (\$buf, 2);
@@ -117,7 +115,7 @@ sub parse {
 				cut (\$buf, 4);
 				$file->{'size'} = $size;
 				
-				Dump $buf;
+				#sDump $buf;
 				my $sha1 =  unpack "H40",  $buf;
 				cut (\$buf, 20);
 				$file->{'hash'} = $sha1;
@@ -129,26 +127,30 @@ sub parse {
 				if (scalar(@{$path->{'list'}})) {
 					my $lastCreatedDir = $#{$path->{'list'}};
 					$path = $path->{'list'}->[$lastCreatedDir];
-					#p $path;
-					
-					$history->{'prev'} = $history;
+					#warn "inside", p $path;
+					#warn p $history->{'prev'};
+					$history->{'prev'} = \%{$history};
 					$history->{'now'} = $path;
-					#warn "now in $path->{'name'}";
+					#say keys %{$history->{'prev'}};
+					#say keys %{$history->{'now'}};
+					warn "now in $path->{'name'}";
 				} else {
+					warn "Why am i here", p @{$path->{'list'}};
 					## what if 2 'I' 'I'
 					# die
 					#warn "now in root directory $path->{'name'}";					
 				}
-				warn "*******", $path->{'name'};				
+				#warn "*******", $path->{'name'};				
 
 			}
 			case 'U' {
+				warn p $history->{'prev'};
 				$history = $history->{'prev'};
 				$path = $history->{'now'};
 				warn "*******", $path->{'name'};
 			}
 			case 'Z' {
-				#p $res;		
+				p $res;		
 				return $res;
 			}
 			else {

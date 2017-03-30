@@ -33,4 +33,4 @@ my $buf;
 VFS::parse($buf);
 
 # Вот досада, JSON получается трудночитаемым, совсем не как в задании.
-print JSON::XS->pretty->encode_json(VFS::parse($buf));
+#print JSON::XS->new->pretty->encode(VFS::parse($buf));
