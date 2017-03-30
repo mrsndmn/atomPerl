@@ -81,7 +81,6 @@ sub mult {
             }
 
             #p @calculatedCells;
-            # waitpid !!!!!!!
             foreach (@calculatedCells){
                 #say $_;
                 print $w $_."\n";

@@ -39,14 +39,25 @@ sub mode2s {
 				
 		}
 		return \%mode;
+}
 
+sub getName {
+	my $bufref = shift;
+	
+	my $nameLenght = unpack "n", $$bufref;
+	cut ($bufref, 2);
+
+	my $name =  pack "U${nameLenght}",  unpack "W${nameLenght}", $$bufref;
+	cut ($bufref, $nameLenght);
+	
+	return decode("utf8", $name);
 }
 
 sub parse {
 	#$, = ", ";
 	my $buf = shift;
 	my $res = {};	
-	#Dump $buf;
+	Dump $buf;
 	
 	my @history;	# to avoid recursion
 					# хотя с рекурсией решение, может быть, было бы более элегантным
@@ -57,6 +68,7 @@ sub parse {
 		#Dump $buf;
 		cut (\$buf, 1); 	# мне это не нравится, наверняка 
 							# должен быть какой-то способ, про который я не нашел ничего, чтобы тоже самое делать без лишних телодвижений
+							# но как?
 		warn $op;
 
 		switch ($op) {  
@@ -66,14 +78,12 @@ sub parse {
 				$dir->{'type'} = 'directory';
 				$dir->{'list'} = [];
 
-				my $nameLenght = unpack "n", $buf;
-				cut (\$buf, 2);
+				my $name = getName(\$buf);
 
-				my $name =  pack "U${nameLenght}",  unpack "W${nameLenght}", $buf;
-				cut (\$buf, $nameLenght);
-				$name = decode("utf8", $name);
-
-				die "Such directory already exists" if (any {$_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});
+				# для этого дела хорошо бы завести хэш, но мне кажется, в настоящей vfs
+				# list или как-то сразу сортируется, или 
+				# 'any' from List::Util
+				die "Such directory already exists" if (any { $_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});
 
 				$dir->{'name'} = $name;
 				say "DIR: ", $dir->{'name'};
@@ -83,8 +93,7 @@ sub parse {
 				$dir->{'mode'} = mode2s($rights);
 
 				if (exists $res->{'list'}){
-					push @{$res->{'list'}}, $dir; # if already no file the same name
-	
+					push @{$res->{'list'}}, $dir; 
 				} else {
 					# if its root directory
 					$res = $dir;
@@ -94,21 +103,14 @@ sub parse {
 				#p $res;
 			}
 			case 'F' {
-				die "Cant create file out of directory" if (!defined $res);
+				die "Cant create file out of directory" if (!scalar(keys %$res));
 
 				my $file; 
 				$file->{'type'} = 'file';
 
-				## the same with dir				
-				my $nameLenght = unpack "n", $buf;
-				cut (\$buf, 2);
-				#say $nameLenght;
-
-				my $name =  pack "U${nameLenght}", unpack "W${nameLenght}", $buf;
-				cut (\$buf, $nameLenght);
-				$name = decode("utf8", $name);
+				my $name = getName(\$buf);
 				
-				die "Such directory already exists" if (any {$_->{'type'} eq 'directory' and $_->{'name'} eq $name } @{$res->{'list'}});				
+				die "Such file already exists" if (any { $_->{'type'} eq 'file' and $_->{'name'} eq $name } @{$res->{'list'}});				
 				
 				$file->{'name'} =  $name;
 				say "FILE: ", $file->{'name'};
@@ -122,7 +124,6 @@ sub parse {
 				cut (\$buf, 4);
 				$file->{'size'} = $size;
 				
-				#sDump $buf;
 				my $sha1 =  unpack "H40",  $buf;
 				cut (\$buf, 20);
 				$file->{'hash'} = $sha1;
@@ -137,12 +138,8 @@ sub parse {
 					$res = $res->{'list'}->[$lastCreatedDir];
 					push @history, $res;
 					warn "!now in $res->{'name'}";
-				} else {
-					die "The blob should start from 'D' or 'Z'" if (! keys %$res) ;
-					#warn "Why am i here", p @{$res->{'list'}};
-					## what if 2 'I' 'I'
-					# die
-					#warn "now in root directory $res->{'name'}";					
+				} elsif (!scalar(keys %$res)) {
+					die "The blob should start from 'D' or 'Z'" 
 				}
 				#warn "*******", $res->{'name'};				
 
@@ -154,22 +151,31 @@ sub parse {
 					$res = $history[$#history];
 					my $last = $#{$res->{'list'}};
 					$res->{'list'}->[$last] = $oldDir;
-					p $res;
+					#p $res;
 				} else {
-					#die "cant do back back";
+					if ('Z' eq chr(unpack "c", $buf)) {
+						warn "ok, you are in root";
+						# but it changes nothing, i think
+					} else {
+						die "cant go upper here. Alredy in root. ";
+					}
 				}
 				warn "!upto ", $res->{'name'};
 			}
 			case 'Z' {
-				p $res;
+				#p $res;
 				if (length($buf)) {
 					die "Garbage ae the end of the buffer";
+				} elsif (scalar(@history)>1) {
+					#p @history;
+					# or do it auto?
+					# 
+					die "you should up to root";
 				}
 				return $res;
 			}
 			else {
-				#warn "!!!!its wrong", $op; 
-				exit;
+				warn "!!!!its wrong ", $op; 
 				die "invalid bin";
 			}
 		}
