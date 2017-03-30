@@ -114,18 +114,18 @@ sub parse {
 				$file->{'hash'} = $sha1;
 
 				push @{$path->{'list'}}, $file;
-#				p $file;
+				#p $file;
 			}
 			case 'I' {
 				if (scalar(@{$path->{'list'}})) {
 					my $lastCreatedDir = $#{$path->{'list'}};
 					$path = $path->{'list'}->[$lastCreatedDir];
-#					say "now in $path->{'name'}";
-#					p $path;
+					#warn "now in $path->{'name'}";
+					#p $path;
 				} else {
 					## what if 2 'I' 'I'
 					# die
-#					say "now in root directory $path->{'name'}";					
+					#warn "now in root directory $path->{'name'}";					
 				}
 
 			}
@@ -133,16 +133,17 @@ sub parse {
 				
 			}
 			case 'Z' {
-#				p $res;		
+				#p $res;		
 				return $res;
 			}
 			else {
-				exit; die "invalid bin";
+				warn "!!!!its wrong", $op; 
+				exit;
+				die "invalid bin";
 			}
 		}
 	
 	}
-#	p $res;
 	die "binary must ended with Z"
 
 }
