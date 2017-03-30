@@ -1,8 +1,8 @@
 package Local::Source::Array;
 
 use parent Local::Source;
-use strict;
-use warnings;
+# use strict;
+# use warnings;
 
 sub next {
     my $self = shift;

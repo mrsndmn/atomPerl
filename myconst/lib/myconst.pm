@@ -1,13 +1,12 @@
 package myconst;
-use 5.022;
+use 5.020;
 use warnings;
 use strict;
 use List::Util qw(any);
-#use DDP;
+use DDP;
 
 
 =encoding utf8
-
 =head1 NAME
 
     myconst - pragma to create exportable and groupped constants
