@@ -1,8 +1,8 @@
 package Local::Reducer::Sum;
 use parent Local::Reducer;
 use feature "say";
-use strict;
-use warnings;
+# use strict;
+# use warnings;
 
 sub reduce {
     my ($self, $line) = @_;

@@ -1,7 +1,7 @@
 package Local::Row::JSON;
 use parent Local::Row;
-use strict;
-use warnings;
+# use strict;
+# use warnings;
 
 use JSON::XS;
 use feature "say";
