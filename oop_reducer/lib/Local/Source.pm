@@ -1,8 +1,5 @@
 package Local::Source;
 
-sub new {
-    my ($self, %params) = @_;
-    return bless \%params, $self;
-}
+# собственно, можно его и вообще удалить
 
 1;
