@@ -5,6 +5,13 @@ use 5.020;
 use DDP;
 $| ="1";
 
+my %params = (text => "qweqw\ndfdfs\nweq");
+
+$params{'text'} = [split /\n/, $params{'text'}];
+ p %params;
+
+
+__END__
 use AE;
 
 sub async {

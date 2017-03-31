@@ -5,8 +5,4 @@ sub new {
     return bless \%params, $self;
 }
 
-sub next {
-    
-}
-
 1;

@@ -1,6 +1,6 @@
 package Local::Source::Array;
-
 use parent Local::Source;
+use feature 'state';
 
 # use strict;
 # use warnings;
