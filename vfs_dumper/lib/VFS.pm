@@ -19,14 +19,12 @@ use List::Util qw(any);
 no warnings 'experimental::smartmatch';
 
 
-sub cut {			# i think, exist another way, but i dont know it (())
+sub cut {			# i think, exist another way, but i dont know it ((
     my ($what, $howMuch) = @_;
     $$what =  substr $$what, $howMuch;
 }
 
 sub mode2s {
-	 	# Тут был полезный код для распаковки численного представления прав доступа
-		# но какой-то злодей всё удалил.
 		my $rights = shift;
 
 		my %mode;
@@ -62,7 +60,8 @@ sub parse {
 	my @history;	# to avoid recursion
 					# хотя с рекурсией решение, может быть, было бы более элегантным
 					# но я с расчетом на то, что может быть большая вложенность, забьется стэк -> stack overflow, deep recursion по перловому
-
+					# и да, с рекурсией все-таки можно, сделать, не знаю, почему я засомневался. Только в этом варианте надо продумать еще
+					# пару моментов. 
 	while (length($buf)) {
 		my $op =chr(unpack "c", $buf);
 		#Dump $buf;
