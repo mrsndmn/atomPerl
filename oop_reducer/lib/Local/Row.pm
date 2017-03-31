@@ -2,7 +2,8 @@ package Local::Row;
 
 use strict;
 use warnings;
-use feature 'say';
+#use feature 'say';
+use Scalar::Util qw(looks_like_number);
 
 sub new {
     my ($self, %params) = @_;
@@ -14,7 +15,7 @@ sub get {
     my $line = $self->{'str'};
     my $value = $self->parse($line, $name);
     #say $value;
-    return $value if defined $value and $value =~ /^\d+\.?\d*$/ ;
+    return $value if defined $value and looks_like_number $value;
     return $default;
 }
 
