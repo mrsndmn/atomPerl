@@ -8,6 +8,8 @@ use AnyEvent::HTTP;
 use Web::Query;
 use URI;
 
+use DDP;
+
 =encoding UTF8
 
 =head1 NAME
@@ -36,19 +38,44 @@ $total_size - суммарный размер собранных ссылок в
 
 =cut
 
+
+run();
+
 sub run {
     my ($start_page, $parallel_factor) = @_;
-    $start_page or die "You must setup url parameter";
-    $parallel_factor or die "You must setup parallel factor > 0";
+    # $start_page or die "You must setup url parameter";
+    # $parallel_factor or die "You must setup parallel factor > 0";
+    $start_page = "http://www.ya.ru" if ! $start_page;
+    $parallel_factor = 4 if ! $parallel_factor;
 
     $AnyEvent::HTTP::MAX_PEER_HOST = $parallel_factor;
 
     my $total_size = 0;
     my @top10_list;
 
-    #............
-    #Код crawler-а
-    #............
+    my $cv = AnyEvent->condvar();
+    #$cv->begin;
+
+
+    my $guard; $guard = sub {
+        # my $cnt = 0;
+        # say $cnt++;
+        $cv->begin;
+        http_head ($start_page, 
+            recurse => 4,
+            on_header => sub {
+            p $_[0]->{'URL'};
+            $cv->end;            
+            }, 
+            sub {
+                print "in cb";
+                $cv->end;
+            });
+
+    };
+    $guard->();
+    #$cv->end;
+    $cv->recv;
 
     return $total_size, @top10_list;
 }
