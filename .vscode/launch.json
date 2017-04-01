@@ -1,0 +1,17 @@
+{
+    "version": "0.0.5",
+    "configurations": [
+        {
+            "type": "perl",
+            "request": "launch",
+            "exec": "perl",
+            "execArgs": [],
+            "name": "Perl-Debug",
+            "root": "${workspaceRoot}/",
+            "program": "${workspaceRoot}/${relativeFile}",
+            "inc": [],
+            "args": [],
+            "stopOnEntry": true
+        }
+    ]
+}
