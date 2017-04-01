@@ -7,6 +7,7 @@ use DDP;
 
 no warnings 'once';
 
+
 =encoding utf8
 =head1 NAME
 
@@ -69,72 +70,78 @@ our $VERSION = '1.00';
                 $exprtTgs->{'all'}->{$subname} = $subname;
                 $exprtTgs->{$key}->{$subname} = $subname;
                 
-                no strict 'refs';    
-                *{"${caller}::${subname}"} = sub() {$val->{$subname}};
-                use strict;
-
+                {
+                    no strict 'refs';
+                    *{"${caller}::${subname}"} = sub() {$val->{$subname}};
+                }
             }
         
         } elsif (ref $val eq '')  {
             $exprtTgs->{'all'}->{$key} = $key;
             
-            no strict 'refs';
-            *{"${caller}::${key}"} = sub() {$val};
-            use strict;
+            {
+                no strict 'refs';
+                *{"${caller}::${key}"} = sub() {$val};
+                #*{"${caller}::${key}"} if 0;
+            }
 
         } else {
             #warn "main else";
             die "Bad argument $key\n";
         }
 
-        no strict 'refs';        
-        ${"${caller}::"}{"EXPORT_TAGS"} = $exprtTgs;
-        use strict;        
+        {
+            no strict 'refs';        
+            ${"${caller}::"}{"EXPORT_TAGS"} = $exprtTgs;
+        }
         #p ${"${caller}::"}->{"EXPORT_TAGS"};
 
     }
 
     # override other import  
-    no strict 'refs';
-    *{"${caller}::import"} = sub() {
-        use strict;    
-        my $self = shift;
-        my %wanted;
-
+    {
         no strict 'refs';
-        my $exprtTgs = ${"${self}::"}{"EXPORT_TAGS"};
-        use strict;        
-        #warn "in overriden import",p %{"${self}::"};
-
-        foreach my $wanna (@_){
-            #warn "wann -> ", $wanna;
-            if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
-                #warn "tag", $tag;
-                die "Bad argument! $tag\n" if !exists $exprtTgs->{$tag};
-                my $tagHash = $exprtTgs->{"$tag"};
-                
-                foreach my $const (keys %{$tagHash}) {
-                    $wanted{$const} = $const;
-                }
-                last if $tag eq 'all'; 
-            } else {
-                die "Bad arguments! $wanna \n" if ( ref $wanna ne '' or 
-                                                    !exists $exprtTgs->{'all'}->{$wanna});
-                #
-                $wanted{$wanna} = $wanna;
-            }
-        }
-
-        my $callerer = caller;
-
-        foreach my $subname (keys %wanted) {
-            no strict 'refs';            
-            *{"$callerer::$subname"} =  "$self::$subname";
+        *{"${caller}::import"} = sub() {
             use strict;    
-        }
+            my $self = shift;
+            my %wanted;
+            
+            {
+                no strict 'refs';
+                my $exprtTgs = ${"${self}::"}{"EXPORT_TAGS"};
+            }        
+            #warn "in overriden import",p %{"${self}::"};
 
-    };
-    use strict;
+            foreach my $wanna (@_){
+                #warn "wann -> ", $wanna;
+                if (my $tag = shift @{[$wanna =~ m/^:(.*)/ ]}) {
+                    #warn "tag", $tag;
+                    die "Bad argument! $tag\n" if !exists $exprtTgs->{$tag};
+                    my $tagHash = $exprtTgs->{"$tag"};
+                    
+                    foreach my $const (keys %{$tagHash}) {
+                        $wanted{$const} = $const;
+                    }
+                    last if $tag eq 'all'; 
+                } else {
+                    die "Bad arguments! $wanna \n" if ( ref $wanna ne '' or 
+                                                        !exists $exprtTgs->{'all'}->{$wanna});
+                    #
+                    $wanted{$wanna} = $wanna;
+                }
+            }
+
+            my $callerer = caller;
+
+            foreach my $subname (keys %wanted) {
+                {   
+                    no strict 'refs';            
+                    *{"$callerer::$subname"} =  "$self::$subname";
+                }    
+            }
+
+        };
+    }    
 
  }
 
