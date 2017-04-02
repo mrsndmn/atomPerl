@@ -70,12 +70,11 @@ sub statistic {
         $length += length($str);
     } else {
         exit if ($count == 0);
-
-        syswrite (STDOUT, $length." ", length($length." "));    # size   
-        syswrite (STDOUT, $count." ", length($count." "));   # count
-        
         my $avg = sprintf "%d", ($length/$count);
-        syswrite (STDOUT, $avg, length($avg)); # avg
+        my $ans = $length." ".$count." ".$avg;
+        syswrite (STDOUT,$ans, length($ans));    # size   
+        #syswrite (STDOUT, $count." ", length($count." "));   # count
+        #syswrite (STDOUT, $avg, length($avg)); # avg
         exit;
     }
 }

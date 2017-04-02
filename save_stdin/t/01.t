@@ -8,13 +8,13 @@ use IPC::Open3;
 use Data::Dumper;
 use DDP;
 #use 5.020;
-#$, = "::";
 my ($stdin, $stdout, $stderr) = ("","","");
 use Symbol 'gensym'; $stderr = gensym;
 my $buf;
 $ENV{PERLIO} = 'unix';
 
 my $pid = open3($stdin, $stdout, $stderr, '/usr/bin/perl', 'bin/stdin.pl', '--file=1');
+#$stdin->autoflush(1);
 is(!$pid, '', "Started stdin.pl");
 sysread($stdout, $buf, 1024);
 chomp($buf);
@@ -32,6 +32,7 @@ is(-s _, 15, "File size ok");
 unlink "1";
 
 $pid = open3($stdin, $stdout, $stderr, '/usr/bin/perl', 'bin/stdin.pl', '--file=1');
+#$stdin->autoflush(1);
 is(!$pid, '', "Started stdin.pl");
 sysread($stdout, $buf, 1024);
 chomp($buf);
@@ -53,6 +54,7 @@ is(-s _, 30, "File size ok");
 unlink "1";
 
 $pid = open3($stdin, $stdout, $stderr, '/usr/bin/perl', 'bin/stdin.pl', '--file=1');
+#$stdin->autoflush(1);
 is(!$pid, '', "Started stdin.pl");
 sysread($stdout, $buf, 1024);
 chomp($buf);
