@@ -1,7 +1,7 @@
 package VFS;
 use utf8;
 use strict;
-#use warnings;
+use warnings;
 use 5.024;
 use File::Basename;
 use File::Spec::Functions qw{catdir};
@@ -12,9 +12,7 @@ use Devel::Peek;
 use DDP;
 use List::Util qw(any);
 #use Types::Serialier;
-
 no warnings 'experimental::smartmatch';
-
 
 sub cut {			# i think, exist another way, but i dont know it ((
     my ($what, $howMuch) = @_;
