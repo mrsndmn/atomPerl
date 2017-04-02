@@ -6,8 +6,10 @@ use Getopt::Long qw(GetOptions);
 use Pod::Usage qw(pod2usage);
 use Data::Dumper;
 
+#use 5.024;
+use feature 'state';
+
 my ($needHelp, $fileName);
-my ($length, $count) = qw(0 0);
 
 =head1 NAME
 
@@ -31,55 +33,62 @@ GetOptions (
     'help|?' => \$needHelp
 ) or pod2usage(1);
 
- pod2usage(2) if ($needHelp || !defined $fileName);
+pod2usage(2) if ($needHelp || !defined $fileName);
 
-# die "No such file ${fileName}" if ( !(-e $fileName || -f $fileName || -r $fileName || !-z $fileName));
-
-local $SIG{'INT'} = \&secondChance;
+$SIG{'INT'} = \&secondChance;
 
 open (my $fh, "+>:utf8", $fileName) or die "Cant get or create file";
 $fh->autoflush(1);
 
 # STDOUT autoflush
-#$| = '1';
-
-die "Cannot interactive " if !is_interactive();
+$| = '1';
 
 syswrite STDOUT, "Get ready\n";
 
-while(is_interactive()) {
-    my $echo = <>;
-    #Dumper($echo);
-    statistic ($echo);
-    $SIG{'INT'} = \&secondChance;
-    syswrite $fh, $echo;
+my $ctlC = 0;
+
+$SIG{'INT'} = \&secondChance;
+
+while(my $echo = <STDIN>) {
+    statistic($echo);
+    print $fh $echo;
+    $ctlC = 0 if ($ctlC > 0);
 }
+
+
+$fh->close();        
+statistic();
 
 sub statistic {
     my $str = shift;
+    state $length = 0;
+    state $count = 0;
+
     if (defined $str){
-        chomp($str);        
+        chomp($str);
         $count++;
         $length += length($str);
     } else {
         exit if ($count == 0);
 
-        print (STDOUT (-s $fileName)."\n");    # size
-        print (STDOUT $count."\n");            # count
-        print (STDOUT sprintf "%d", $length/$count); # avg
-        $fh->close();
+        syswrite (STDOUT, $length." ", length($length." "));    # size   
+        syswrite (STDOUT, $count." ", length($count." "));   # count
+        
+        my $avg = sprintf "%d", ($length/$count);
+        syswrite (STDOUT, $avg, length($avg)); # avg
         exit;
     }
 }
 
 sub secondChance {
-    print STDERR "Double Ctrl+C for exit";
-    $SIG{'INT'} = sub {
+    $ctlC++;
+    if ($ctlC == 2) {
+        $fh->close();        
         statistic();
-    };  
-    return unless defined(<>);
+        exit;
+    } else {
+        print STDERR "Double Ctrl+C for exit";    
+    }
+
 }
 
-sub is_interactive {
-    return -t STDIN && -t STDOUT;
-}
