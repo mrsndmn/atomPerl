@@ -76,9 +76,10 @@ sub run {
         },
         sub {
             print "in cb\n";
-            my @s = map { $uri->new_abs($_, $start_page)->as_string() } 
-                            grep { length($_) } $wq->find('a[href]')->attr('href');
-            p @s;
+            my %s = map {$_ => 1}   map { $uri->new_abs($_, $start_page)->as_string() } 
+                                   grep { length($_) } $wq->find('[href]')->attr('href');
+            p %s;
+            say scalar(keys %s);
             print $fh $wq->as_html();
             $cv->end;                   
     });
