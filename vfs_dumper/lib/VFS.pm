@@ -110,8 +110,7 @@ sub parse {
 				if (length($buf)) {
 					die "Garbage ae the end of the buffer";
 				} elsif (scalar(@history)>1) {
-					# ?
-					warn "you should up to root" or die "you should up to root";
+					die "you should up to root";
 				}
 				return $res;
 			}
