@@ -42,9 +42,7 @@ sub parse {
 	my $res = {};
 	#Dump $buf;
 	
-	my @history;	
-	my %list;		# keys -> ref of dir
-					# value -> hash of names
+	my @history;
 
 	while (length($buf)) {
 		my $op;
