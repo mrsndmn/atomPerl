@@ -39,7 +39,6 @@ Web Crawler
 
 =cut
 
-
 run();
 
 sub run {
@@ -49,30 +48,42 @@ sub run {
     $start_page = "https://www.github.com" if ! $start_page;
     $parallel_factor = 4 if ! $parallel_factor;
 
+
+    my $q = Web::Query->new_from_url($start_page);
+    #open (my $fh1, "+>:utf8", "gh.html") or die "Cant get or create file";
+
+    my $uri = URI->new();
     $AnyEvent::HTTP::MAX_PEER_HOST = $parallel_factor;
+
+    open (my $fh, "+>:utf8", "gh.html") or die "Cant get or create file";
 
     my $total_size = 0;
     my @top10_list;
 
+    my $wq = Web::Query->new();    
+
     my $cv = AnyEvent->condvar();
-    #$cv->begin;
-
-
+    
     $cv->begin;
-    http_head ($start_page, 
-        #recurse => 0,
+    http_get ($start_page, 
         on_header => sub {
-        p $_[0]->{'URL'};
-        $cv->end;            
+        warn $_[0]->{'Status'};
         }, 
+        on_body => sub {
+            warn  'BODYY';
+            $wq = $wq->add( $_[0] );            
+            #p @_;
+        },
         sub {
-            p @_;
             print "in cb\n";
-            $cv->end;
+            my @s = map { $uri->new_abs($_, $start_page)->as_string() } 
+                            grep { length($_) } $wq->find('a[href]')->attr('href');
+            p @s;
+            print $fh $wq->as_html();
+            $cv->end;                   
     });
 
     
-    #$cv->end;
     $cv->recv;
 
     return $total_size, @top10_list;
