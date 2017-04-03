@@ -1,9 +1,18 @@
 use strict;
 use warnings;
-
+use URI;
 use 5.020;
 use DDP;
 $| ="1";
+
+
+my $uri = URI->new('http://www.ya.ru#adfd');
+p $uri;
+$uri->canonical->fragment(undef);
+say $uri->as_string;
+
+
+__END__
 
 my %params = (text => "qweqw\ndfdfs\nweq");
 
@@ -11,7 +20,6 @@ $params{'text'} = [split /\n/, $params{'text'}];
  p %params;
 
 
-__END__
 use AE;
 
 sub async {
