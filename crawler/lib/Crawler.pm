@@ -3,16 +3,18 @@ package Crawler;
 use 5.010;
 use strict;
 use warnings;
-no warnings 'recursion';
+#no warnings 'recursion';
 
 use AnyEvent::HTTP;
 use Web::Query;
 use URI;
+# doesnt installed on my PC
+#use Coro::LWP; # afterwards LWP should not block
 
 use DDP;
 no warnings 'once';
 use feature 'state';
-use List::Util qw(min);
+use List::Util qw(min sum);
 =encoding UTF8
 
 =head1 NAME
@@ -48,31 +50,26 @@ our $global_size;
 #say run();
 sub run {
     my ($start_page, $parallel_factor) = @_;
-    # $start_page or die "You must setup url parameter";
-    # $parallel_factor or die "You must setup parallel factor > 0";
-    $start_page = "https://github.com/Nikolo/Technosfera-perl/tree/anosov-crawler" if ! $start_page;
-    $parallel_factor = 100 if ! $parallel_factor;
+    #$start_page = "https://github.com/Nikolo/Technosfera-perl/tree/anosov-crawler" if ! $start_page;
     $global_factor = $parallel_factor;
 
     $start_page = URI->new($start_page)->canonical->as_string;
 
-    #open (my $fh1, "+>:utf8", "gh.html") or die "Cant get or create file";
-
     $AnyEvent::HTTP::MAX_PEER_HOST = $parallel_factor;
-
-    #open (my $fh, "+>:utf8", "gh.html") or die "Cant get or create file";
 
     my $total_size;
     my @top10_list;
     my $crawled_size;
-
-    $links = {$start_page => 1};    # its possible that page doesn't contain itself's url
+    
     push @$linksArr, $start_page;
 
+    # AE begins there
     crawl_this();
     
     warn "ended";
-
+    my $ck = sum(values %$links);
+    say $ck;
+    p $links;
     say sprintf "%d", $total_size/1024;
     @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
     
@@ -94,27 +91,26 @@ sub crawl_this {
 
     my $next;
     $next = sub {
-        return if ($index>$#$linksArr);
-        state $counter;
-        $counter++;
 
-        if ($counter > 1000 or $index > $#$linksArr) {
-            return;
-        };
+        return if ($index > $#$linksArr or $index > 1000 );
 
         my $page = $linksArr->[$index++];
         say "I ",$index;
+        say "W ", $workers;
         #say $page;
         #say $counter;
         $cv->begin;
         
-
         http_head ($page, 
             sub {
                 my ($body, $header) = @_;
+                
+                my $hsize = length($header);
+                $global_size += $hsize;
+                
 
-                if ($header->{'Status'} =~ /^2/ and
-                                    $header->{'content-type'} =~ m{^text/html} ) {
+                if (    $header->{'Status'}       =~ /^2/     and
+                        $header->{'content-type'} =~ m{^text/html} ) {
                     
                     my $uri = URI->new();    
                     my $wq = Web::Query->new(); 
@@ -122,13 +118,13 @@ sub crawl_this {
                     http_get ( $page,
                         sub {
                             my ($body, $header) = @_;                    
-                            my $psize = length($body);
+                            my $bsize = length($body);
                             say defined($body)? "ok" : "NOOOO";
                             $wq = $wq->add( $body );            
                             
-                            #warn "got", $psize;
-                            $links->{$page} = $psize;    
-                            $global_size += $psize;
+                            #warn "got", $bsize;
+                            $links->{$page} = $bsize;    
+                            $global_size += $bsize;
 
                             # getting othen links
                             push @$linksArr,    map { $_->as_string }
@@ -141,25 +137,25 @@ sub crawl_this {
                                                 }
                                                 $wq->find('[href]')->attr('href');
                                 
-                            #
                             #p $linksArr;
-
-                            for (0..min((scalar($linksArr) - $workers - $index), $global_factor-1)) {
+                            for (0..min((scalar(@$linksArr) - $workers - $index), $global_factor-1)) {
+                                # say (scalar($linksArr) - $workers - $index);
+                                # $, = " ";
+                                # say $workers,$index, scalar(@$linksArr);
                                 $workers++;
                                 $next->();
                             }
                             $next->();
+                            $workers--;
                             $cv->end;
                             #say "Stop";
-                            $workers--;
                         }
                     );
 
                 } else {
-                    #delete $links->{$page};
+                    #say "Stop not 200";
                     $next->();
                     $workers--;
-                    #say "Stop not 200";
                     $cv->end;   
                 }
         });
