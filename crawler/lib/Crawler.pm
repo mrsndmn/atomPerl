@@ -3,7 +3,6 @@ package Crawler;
 use 5.010;
 use strict;
 use warnings;
-#no warnings 'recursion';
 
 use AnyEvent::HTTP;
 use Web::Query;
@@ -12,9 +11,7 @@ use URI;
 #use Coro::LWP; # afterwards LWP should not block
 
 use DDP;
-no warnings 'once';
-use feature 'state';
-use List::Util qw(min sum);
+use List::Util qw(min);
 =encoding UTF8
 
 =head1 NAME
@@ -47,9 +44,7 @@ our $linksArr;
 our $links;
 our $global_factor;
 our $global_size;
-
 #say run();
-
 sub run {
     my $start_page = shift;
     $global_factor = shift; 
@@ -68,7 +63,7 @@ sub run {
     #say sprintf "%d", $global_size/1024;
     @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
     
-    #p $links;
+    p $links;
     #p $linksArr;
     #p @top10_list;
     
@@ -121,10 +116,12 @@ sub crawl_this {
                             $global_size += $bsize;
 
                             # getting othen links
-                            push @$linksArr,    map { $_->as_string }
+                            push @$linksArr,    #map { $_->as_string }
                                                 #grep { $links->{$_} = 0 ; 1}           # так можно? хотя вообще-то и не очень это нужно
                                                 grep { length($_) && !exists $links->{$_} }
-                                                grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
+                                                map { $_->as_string }
+                                                #grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
+                                                grep { (substr $_, 0, length $page) eq $page }   # тоже криво(?), но лучше ничего не надумал
                                                 map { 
                                                     my $other_uri = $uri->new_abs($_, $page)->canonical;    #
                                                     $other_uri->fragment(undef); $other_uri                  # cutting fragment
