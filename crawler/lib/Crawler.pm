@@ -64,18 +64,23 @@ sub run {
     my @top10_list;
 
     my $wq = Web::Query->new();    
-    my $cv0 = AnyEvent->condvar();
+    my $cv0 = AnyEvent->condvar();  
     $cv0->begin;    
     http_get ($start_page, 
             on_body => sub {
-                say length $_[0];
-                $wq = $wq->add( $_[0] );            
+                my ($body, $header) = @_;
+                say length $body;
+                $wq = $wq->add( $body );            
                 #p @_;
             },
             sub {
-                %links = map {$_ => 0} map { $_->as_string }  map { my $other_uri = $uri->new_abs($_, $start_page)->canonical ; $other_uri->fragment(undef); $other_uri } 
-                                    grep { length($_) } $wq->find('[href]')->attr('href');
-                @{$links}[0..min(999, scalar(keys %links)-1)] = keys %links;
+                %links = map {$_ => 0}  map { $_->as_string }  
+                                        grep { length($_) && $_ =~ m/^${start_page}/ }                      # i dont like it !!!(donf forget to fix)
+                                        map { my $other_uri = $uri->new_abs($_, $start_page)->canonical;    #
+                                        $other_uri->fragment(undef); $other_uri }                           # cutting fragment
+                                        $wq->find('[href]')->attr('href');
+
+                push @{$links}, keys %links;
                 #p $links;
                 say scalar(@$links);
                 print $fh $wq->as_html();
@@ -102,6 +107,7 @@ sub run {
         
         http_head ($page, 
             sub {
+                my ($body, $header) = @_;
                 # if (exists $_[1]->{'content-length'}) {
                 #     p $_[1];
                 # }
@@ -110,12 +116,14 @@ sub run {
                 #say $_[1]->{'content-length'};
                 #say $_[1]->{'content-type'} =~ m/^text\/html/;
 
-                if ( ($_[1]->{'Status'} =~ /^2/) && ( $_[1]->{'content-type'} =~ m{^text/html} )) {
-
+                if ($header->{'Status'} =~ /^2/ and
+                    $header->{'content-type'} =~ m{^text/html} ) {
+                    
                     http_get ( $page,
                         on_body => sub {
-                        my $psize = length($_[0]);
-                        $links{$page} = $total_size;    
+                        my ($body, $header) = @_;                    
+                        my $psize = length($body);
+                        $links{$page} = $psize;    
                         $total_size += $psize;
                         #say "got".$total_size;
                         }, 
@@ -125,6 +133,7 @@ sub run {
                         }
                     );
                 } else {
+                    delete $links{$page};
                     $next->();
                     $cv->end;   
                 }
@@ -135,10 +144,12 @@ sub run {
     $cv->end;
     $cv->recv;
 
+
+
     say sprintf "%d", $total_size/1024;
     @top10_list[0..9] = sort { $links{$b} <=> $links{$a} } keys %links;
     p @top10_list;
-    #p %links;
+    p %links;
     return $total_size, @top10_list;
 }
 
