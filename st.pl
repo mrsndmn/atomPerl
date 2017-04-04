@@ -3,17 +3,23 @@ use warnings;
 use URI;
 use 5.020;
 use DDP;
-$| ="1";
+
+    our $ok = 1;
+    a();
+    sub a {    
+        ma(); 
+    }
+    sub ma {
+        say $ok;
+    }
+
+__END__
 
 
 my $uri = URI->new('http://www.ya.ru#adfd');
 p $uri;
 $uri->canonical->fragment(undef);
-say $uri->as_string;
-
-
-__END__
-
+say $ur
 my %params = (text => "qweqw\ndfdfs\nweq");
 
 $params{'text'} = [split /\n/, $params{'text'}];

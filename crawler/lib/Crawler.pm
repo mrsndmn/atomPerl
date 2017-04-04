@@ -3,6 +3,7 @@ package Crawler;
 use 5.010;
 use strict;
 use warnings;
+no warnings 'recursion';
 
 use AnyEvent::HTTP;
 use Web::Query;
@@ -40,6 +41,10 @@ Web Crawler
 
 =cut
 
+our $linksArr;
+our $links;
+our $global_factor;
+our $too_much_pages = 0;
 run();
 
 sub run {
@@ -48,83 +53,83 @@ sub run {
     # $parallel_factor or die "You must setup parallel factor > 0";
     $start_page = "https://github.com/Nikolo/Technosfera-perl/tree/anosov-crawler" if ! $start_page;
     $parallel_factor = 100 if ! $parallel_factor;
+    $global_factor = $parallel_factor;
 
     $start_page = URI->new($start_page)->canonical->as_string;
 
     #open (my $fh1, "+>:utf8", "gh.html") or die "Cant get or create file";
 
-    my $uri = URI->new();
-    my $links;
-    my %links = qw( $start_page 1 );
     $AnyEvent::HTTP::MAX_PEER_HOST = $parallel_factor;
 
-    open (my $fh, "+>:utf8", "gh.html") or die "Cant get or create file";
+    #open (my $fh, "+>:utf8", "gh.html") or die "Cant get or create file";
 
     my $total_size = 0;
     my @top10_list;
+    my $crawled_size;
 
-    my $wq = Web::Query->new();    
-    my $cv0 = AnyEvent->condvar();  
-    $cv0->begin;    
-    http_get ($start_page, 
-            on_body => sub {
-                my ($body, $header) = @_;
-                say length $body;
-                $wq = $wq->add( $body );            
-                #p @_;
-            },
-            sub {
-                %links = map {$_ => 0}  map { $_->as_string }  
-                                        grep { length($_) && $_ =~ m/^${start_page}/ }                      # i dont like it !!!(donf forget to fix)
-                                        map { my $other_uri = $uri->new_abs($_, $start_page)->canonical;    #
-                                        $other_uri->fragment(undef); $other_uri }                           # cutting fragment
-                                        $wq->find('[href]')->attr('href');
+    $links = {$start_page => 1};    # its possible that page doesn't contain itself's url
+    #push @$linksArr, $start_page;
 
-                push @{$links}, keys %links;
-                #p $links;
-                say scalar(@$links);
-                print $fh $wq->as_html();
+    get_links_from($start_page);
+
+    while(scalar(@$linksArr) or $too_much_pages) {
         
-                $cv0->end;
-            }
-        );
-    $cv0->recv;
+        $total_size += crawl_this();
 
+        my $next_page = shift @$linksArr;
+        warn "NXT ", $next_page;
+        get_links_from($next_page);
+        #warn $next_page;
+        warn "!length = ",scalar(@$linksArr);
+    }    
+
+    say sprintf "%d", $total_size/1024;
+    @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
+    #p @top10_list;
+    p $linksArr;
+    return $total_size, @top10_list;
+}
+
+sub crawl_this {
+
+    my $this_size;
     my $cv = AnyEvent->condvar();
-    say join "\n", sort @$links;
     $cv->begin;
+    my $index = 0;
 
     my $next;
     $next = sub {
-        return if (!scalar(@{$links}));
-        state $counter++;
-        return if ($counter > 1000);
+        return if (!scalar(@$linksArr));
+        state $counter;
+        $counter++;
+        if ($counter > 1000) {
+            #warn "to too_much_pages";
+            $too_much_pages++;
+            return;
+        };
 
-        my $page = shift @$links;
+        my $page = @$linksArr[$index++];
         #say $page;
         #say $counter;
         $cv->begin;
         
+
         http_head ($page, 
             sub {
                 my ($body, $header) = @_;
-                # if (exists $_[1]->{'content-length'}) {
-                #     p $_[1];
-                # }
-                #$total_size += $_[1]->{'content-length'} if (exists $_[1]->{'content-length'});
                 
                 #say $_[1]->{'content-length'};
                 #say $_[1]->{'content-type'} =~ m/^text\/html/;
 
                 if ($header->{'Status'} =~ /^2/ and
                     $header->{'content-type'} =~ m{^text/html} ) {
-                    
                     http_get ( $page,
                         on_body => sub {
                         my ($body, $header) = @_;                    
                         my $psize = length($body);
-                        $links{$page} = $psize;    
-                        $total_size += $psize;
+                        #warn "got", $psize;
+                        $links->{$page} = $psize;    
+                        $this_size += $psize;
                         #say "got".$total_size;
                         }, 
                         sub {
@@ -133,24 +138,52 @@ sub run {
                         }
                     );
                 } else {
-                    delete $links{$page};
+                    #delete $links->{$page};
                     $next->();
                     $cv->end;   
                 }
         });
     };
-    $next->() for 1..$parallel_factor;
+
+    $next->() for 1..4;
 
     $cv->end;
     $cv->recv;
 
+    return $this_size;
+}
 
+sub get_links_from {
+    my $page = shift;
 
-    say sprintf "%d", $total_size/1024;
-    @top10_list[0..9] = sort { $links{$b} <=> $links{$a} } keys %links;
-    p @top10_list;
-    p %links;
-    return $total_size, @top10_list;
+    my $uri = URI->new();    
+    my $wq = Web::Query->new();    
+    my $cv = AnyEvent->condvar();  
+
+    $cv->begin;     
+    http_get ($page, 
+            on_body => sub {
+                my ($body, $header) = @_;
+                #say length $body;
+                $wq = $wq->add( $body );            
+                #p @_;
+            },
+            sub {                               # say 'no' to regexp
+               push @$linksArr, map { $_->as_string }
+                                #grep { $links->{$_} = 1 ; 1}           # так можно? хотя вообще-то и не очень это нужно
+                                grep { length($_) && !exists $links->{$_} }
+                                grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
+                                map { 
+                                    my $other_uri = $uri->new_abs($_, $page)->canonical;    #
+                                    $other_uri->fragment(undef); $other_uri                  # cutting fragment
+                                }
+                                $wq->find('[href]')->attr('href');
+                #p $linksArr;
+                $cv->end;
+            }
+        );
+    $cv->recv;
+
 }
 
 1;
