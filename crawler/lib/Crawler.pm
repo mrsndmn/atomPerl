@@ -68,17 +68,19 @@ sub run {
     my $crawled_size;
 
     $links = {$start_page => 1};    # its possible that page doesn't contain itself's url
-    #push @$linksArr, $start_page;
+    push @$linksArr, $start_page;
 
-    get_links_from($start_page);
+    get_links_from();
 
-    while(scalar(@$linksArr) or $too_much_pages) {
+    say "finished";
+
+    while(scalar(@$linksArr)) {
         
         $total_size += crawl_this();
 
-        my $next_page = shift @$linksArr;
+        my $next_page = $linksArr->[0];
         warn "NXT ", $next_page;
-        get_links_from($next_page);
+        #get_links_from();
         #warn $next_page;
         warn "!length = ",scalar(@$linksArr);
     }    
@@ -87,28 +89,36 @@ sub run {
     @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
     #p @top10_list;
     p $linksArr;
+    say $total_size;
+    p @top10_list;
     return $total_size, @top10_list;
 }
 
 sub crawl_this {
 
-    my $this_size;
+    my $get_size;
     my $cv = AnyEvent->condvar();
     $cv->begin;
     my $index = 0;
+    warn "sizing";
+    p @$linksArr;
 
     my $next;
     $next = sub {
         return if (!scalar(@$linksArr));
         state $counter;
         $counter++;
-        if ($counter > 1000) {
+    
+        warn "sizing";
+        
+        if ($counter > 1000 || $index > $#$linksArr) {
             #warn "to too_much_pages";
             $too_much_pages++;
             return;
         };
 
-        my $page = @$linksArr[$index++];
+        my $page = $linksArr->[$index++];
+        say $index;
         #say $page;
         #say $counter;
         $cv->begin;
@@ -129,7 +139,7 @@ sub crawl_this {
                         my $psize = length($body);
                         #warn "got", $psize;
                         $links->{$page} = $psize;    
-                        $this_size += $psize;
+                        $get_size += $psize;
                         #say "got".$total_size;
                         }, 
                         sub {
@@ -145,32 +155,52 @@ sub crawl_this {
         });
     };
 
-    $next->() for 1..4;
+    $next->() for 1..min($global_factor, $#$linksArr);
 
     $cv->end;
     $cv->recv;
 
-    return $this_size;
+    return $get_size ? $get_size : 0;
 }
 
 sub get_links_from {
-    my $page = shift;
 
     my $uri = URI->new();    
     my $wq = Web::Query->new();    
     my $cv = AnyEvent->condvar();  
+    my $guard;
+    state $index = 0; 
+    state $works = 0;
 
-    $cv->begin;     
-    http_get ($page, 
+    $cv->begin;
+
+    warn "in get_links_from";
+
+    $guard = sub {
+        if ($#$linksArr > 1000 or $index > $#$linksArr){
+                $works--;
+                return ;
+        }
+        my $page = $linksArr->[$index++];
+        say "W ", $works;
+        say "I ", $index;
+        
+        warn "getting links";
+        
+        warn $page;
+        $cv->begin;
+
+        http_get ( $page,
             on_body => sub {
                 my ($body, $header) = @_;
                 #say length $body;
+                
                 $wq = $wq->add( $body );            
                 #p @_;
             },
             sub {                               # say 'no' to regexp
                push @$linksArr, map { $_->as_string }
-                                #grep { $links->{$_} = 1 ; 1}           # так можно? хотя вообще-то и не очень это нужно
+                                grep { $links->{$_} = 1 ; 1}           # так можно? хотя вообще-то и не очень это нужно
                                 grep { length($_) && !exists $links->{$_} }
                                 grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
                                 map { 
@@ -178,10 +208,24 @@ sub get_links_from {
                                     $other_uri->fragment(undef); $other_uri                  # cutting fragment
                                 }
                                 $wq->find('[href]')->attr('href');
-                #p $linksArr;
+                
+                #
+                p $linksArr;
+                
+                for (1..min(($#$linksArr - $works - $index), $global_factor)) {
+                    $works++;
+                    $guard->();
+                };
+
                 $cv->end;
             }
         );
+    };
+
+        $works++;
+        $guard->();
+
+    $cv->end;
     $cv->recv;
 
 }
