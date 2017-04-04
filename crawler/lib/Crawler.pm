@@ -46,16 +46,16 @@ sub run {
     my ($start_page, $parallel_factor) = @_;
     # $start_page or die "You must setup url parameter";
     # $parallel_factor or die "You must setup parallel factor > 0";
-    $start_page = "https://github.com/Nikolo/Technosfera-perl/tree/anosov-crawler/" if ! $start_page;
+    $start_page = "https://github.com/Nikolo/Technosfera-perl/tree/anosov-crawler" if ! $start_page;
     $parallel_factor = 100 if ! $parallel_factor;
 
+    $start_page = URI->new($start_page)->canonical->as_string;
 
-    my $q = Web::Query->new_from_url($start_page);
     #open (my $fh1, "+>:utf8", "gh.html") or die "Cant get or create file";
 
     my $uri = URI->new();
     my $links;
-    my %links = ($start_page => 1); #???
+    my %links = qw( $start_page 1 );
     $AnyEvent::HTTP::MAX_PEER_HOST = $parallel_factor;
 
     open (my $fh, "+>:utf8", "gh.html") or die "Cant get or create file";
@@ -73,7 +73,7 @@ sub run {
                 #p @_;
             },
             sub {
-                %links = map {$_ => 0} map { $_->as_string }  map { $uri = $uri->new_abs($_, $start_page)->canonical ; $uri->fragment(undef); $uri } 
+                %links = map {$_ => 0} map { $_->as_string }  map { my $other_uri = $uri->new_abs($_, $start_page)->canonical ; $other_uri->fragment(undef); $other_uri } 
                                     grep { length($_) } $wq->find('[href]')->attr('href');
                 @{$links}[0..min(999, scalar(keys %links)-1)] = keys %links;
                 #p $links;
@@ -102,16 +102,22 @@ sub run {
         
         http_head ($page, 
             sub {
-                #say $_[1]->{'content-type'};
-                $total_size += length $_[1];
-                if ( $_[1]->{'Status'} =~ /^2/ and $_[1]->{'content-type'} =~ m/^text\/html/ ) {
-                    
+                # if (exists $_[1]->{'content-length'}) {
+                #     p $_[1];
+                # }
+                #$total_size += $_[1]->{'content-length'} if (exists $_[1]->{'content-length'});
+                
+                #say $_[1]->{'content-length'};
+                #say $_[1]->{'content-type'} =~ m/^text\/html/;
+
+                if ( ($_[1]->{'Status'} =~ /^2/) && ( $_[1]->{'content-type'} =~ m{^text/html} )) {
+
                     http_get ( $page,
                         on_body => sub {
                         my $psize = length($_[0]);
                         $links{$page} = $total_size;    
                         $total_size += $psize;
-                        #say $total_size;
+                        #say "got".$total_size;
                         }, 
                         sub {
                             $next->();
@@ -130,8 +136,9 @@ sub run {
     $cv->recv;
 
     say sprintf "%d", $total_size/1024;
-    @top10_list[0..9] = sort { $links{$a} <=> $links{$b} } keys %links;
+    @top10_list[0..9] = sort { $links{$b} <=> $links{$a} } keys %links;
     p @top10_list;
+    #p %links;
     return $total_size, @top10_list;
 }
 
