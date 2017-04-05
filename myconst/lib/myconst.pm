@@ -66,6 +66,7 @@ our $VERSION = '1.00';
             foreach my $subname (keys %$val) {
                 #warn "subkey = ", $subname;
                 die "Bad argument $subname\n" if ( (ref $val->{$subname}) ne'' or notValid($subname));
+                die "Constant must be only once" if exists $exprtTgs->{'all'}->{$subname};
 
                 $exprtTgs->{'all'}->{$subname} = $subname;
                 $exprtTgs->{$key}->{$subname} = $subname;
@@ -77,6 +78,7 @@ our $VERSION = '1.00';
             }
         
         } elsif (ref $val eq '') {
+            die "Constant must be only once" if exists $exprtTgs->{'all'}->{$key};
             $exprtTgs->{'all'}->{$key} = $key;
             {
                 no strict 'refs';
