@@ -5,12 +5,15 @@ use warnings;
 use DDP;
 use AnyEvent::HTTP;
 use AnyEvent::Socket;
-use URI;
 use Data::Validate::URI qw(is_web_uri);
 
-our $URL;
+my $URL;
 
 my $cv = AnyEvent::condvar;
+
+$AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
+#$AnyEvent::HTTP::MAX_PEER_HOST = ?? ;      # more then 4 # not ok ?????
+
 $cv->begin();
 my $g;
 $g = tcp_server undef, 8081, 
@@ -27,22 +30,21 @@ $g = tcp_server undef, 8081,
         $h->on_read (   
             sub {
                 $h->push_read( line => sub {
-                    #p @_;
-                    #$my $line = $_[1];
                     
                     # no regexp no overhead
                     my ($op, $other ) = split " ", $_[1], 2;
                     return if !defined $op;
-                    # no Switch no problems
+                    # no Switch no problems :: but i dont like this
                     if ($op eq '?') {
-                        $h->push_write(join "", <DATA>);                 
+                        
+                        $h->push_write(join "", <DATA>);
+
                     } elsif($op eq 'URL') {
 
                         if (!defined($other)) {
                             $h->push_write("Need argument.\nTry '?' to get help\n");
                             return;
                         } 
-
                         if ( is_web_uri $other ) {
                             $URL = $other;
                             $h->push_write("OK\n");
@@ -53,23 +55,16 @@ $g = tcp_server undef, 8081,
                         }
 
                     } elsif($op eq 'HEAD') {
+
                         if (!defined($URL)) {
                             $h->push_write("You should set URL\nTry '?' to get help\n");
                             return;
                         }
-                        
-                        $cv->begin;
-                        my $ans;
-                        http_head ($URL, 
-                                sub {
-                                    my ($body, $header) = @_;
-                                    #p $header;
-                                    $ans = join "\n", map { "$_ : ". $header->{$_} } sort keys %$header;
-                                    warn "head ",length $ans;
-
-                                    $h->push_write( $ans."\nOK\n" );                        
-                                    $cv->end;
-                                });
+                        head_request ($URL, sub {
+                                                my $ans = shift;
+                                                $h->push_write( $ans."\nOK\n" );
+                                                say "head OK ", length $ans;
+                                    });
 
                     } elsif($op eq 'GET') {
                         
@@ -77,26 +72,22 @@ $g = tcp_server undef, 8081,
                             $h->push_write("You should set URL\nTry '?' to get help\n");
                             return;
                         }
-
-                        $cv->begin;
-                        http_get ($URL, 
-                                sub {
-                                    my ($body, $header) = @_;
-
-                                    warn "body; ", length $body;
-
-                                    $h->push_write( $body."\nOK\n" );
-                                    $cv->end;
-                                });
-
+                        get_request ($URL, sub {
+                                            my $ans = shift;
+                                            $h->push_write( $ans."\nOK\n" );
+                                            say "get OK ", length $ans;                                            
+                                    });
 
                     } elsif($op eq 'FIN') {
+                        
                         $h->push_write("Goodbye\n");
                         $h->destroy;
+                    
                     } else {
+                        
                         $h->push_write("Unknown operation: '${op}'\n");
+                    
                     }
-
 
                 })
             }
@@ -110,32 +101,34 @@ sub head_request {
     my $page = shift;
     my $cb = shift;
 
-    my $ans;
-    warn $page;
-    my $cv = AnyEvent::condvar;
     $cv->begin;
 
     http_head ($page, 
             sub {
                 my ($body, $header) = @_;
-                p $header;
-                $ans = join "\n", map { "$_ : ". $header->{$_} } sort keys %$header;
-                $cb->();
+                #p $header;
+                my $ans = join "\n", map { "$_ : ". $header->{$_} } sort keys %$header;
+                $cb->($ans);
                 $cv->end;
             });
 
-    $cv->recv;
-    warn $ans;
-    return $ans;
 }
 
 
 sub get_request {
 
+    my $page = shift;
+    my $cb = shift;
+
+    $cv->begin;
+    http_get ($page, 
+            sub {
+                my ($body, $header) = @_;
+                $cb->($body);
+                $cv->end;
+            });
 
 }
-
-
 
 __END__
 'URL'   remember folowing URL
