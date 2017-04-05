@@ -5,7 +5,7 @@ use strict;
 use List::Util qw(any);
 use DDP;
 
-no warnings 'once';
+#no warnings 'once';
 
 
 =encoding utf8
@@ -56,7 +56,7 @@ our $VERSION = '1.00';
         my $key = shift;
         my $val = shift;
         
-        die "Bad arguments!\n" if ( ref $key ne '' || notValid($key) );
+        die "Bad arguments!\n" if ( ref $key ne '' or notValid($key) );
         $wanted{$key} = $val;
 
         if (ref $val eq 'HASH') {
@@ -72,17 +72,15 @@ our $VERSION = '1.00';
                 
                 {
                     no strict 'refs';
-                    *{"${caller}::${subname}"} = sub() {$val->{$subname}};
+                    ${"${caller}::"}{$subname} = sub() {$val->{$subname}};
                 }
             }
         
-        } elsif (ref $val eq '')  {
+        } elsif (ref $val eq '') {
             $exprtTgs->{'all'}->{$key} = $key;
-            
             {
                 no strict 'refs';
-                *{"${caller}::${key}"} = sub() {$val};
-                #*{"${caller}::${key}"} if 0;
+                ${"${caller}::"}{$key} = sub() {$val};
             }
 
         } else {
@@ -135,8 +133,8 @@ our $VERSION = '1.00';
 
             foreach my $subname (keys %wanted) {
                 {   
-                    no strict 'refs';            
-                    *{"$callerer::$subname"} =  "$self::$subname";
+                    no strict 'refs';
+                    ${"${callerer}::"}{$subname} =  ${"${self}::"}{$subname};
                 }    
             }
 

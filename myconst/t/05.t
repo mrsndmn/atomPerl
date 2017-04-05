@@ -3,6 +3,8 @@ use lib lib;
 use strict;
 use warnings;
 use Test::More tests => 26;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 
 my $val;
 
