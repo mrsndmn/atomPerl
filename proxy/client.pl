@@ -1,5 +1,10 @@
+
 #or even telnet
 
+
+# ooh no telnet forever
+
+=X
 use strict;
 use warnings;
 
