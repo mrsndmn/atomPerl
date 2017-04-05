@@ -3,6 +3,46 @@ use warnings;
 use URI;
 use 5.020;
 use DDP;
+use Coro::Generator;
+use Coro;
+
+use AnyEvent::Socket;
+ my $g;
+ $g =  tcp_server undef, 8080, sub {
+      my ($fh, $host, $port) = @_;
+
+      syswrite $fh, "The internet is full, $host:$port. Go away!\015\012";
+   }, sub {
+      my ($fh, $thishost, $thisport) = @_;
+      AE::log info => "Bound to $thishost, port $thisport.";
+   };
+AE::cv->recv;
+
+=Gsf
+async { # create coroutine
+say 2;
+cede; #
+say 4;
+};
+say 1;
+cede;
+say 3;
+cede;
+=HEAD
+my $even = generator {
+my $x = 0;
+
+while(1) {
+    $x += 2;
+    yield $x;
+    }
+};
+# This will print even numbers from 2..20
+for(1..10) {
+    say $even->();
+}
+
+__END__
 
     our $ok = 1;
     a();
@@ -13,7 +53,6 @@ use DDP;
         say $ok;
     }
 
-__END__
 
 
 my $uri = URI->new('http://www.ya.ru#adfd');
@@ -52,7 +91,6 @@ for my $cur (@array) {
 $cv->end;
 $cv->recv;
 
-=cut
 =======
 use 5.022;
 use strict;
