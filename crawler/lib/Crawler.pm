@@ -85,8 +85,8 @@ sub crawl_this {
         return if ($index > $#$linksArr or $index > 1000 );
 
         my $page = $linksArr->[$index++];
-        say "I ",$index;
-        say "W ", $workers;
+        # say "I ",$index;
+        # say "W ", $workers;
         #say $page;
         #say $counter;
         $cv->begin;
