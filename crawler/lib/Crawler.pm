@@ -40,10 +40,10 @@ Web Crawler
 
 =cut
 
-our $linksArr;
-our $links;
-our $global_factor;
-our $global_size;
+my $linksArr;
+my $links;
+my $global_factor;
+my $global_size;
 #say run();
 sub run {
     my $start_page = shift;
