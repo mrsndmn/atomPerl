@@ -44,8 +44,6 @@ our $linksArr;
 our $links;
 our $global_factor;
 our $global_size;
-our $workers = 0;
-our $index = 0;
 #say run();
 sub run {
     my $start_page = shift;
@@ -76,6 +74,8 @@ sub run {
 sub crawl_this {
 
     my $cv = AnyEvent->condvar();
+    my $index = 0;
+    my $workers = 0;
 
     $cv->begin;
 
@@ -101,7 +101,43 @@ sub crawl_this {
                 if (    $header->{'Status'}       =~ /^2/     and
                         $header->{'content-type'} =~ m{^text/html} ) {
                     
-                    doGet ($page, $next);
+                    my $uri = URI->new();    
+                    my $wq = Web::Query->new(); 
+                    
+                    http_get ( $page,
+                        sub {
+                            my ($body, $header) = @_;                    
+                            my $bsize = length($body);
+                            #say defined($body)? "ok" : "NOOOO";
+                            $wq = $wq->add( $body );            
+                            
+                            #warn "got", $bsize;
+                            $links->{$page} = $bsize;    
+                            $global_size += $bsize;
+
+                            # getting othen links
+                            push @$linksArr,    #map { $_->as_string }
+                                                grep { length($_) && !exists $links->{$_} }
+                                                map { $_->as_string }
+                                                #grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
+                                                grep { (substr $_, 0, length $page) eq $page }   # тоже криво(?), но лучше ничего не надумал
+                                                map { 
+                                                    my $other_uri = $uri->new_abs($_, $page)->canonical;    #
+                                                    $other_uri->fragment(undef); $other_uri                  # cutting fragment
+                                                }
+                                                $wq->find('[href]')->attr('href');
+                                
+                            #p $linksArr;
+                            for (0..min((scalar(@$linksArr) - $workers - $index), $global_factor-1)) {
+                                $workers++;
+                                $next->();
+                            }
+                            $next->();
+                            $workers--;
+                            $cv->end;
+                            #say "Stop";
+                        }
+                    );
 
                 } else {
                     #say "Stop not 200";
@@ -119,55 +155,4 @@ sub crawl_this {
     $cv->recv;
 
 };
-
-sub doGet {
-
-my $page = shift;
-my $next = shift;
-my $uri = URI->new();    
-my $wq = Web::Query->new(); 
-
-my $cv = AnyEvent->condvar();
-
-$cv->begin;
-
-http_get ( $page,
-    sub {
-        my ($body, $header) = @_;                    
-        my $bsize = length($body);
-        #say defined($body)? "ok" : "NOOOO";
-        $wq = $wq->add( $body );            
-        
-        #warn "got", $bsize;
-        $links->{$page} = $bsize;    
-        $global_size += $bsize;
-
-        # getting othen links
-        push @$linksArr,    #map { $_->as_string }
-                            grep { length($_) && !exists $links->{$_} }
-                            map { $_->as_string }
-                            #grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
-                            grep { (substr $_, 0, length $page) eq $page }   # тоже криво(?), но лучше ничего не надумал
-                            map { 
-                                my $other_uri = $uri->new_abs($_, $page)->canonical;    #
-                                $other_uri->fragment(undef); $other_uri                  # cutting fragment
-                            }
-                            $wq->find('[href]')->attr('href');
-            
-        #p $linksArr;
-        for (0..min((scalar(@$linksArr) - $workers - $index), $global_factor-1)) {
-            $workers++;
-            $next->();
-        }
-        $next->();
-        $workers--;
-        #say "Stop";
-    }
-);
-$cv->end;
-
-$cv->recv;
-
-}
-
 1;
