@@ -9,10 +9,10 @@ use Data::Validate::URI qw(is_web_uri);
 
 my $URL;
 
-$AnyEvent::HTTP::MAX_PEER_HOST = 100;   # more then 4 # OK
-$AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
 my $cv = AnyEvent::condvar;
-#$AnyEvent::HTTP::MAX_PEER_HOST = ?? ;      
+
+$AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
+#$AnyEvent::HTTP::MAX_PEER_HOST = ?? ;      # more then 4 # not ok ?????
 
 $cv->begin();
 my $g;
