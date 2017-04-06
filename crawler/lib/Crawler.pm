@@ -63,7 +63,7 @@ sub run {
     #say sprintf "%d", $global_size/1024;
     @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
     
-    p $links;
+    #p $links;
     #p $linksArr;
     #p @top10_list;
     
