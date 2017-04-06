@@ -1,11 +1,32 @@
 use strict;
 use warnings;
-use URI;
 use 5.020;
 use DDP;
-use Coro::Generator;
-use Coro;
+$, = ", ";
 
+
+=Gsf
+my $i = 3;
+main($i);
+sub main {
+    my $int = shift;
+    die if $int ==0;
+    my @arr;
+    push @arr, $int;
+    }
+    say @arr;
+    foreach my $i (0..$#arr) {
+        foreach my $i (0..$#arr) {
+            my $num = $arr[$i];
+            next if ($num == 1);
+            my $less = $num - 1;
+
+            foreach my 
+
+        }
+    }
+
+} 
 use AnyEvent::Socket;
  my $g;
  $g =  tcp_server undef, 8080, sub {
@@ -18,8 +39,6 @@ use AnyEvent::Socket;
    };
 AE::cv->recv;
 
-=Gsf
-async { # create coroutine
 say 2;
 cede; #
 say 4;

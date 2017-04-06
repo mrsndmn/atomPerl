@@ -13,13 +13,35 @@ my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) 
 #open my $fh, "<:zip", "$FindBin::Bin/user.zip";
 my $z = IO::Uncompress::Unzip->new( "$FindBin::Bin/user.zip" or die "unzip failed((\n") ;  
 
-my $sth = $dbh->prepare('INSERT INTO users (name) VALUES( ? )');
 my $c = 0;
-while(my $line = $z->getline and $c < 5) {
+my @fields;
+
+my $table = "users";
+my $column = "name";
+
+while(my $line = $z->getline) {
     $c++;
     chomp $line;
-    $sth->execute($line);
-} 
+    push @fields, $line;
 
+    if ($c == 800) {
 
+        my $sql = sprintf "insert into %s (%s) values %s",
+                $table, $column, join",", ("(?)") x @fields;
+            say $sql;
+
+        my $sth = $dbh->prepare($sql);
+
+        $sth->execute(@fields);
+        @fields = @{[]};
+        $c = 0;
+    }
+
+}
+
+my $sql = sprintf "insert into %s (%s) values %s",
+        $table, $column, join",", ("(?)") x @fields;
+    warn $sql;
+my $sth = $dbh->prepare($sql);
+$sth->execute(@fields);
 
