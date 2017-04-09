@@ -3,7 +3,18 @@ use warnings;
 use 5.020;
 use DDP;
 $, = ", ";
+use AnyEvent::HTTP;
+use Data::Dumper;
 
+http_request
+      HEAD    => "https://www.google.com",
+      timeout => 30,
+      sub {
+         my ($body, $hdr) = @_;
+         use Data::Dumper;
+         print Dumper $hdr;
+      }
+   ;
 
 =Gsf
 my $i = 3;

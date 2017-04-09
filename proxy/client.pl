@@ -1,6 +1,5 @@
-
-#or even telnet
-
+# or even telnet -- its really better
+# this just for fun
 
 # ooh no telnet forever
 
