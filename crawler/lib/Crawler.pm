@@ -39,14 +39,15 @@ Web Crawler
     @top10_list - top-10 страниц отсортированный по размеру.
 
 =cut
-
-my $linksArr;
+#9771
+my @linksArr;
 my $links;
 my $global_factor;
 my $global_size;
+my $start_page;
 #say run();
 sub run {
-    my $start_page = shift;
+    $start_page = shift;
     $global_factor = shift; 
 
     $start_page = URI->new($start_page)->canonical->as_string;
@@ -55,7 +56,7 @@ sub run {
 
     my @top10_list;
     
-    push @$linksArr, $start_page;
+    push @linksArr, $start_page;
 
     # AE begins there
     crawl_this();
@@ -64,7 +65,7 @@ sub run {
     @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
     
     #p $links;
-    #p $linksArr;
+    #p @linksArr;
     p @top10_list;
     
     #$total_size = 10887168;
@@ -82,11 +83,11 @@ sub crawl_this {
     my $next;
     $next = sub {
 
-        return if ($index > $#$linksArr or $index > 1000 );
+        return if ($index > $#linksArr or $index > 1000 );
 
-        my $page = $linksArr->[$index++];
-        # say "I ",$index;
-        # say "W ", $workers;
+        my $page = $linksArr[$index++];
+         say "I ",$index;
+         say "W ", $workers;
         #say $page;
         #say $counter;
         $cv->begin;
@@ -96,12 +97,23 @@ sub crawl_this {
                 my ($body, $header) = @_;
                 
                 my $hsize;# = 0;
-                foreach my $k (keys %$header) {
-                    $hsize += (length $k) + (length $header->{$k});
-                }
+                # foreach my $k (keys %$header) {
+                #     $hsize += (length $k) + (length $header->{$k});
+                # }
+                #warn "hsize ".$hsize;
+                #p $header;
+                # $global_size += $hsize;
+
+                # if( exists $header->{"location"} 
+                #     and $header->{'Status'} =~ /3/
+                #     and (substr $header->{"location"} , 0, length $page) eq $start_page ) {
+
+                #             push @linksArr, $header->{"location"};
+                #             $next->();
+                #             $workers--;
+                #             return;
+                # }
                 
-                $global_size += $hsize;
-                warn "hsize ".$hsize;
                 if (    $header->{'Status'}       =~ /^2/     and
                         $header->{'content-type'} =~ m{^text/html} ) {
                     
@@ -112,27 +124,26 @@ sub crawl_this {
                         sub {
                             my ($body, $header) = @_;            
                             my $bsize = length($body);
-                            #say defined($body)? "ok" : "NOOOO";
                             $wq = $wq->add( $body );            
                             
-                            #warn "got", $bsize;
+                            warn "got", $bsize;
                             $links->{$page} = $bsize;    
                             $global_size += $bsize;
 
                             # getting othen links
-                            push @$linksArr,    #map { $_->as_string }
-                                                grep { length($_) && !exists $links->{$_} }
+                            push @linksArr,     grep {$links->{$_} = 0; 1}
+                                                grep { length($_) and !exists $links->{$_} }
                                                 map { $_->as_string }
-                                                #grep { $_ =~ m/^${page}/ }                      # i dont like it regex !!!(donf forget to fix)
-                                                grep { (substr $_, 0, length $page) eq $page }   # тоже криво(?), но лучше ничего не надумал
+                                                #grep { $_ =~ m/^$start_page/ }                      # i dont like it regex !!!(donf forget to fix)
+                                                grep { (substr $_, 0, length $start_page) eq $start_page }   # тоже криво(?), но лучше ничего не надумал
                                                 map { 
                                                     my $other_uri = $uri->new_abs($_, $page)->canonical;    #
                                                     $other_uri->fragment(undef); $other_uri                  # cutting fragment
                                                 }
                                                 $wq->find('[href]')->attr('href');
                                 
-                            #p $linksArr;
-                            for (0..min((scalar(@$linksArr) - $workers - $index), $global_factor-1)) {
+                            #p @linksArr;
+                            for (0..min((scalar(@linksArr) - $workers - $index), $global_factor-1)) {
                                 $workers++;
                                 $next->();
                             }
