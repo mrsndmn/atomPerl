@@ -65,7 +65,7 @@ sub run {
     
     #p $links;
     #p $linksArr;
-    #p @top10_list;
+    p @top10_list;
     
     #$total_size = 10887168;
     return $global_size, @top10_list;
@@ -95,9 +95,13 @@ sub crawl_this {
             sub {
                 my ($body, $header) = @_;
                 
-                my $hsize = length($header);
+                my $hsize;# = 0;
+                foreach my $k (keys %$header) {
+                    $hsize += (length $k) + (length $header->{$k});
+                }
+                
                 $global_size += $hsize;
-
+                warn "hsize ".$hsize;
                 if (    $header->{'Status'}       =~ /^2/     and
                         $header->{'content-type'} =~ m{^text/html} ) {
                     
@@ -106,7 +110,7 @@ sub crawl_this {
                     
                     http_get ( $page,
                         sub {
-                            my ($body, $header) = @_;                    
+                            my ($body, $header) = @_;            
                             my $bsize = length($body);
                             #say defined($body)? "ok" : "NOOOO";
                             $wq = $wq->add( $body );            
