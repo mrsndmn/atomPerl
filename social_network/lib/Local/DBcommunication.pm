@@ -36,7 +36,7 @@ sub doIt {
 sub getLonely {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
-    my $sql = 'select id from users except select distinct first_id from test order by first_id;'
+    my $sql = 'SELECT name, surname FROM users WHERE id IN (SELECT id FROM users EXCEPT SELECT DISTINCT first_id FROM test EXCEPT SELECT DISTINCT second_id FROM test);'
     my $sth = $dbh->prepare( $sql );
     $sth->execute();
     
