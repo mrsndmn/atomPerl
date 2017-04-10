@@ -41,21 +41,10 @@ $g = tcp_server undef, 8081,
                             $h->push_write(join "", <DATA>);                            
                         }
                         when ('URL') {
-                            if (!defined($URL)) {
-                                $h->push_write("You should set URL\nTry '?' to get help\n");
-                                return;
-                            }
-                            head_request ($URL, sub {
-                                                    my $ans = shift;
-                                                    $h->push_write( $ans."\nOK\n" );
-                                                    say "head OK ", length $ans;
-                                        });
-                        }
-                        when ('HEAD') {
+
                             if (!defined($other)) {
                                 $h->push_write("Need argument.\nTry '?' to get help\n");
-                                return;
-                            } 
+                            }
                             if ( is_web_uri $other ) {
                                 $URL = $other;
                                 $h->push_write("OK\n");
@@ -65,8 +54,32 @@ $g = tcp_server undef, 8081,
                                 return;
                             }
                         }
+                        when ('HEAD') {
+                            if (!defined($URL)) {
+                                $h->push_write("You should set URL\nTry '?' to get help\n");
+                                return;
+                            }
+                            
+                            head_request ($URL, sub {
+                                                        my $ans = shift;
+                                                        $h->push_write( $ans."\nOK\n" );
+                                                        say "head OK ", length $ans;
+                                                    });
+                        }
+                        when ('GET') {
+                            if (!defined($URL)) {
+                                $h->push_write("You should set URL\nTry '?' to get help\n");
+                                return;
+                            }
+                            get_request ($URL, sub {
+                                                my $ans = shift;
+                                                $h->push_write( $ans."\nOK\n" );
+                                                say "get OK ", length $ans;                                            
+                                        });
+
+                        }
                         
-                        when 'FIN' {
+                        when ('FIN') {
                             $h->push_write("Goodbye\n");
                             $h->destroy;
                         }
@@ -74,9 +87,7 @@ $g = tcp_server undef, 8081,
                         default {
                             $h->push_write("Unknown operation: '${op}'\n");
                         }
-                    
-                    
-
+                    }
                 })
             }
         );
