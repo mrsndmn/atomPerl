@@ -42,11 +42,17 @@ sub getLonely {
     
 }
 
-sub get_friends {
-    my ($self) = @_;
+sub get_friends_by_id {
+    warn "here";
+    my ($self, $id) = @_;
     my $dbh = $self->{'dbh'};
 
-    # select second_id from test where (first_id == 1) union select first_id from test where second_id == 1 ;
+    my $array_ref = $dbh->selectall_arrayref(
+        "SELECT second_id FROM test WHERE (first_id == ?) UNION SELECT first_id FROM test WHERE second_id == ?",
+        { Slice => {} }, $id, $id;
+        );
+    p $array_ref;
+    #  ;
 
 
 }
@@ -58,7 +64,5 @@ sub get_names {
     # select name, surname from users where id == ?
 
 }
-
-sub 
 
 1;

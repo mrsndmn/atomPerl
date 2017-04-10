@@ -35,6 +35,7 @@ my $dbObj = Local::DBcommunication->new( dbFile => 'soc.db' );
 $dbObj->create();
 #$dbObj->doIt("insert into users (name, surname) values (qwe, eee);");
 
+$dbObj->get_friends_by_id(1);
 
 
 
