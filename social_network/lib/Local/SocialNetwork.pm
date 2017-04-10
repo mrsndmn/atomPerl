@@ -24,8 +24,17 @@ our $VERSION = '1.00';
 # select id, name from users join relations on relations.first_id == 35648 and relations.second_id == users.id ;
 
 sub getLonely {
-    my ($self, $P) = @_;
+    my ($self) = @_;
+
 
 }
+sub handshakes {
+    my ($self, $dbh) = @_;
+    my $array_ref = $dbh->selectall_arrayref(
+        "",
+        { Slice => {} }
+    );
 
+
+}
 1;
