@@ -33,13 +33,32 @@ sub doIt {
     $sth->execute(@_);    
 }
 
-sub getLonely (
+sub getLonely {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
     my $sql = 'select id from users except select distinct first_id from test order by first_id;'
     my $sth = $dbh->prepare( $sql );
     $sth->execute();
     
-)
+}
+
+sub get_friends {
+    my ($self) = @_;
+    my $dbh = $self->{'dbh'};
+
+    # select second_id from test where (first_id == 1) union select first_id from test where second_id == 1 ;
+
+
+}
+
+sub get_names {
+    my ($self) = @_;
+    my $dbh = $self->{'dbh'};
+
+    # select name, surname from users where id == ?
+
+}
+
+sub 
 
 1;
