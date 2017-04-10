@@ -62,7 +62,8 @@ $g = tcp_server undef, 8081,
                             
                             head_request ($URL, sub {
                                                         my $ans = shift;
-                                                        $h->push_write( $ans."\nOK\n" );
+                                                        #p $ans;
+                                                        $h->push_write( "OK ".(length $ans)."\n".$ans."\n" );
                                                         say "head OK ", length $ans;
                                                     });
                         }
@@ -73,7 +74,7 @@ $g = tcp_server undef, 8081,
                             }
                             get_request ($URL, sub {
                                                 my $ans = shift;
-                                                $h->push_write( $ans."\nOK\n" );
+                                                $h->push_write( "OK ".(length $ans)."\n".$ans );
                                                 say "get OK ", length $ans;                                            
                                         });
 
