@@ -81,21 +81,7 @@ sub run {
             sub {
                 my ($body, $header) = @_;
                 
-                my $hsize;# = 0;
-                # foreach my $k (keys %$header) {
-                #     $hsize += (length $k) + (length $header->{$k});
-                # }
-                #warn "hsize ".$hsize;
-                #p $header;
-                # $global_size += $hsize;
-                # if( exists $header->{"location"} 
-                #     and $header->{'Status'} =~ /3/
-                #     and (substr $header->{"location"} , 0, length $page) eq $start_page ) {
-                #             push @linksArr, $header->{"location"};
-                #             $next->();
-                #             $workers--;
-                #             return;
-                # }
+                my $hsize;
                 
                 if (    $header->{'Status'}       =~ /^2/
                         and scalar @linksArr
@@ -127,7 +113,7 @@ sub run {
                             #                     $wq->find('[href]')->attr('href');
 
                             # моё внутреннее чувство подсказывает, что такие большие паровозы map/grep
-                            # делать не стоит, но мне мне нравится, наверное
+                            # делать не стоит, но мне нравится, наверное
                             # warn "bfore ",scalar keys %tmp;
                             #  p $links;
                             foreach my $link ($wq->find('[href]')->attr('href')) {
@@ -176,13 +162,13 @@ sub run {
     $cv->recv;
 
     #say sprintf "%d", $global_size/1024;
-    @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
+    @top10_list = sort { $links->{$b} <=> $links->{$a} } @{ keys %$links };
 
     $global_size += $_ for (values %$links);
     # p $links;
-    warn scalar keys %$links;
-    say sort @linksArr;
-    # p @top10_list;
+    #warn scalar keys %$links;
+    #say sort @linksArr;
+    p @top10_list;
     
     #$total_size = 10887168;
     return $global_size, @top10_list;
