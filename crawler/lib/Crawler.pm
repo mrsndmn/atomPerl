@@ -162,13 +162,13 @@ sub run {
     $cv->recv;
 
     #say sprintf "%d", $global_size/1024;
-    @top10_list = sort { $links->{$b} <=> $links->{$a} } @{ keys %$links };
+    @top10_list[0..9] = sort { $links->{$b} <=> $links->{$a} } keys %$links;
 
     $global_size += $_ for (values %$links);
-    # p $links;
+    #p $links;
     #warn scalar keys %$links;
     #say sort @linksArr;
-    p @top10_list;
+    #p @top10_list;
     
     #$total_size = 10887168;
     return $global_size, @top10_list;
