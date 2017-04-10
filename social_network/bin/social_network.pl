@@ -21,21 +21,25 @@ GetOptions ("user=s" => \$user1,
             "user=s" => \$user2,
             );
 
-given ($command) {
-    when('nofriends') {
+# given ($command) {
+#     when('nofriends') {
         
-    }
+#     }
 
 my $confReader = Local::ReadConf->new();
 
 my $conf = $confReader->getConfig(); 
 
-my $dbObj = Local::DBcommunication->new( dbFile => 'soc.db' );
+my $db = Local::DBcommunication->new( dbFile => 'soc.db' );
 
-$dbObj->create();
-#$dbObj->doIt("insert into users (name, surname) values (qwe, eee);");
+#$db->doIt("insert into users (name, surname) values (qwe, eee);");
 
-$dbObj->get_friends_by_id(1);
+my $friends_id = $db->get_friends_by_id(1);
 
+# p $friends_id;
+my $names = $db->get_names_by_id($friends_id);
+# p $names;
+
+p @{Local::SocialNetwork::lonely()};
 
 

@@ -14,16 +14,12 @@ sub new {
     my $dbFile = "$FindBin::Bin/../data/".$params{'dbFile'};
     die "No such file $dbFile" if ! -e $dbFile;
     $params{'dbFile'} = $dbFile;
-    return bless \%params, $class;
-}
 
-sub create {
-    my $self= shift;
-    my $dbFile = $self->{'dbFile'};
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die "Cannot connect this db:\n";
     #warn "dbh created";
-    $self->{'dbh'} = $dbh;
-    return $self;
+    $params{'dbh'} = $dbh;
+
+    return bless \%params, $class;
 }
 
 sub doIt {
@@ -33,36 +29,37 @@ sub doIt {
     $sth->execute(@_);    
 }
 
-sub getLonely {
+sub select_lonely {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
-    my $sql = 'SELECT name, surname FROM users WHERE id IN (SELECT id FROM users EXCEPT SELECT DISTINCT first_id FROM test EXCEPT SELECT DISTINCT second_id FROM test);'
-    my $sth = $dbh->prepare( $sql );
-    $sth->execute();
     
+    my $array_ref = $dbh->selectall_arrayref(
+            "SELECT id FROM users EXCEPT SELECT DISTINCT first_id FROM relations EXCEPT SELECT DISTINCT second_id FROM relations;",
+        )   or die "smth went wrong in get lonely";
+    return [ map {$_->[0]} @$array_ref ];
 }
 
-sub get_friends_by_id {
+sub select_friends_by_id {
     warn "here";
     my ($self, $id) = @_;
     my $dbh = $self->{'dbh'};
 
     my $array_ref = $dbh->selectall_arrayref(
-        "SELECT second_id FROM test WHERE (first_id == ?) UNION SELECT first_id FROM test WHERE second_id == ?",
-        { Slice => {} }, $id, $id;
-        );
-    p $array_ref;
-    #  ;
+        "SELECT second_id FROM relations WHERE (first_id == ?) UNION SELECT first_id FROM relations WHERE second_id == ?",
+        {}, $id, $id
+        ) or die "smth went wrong in get_friends_by_id";
 
-
+    return [ map {$_->[0]} @$array_ref ];
 }
 
-sub get_names {
-    my ($self) = @_;
+sub select_names_by_id {
+    my ($self, $id) = @_;
     my $dbh = $self->{'dbh'};
-
-    # select name, surname from users where id == ?
-
+    my $array_ref = $dbh->selectall_arrayref(
+        "SELECT name, surname FROM users WHERE id IN (". (join ", ", ("?") x scalar(@$id)) .")",
+        { Slice => {} }, @$id
+        ) or die "smth went wrong in get_names_by_id";
+    return $array_ref;
 }
 
 1;
