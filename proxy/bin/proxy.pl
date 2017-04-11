@@ -7,12 +7,21 @@ use AnyEvent::HTTP;
 use AnyEvent::Socket;
 use Data::Validate::URI qw(is_web_uri);
 
+my $help =<<__TEXT__
+'URL'   remember folowing URL
+'HEAD'  head request to URL
+'GET'   get request to URL
+'FIN'   exit
+'?'     this message
+__TEXT__
+;
+
 my $URL;
+${AnyEvent::HTTP::}{MAX_PEER_HOST} = 100;   # more then 4 # OK
+$AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
 
 my $cv = AnyEvent::condvar;
 
-$AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
-#$AnyEvent::HTTP::MAX_PEER_HOST = ?? ;      # more then 4 # not ok ?????
 
 $cv->begin();
 my $g;
@@ -34,11 +43,12 @@ $g = tcp_server undef, 8081,
                     # no regexp no overhead
                     my ($op, $other ) = split " ", $_[1], 2;
                     return if !defined $op;
+                    chomp $op;
                     # no Switch no problems :: we have given when
                     
                     given ($op) {
                         when('?') {
-                            $h->push_write(join "", <DATA>);                            
+                            $h->push_write($help);
                         }
                         when ('URL') {
 
@@ -130,9 +140,4 @@ sub get_request {
 
 }
 
-__END__
-'URL'   remember folowing URL
-'HEAD'  head request to URL
-'GET'   get request to URL
-'FIN'   exit
-'?'     this message
+
