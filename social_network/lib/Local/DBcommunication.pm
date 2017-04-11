@@ -40,26 +40,24 @@ sub select_lonely {
 }
 
 sub select_friends_by_id {
-    warn "here";
     my ($self, $ids) = @_;
     my $dbh = $self->{'dbh'};
 
-    my $array_ref = $dbh->selectall_arrayref(
-        "SELECT DISTINCT second_id FROM relations WHERE first_id IN (". (join ", ", ("?") x scalar(@$ids))") ".
-        "UNION SELECT DISTINCT first_id FROM relations WHERE second_id IN (". (join ", ", ("?") x scalar(@$ids)).");",
-        {}, @$ids, @$ids
-        ) or die "smth went wrong in get_friends_by_id";
+    my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id IN (". (join ", ", @$ids).") ".
+        "UNION SELECT DISTINCT first_id FROM relations WHERE second_id IN (". (join ", ", @$ids).");";    
 
+    my $array_ref = $dbh->selectall_arrayref( $sql ) or die "smth went wrong in get_friends_by_id";
+    # p $array_ref;
     return [ map {$_->[0]} @$array_ref ];
 }
 
 sub select_names_by_id {
-    my ($self, $id) = @_;
+    my ($self, $ids) = @_;
     my $dbh = $self->{'dbh'};
-    my $array_ref = $dbh->selectall_arrayref(
-        "SELECT name, surname FROM users WHERE id IN (". (join ", ", ("?") x scalar(@$id)) .")",
-        { Slice => {} }, @$id
-        ) or die "smth went wrong in get_names_by_id";
+
+    my $sql = "SELECT name, surname FROM users WHERE id IN (". (join ", ", @$ids).") ";
+
+    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} }) or die "smth went wrong in get_names_by_id";
     return $array_ref;
 }
 
@@ -68,8 +66,17 @@ sub select_count_users {
     my $dbh = $self->{'dbh'};
     my $array_count = $dbh->selectall_arrayref(
         "SELECT COUNT(*) FROM users;" ) or die "smth went wrong in get_names_by_id";
-    p $array_count;
     return $array_count->[0]->[0];
+}
+
+sub select_id_by_name {
+    my ($self, $name, $surname) = @_;
+    my $dbh = $self->{'dbh'};
+    die "you must determine name and surname" if !$name or !$surname;
+    my $sql = "SELECT id FROM users WHERE name == $name and sunrame == $surname";
+
+    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} }) or die "smth went wrong in get_names_by_id";
+    return $array_ref;
 }
 
 
