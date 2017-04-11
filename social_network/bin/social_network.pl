@@ -34,12 +34,14 @@ my $db = Local::DBcommunication->new( dbFile => 'soc.db' );
 
 #$db->doIt("insert into users (name, surname) values (qwe, eee);");
 
-my $friends_id = $db->get_friends_by_id(1);
+# my $friends_id = $db->get_friends_by_id(1);
 
 # p $friends_id;
-my $names = $db->get_names_by_id($friends_id);
+# my $names = $db->get_names_by_id($friends_id);
 # p $names;
 
-p @{Local::SocialNetwork::lonely()};
+# p @{Local::SocialNetwork::lonely()};
+
+warn Local::SocialNetwork->handshakes(1,2);
 
 

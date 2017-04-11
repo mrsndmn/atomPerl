@@ -3,6 +3,9 @@ package Local::SocialNetwork;
 use strict;
 use warnings;
 
+use DDP;
+use List::Util qw(any);
+
 
 use Local::ReadConf;
 use Local::DBcommunication;
@@ -37,8 +40,8 @@ sub get_lonely {
 }
 
 sub get_friends {
-    my ($self, $id) = @_;
-    my $friends_id = $db->select_friends_by_id($id);
+    my ($self, $ids) = @_;
+    my $friends_id = $db->select_friends_by_id($ids);
     return $friends_id;
 }
 
@@ -46,22 +49,36 @@ sub handshakes {
     my ($self, $id0, $id1) = @_;
     return 0 if $id0 == $id1;
     
+    my $lonly = get_lonely;
+    return "there is no hope to get handshake with alone" if any { $_ == $id0 ot $_ == $id1 } @$lonly;
+
+    my $users_count = $db->select_count_users();
+    my $lim = $users_count - scalar(@$lonly);
+
     my %index;
     $index{$id0}->{'handshakes'} = 0;
     $index{$id0}->{'prev'} = undef;
     my $friends = get_friends($id0) ; #its arr
 
-    my $hshake = 1;
+    my $ans_hshake;
+    my $prev = $id0;
+    $index{$_} = 1 foreach (@$friends);
 
-    
-    foreach my $friend (@$friends) {
-        if !exists $index{$friend} {
-            $index{$friend}->{} = $hshake;
-        } else {
-            if ($index{$friend}>$hshake) {
+    while (scalar(@{[keys %index]})<$lim or !$ans_hshake ){
 
+        foreach my $friend (@$friends) {
+            # if (!exists $index{$friend}) {
+            $index{$friend}->{'handshakes'} = 1 + $index{$prev}->{'handshakes'};
+            $index{$friend}->{'prev'} = $prev;
+
+            if ($id1 == $friend) {
+                $ans_hshake = $index{'handshakes'};
+                last;
             }
+            # }
         }
+        $friends = grep { !exists $index{$_} } @{ get_friends($friends) };
+
     }
     
     return $hshake;
