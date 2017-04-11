@@ -6,7 +6,7 @@ use warnings;
 use DDP;
 use List::Util qw(any);
 
-
+use JSON::XS;
 use Local::ReadConf;
 use Local::DBcommunication;
 
@@ -27,20 +27,30 @@ our $VERSION = '1.00';
 =head1 SYNOPSIS
 
 =cut
-# get friends
-# select id, name from users join relations on relations.first_id == 35648 and relations.second_id == users.id ;
-
-
 
 sub new {
     my ($class, %params) = @_;
-    my $confReader = Local::ReadConf->new();
+    my $confReader = Local::ReadConf->  new();
     my $conf = $confReader->getConfig(); 
-    p $conf;
     my $dbFile = $conf->{dbFile};
-    my $db = Local::DBcommunication->new( dbFile => $dbFile ) or die "Cant connect to DB";
+    my $db = Local::DBcommunication->new( dbFile => $dbFile );
     $params{'db'} = $db;
+    $params{'toJSON'} = JSON::XS->new->pretty;
     return bless \%params, $class;
+}
+
+sub get_names_by_id {
+    my ($self, $ids) = @_;
+    my $db = $self->{'db'};
+    $ids = [ $ids ] if (ref $ids eq '');  
+    my $arrref = $db->select_names_by_id($ids);
+    return $self->{'toJSON'}->encode($arrref);
+} 
+
+sub get_id_by_name {
+    my ($self, $name, $surname) = @_;
+    my $db = $self->{'db'};
+    return $db->select_id_by_name($name, $surname);
 }
 
 sub get_lonely {
@@ -50,14 +60,19 @@ sub get_lonely {
     return $foreverAlone;
 }
 
-sub get_friends {
-    my ($self, $ids, $except) = @_;
+sub get_common_friends {
+    my ($self, $id0, $id1) = @_; 
+    # p @_;
+    my $db = $self->{'db'};     
+    return $db->select_common_friends($id0, $id1);
+}
+
+sub get_all_friends {
+    my ($self, $ids) = @_;
     my $db = $self->{'db'};
-    # p $ids;
-    $ids = [ $ids ] if (ref $ids eq '');
     die "need arrref as args" if !$ids;
-    my $friends_id = $db->select_friends_by_id($ids);
-    return $friends_id;
+    $ids = [ $ids ] if (ref $ids eq '');
+    return $db->select_friends_by_id($ids);
 }
 
 sub handshakes {
@@ -66,24 +81,23 @@ sub handshakes {
     die "need id1, id2 as args" if ! $id0 or !$id1;
     return 0 if $id0 == $id1;
     
-    my $lonly = get_lonely;
+    my $lonly = $self->get_lonely;
     return "there is no hope to get handshake with alone" if any { $_ == $id0 or $_ == $id1 } @$lonly;
 
     my $users_count = $db->select_count_users();
     my $lim = $users_count - scalar(@$lonly);
 
     my %index;
-    # $index{$id0} = 0;
 
-    my $friends;# = $self->get_friends([$id0]) ; #its arr
+    my $friends;# = $self->get_all_friends([$id0]) ; #its arr
     push @$friends, $id0;
     my $ans_hshake;
 
     my $shakes = 1;
     while ((scalar(@{[keys %index]})<$lim and !$ans_hshake) or scalar @$friends == 0 ){
         
-        # but may be with EXCEPT in db it would be better
-        @$friends = grep { !exists $index{$_} } @{ $self->get_friends($friends) };        
+        #! but may be with EXCEPT in db it would be better, but i'm too lazy
+        @$friends = grep { !exists $index{$_} } @{ $self->get_all_friends($friends) };        
  
         foreach my $friend (@$friends) {
             $index{$friend} = $shakes;
@@ -96,14 +110,6 @@ sub handshakes {
     }
     # warn "YYYYEEEAH ", $ans_hshake;
     return $ans_hshake? $ans_hshake : "no common friends" ;
-}
-
-sub get_names_by_id {
-    my ($self, $ids) = @_;
-    p @_;
-    my $db = $self->{'db'};
-    $ids = [ $ids ] if (ref $ids eq '');    
-    return $db->select_names_by_id($ids);
 }
 
 1;

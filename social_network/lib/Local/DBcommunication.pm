@@ -22,21 +22,25 @@ sub new {
     return bless \%params, $class;
 }
 
-# sub doIt {
-#     my ($self, $sql, @args) = @_;
-#     my $dbh = $self->{'dbh'};
-#     my $sth = $dbh->prepare( $sql );
-#     $sth->execute(@_);    
-# }
-
 sub select_lonely {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
     
     my $array_ref = $dbh->selectall_arrayref(
-            "SELECT id FROM users EXCEPT SELECT DISTINCT first_id FROM relations EXCEPT SELECT DISTINCT second_id FROM relations;",
-        )   or die "smth went wrong in get lonely";
+            "SELECT id FROM users EXCEPT SELECT DISTINCT first_id FROM relations EXCEPT SELECT DISTINCT second_id FROM relations;"
+        );
     return [ map {$_->[0]} @$array_ref ];
+}
+sub select_common_friends {
+    my ($self, $id0, $id1) = @_;
+    my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id == $id0 ".
+                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == $id0 ".
+                "INTERSECT ".
+                "SELECT DISTINCT second_id FROM relations WHERE first_id == $id1 ".
+                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == $id1;";
+    my $dbh = $self->{'dbh'};
+    my $array_ref = $dbh->selectall_arrayref( $sql );
+    return  [ map {$_->[0]} @$array_ref ];
 }
 
 sub select_friends_by_id {
@@ -46,18 +50,15 @@ sub select_friends_by_id {
     my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id IN (". (join ", ", @$ids).") ".
         "UNION SELECT DISTINCT first_id FROM relations WHERE second_id IN (". (join ", ", @$ids).");";    
 
-    my $array_ref = $dbh->selectall_arrayref( $sql ) or die "smth went wrong in get_friends_by_id";
-    # p $array_ref;
+    my $array_ref = $dbh->selectall_arrayref( $sql );
     return [ map {$_->[0]} @$array_ref ];
 }
 
 sub select_names_by_id {
     my ($self, $ids) = @_;
     my $dbh = $self->{'dbh'};
-
-    my $sql = "SELECT name, surname FROM users WHERE id IN (". (join ", ", @$ids).") ";
-
-    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} }) or die "smth went wrong in get_names_by_id";
+    my $sql = "SELECT * FROM users WHERE id IN (". (join ", ", @$ids).") ";
+    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} });
     return $array_ref;
 }
 
@@ -65,7 +66,7 @@ sub select_count_users {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
     my $array_count = $dbh->selectall_arrayref(
-        "SELECT COUNT(*) FROM users;" ) or die "smth went wrong in get_names_by_id";
+        "SELECT COUNT(*) FROM users;" );
     return $array_count->[0]->[0];
 }
 
@@ -73,10 +74,9 @@ sub select_id_by_name {
     my ($self, $name, $surname) = @_;
     my $dbh = $self->{'dbh'};
     die "you must determine name and surname" if !$name or !$surname;
-    my $sql = "SELECT id FROM users WHERE name == $name and sunrame == $surname";
-
-    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} }) or die "smth went wrong in get_names_by_id";
-    return $array_ref;
+    my $sql = "SELECT id FROM users WHERE name == \"$name\" and surname == \"$surname\"";
+    my $array_ref =  $dbh->selectall_arrayref( $sql);
+    return $array_ref->[0];
 }
 
 
