@@ -3,13 +3,11 @@
 use strict;
 use warnings;
 
-use Mojolicious::Lite;
 
+use Dancer2;
 
-get '/auth' => sub {
-    my $c   = shift;
-  
+get '/' => sub {
+return 'Hello World!';
 };
 
-
-app->start;
+start;
