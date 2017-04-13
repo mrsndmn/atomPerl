@@ -16,17 +16,18 @@ my $help =<<__TEXT__
 __TEXT__
 ;
 
-my $URL;
-${AnyEvent::HTTP::}{MAX_PEER_HOST} = 100;   # more then 4 # OK
 $AnyEvent::HTTP::USERAGENT = "my incognito proxy";      # )
 
 my $cv = AnyEvent::condvar;
 
+my %comparator;
 
 $cv->begin();
 my $g;
 $g = tcp_server undef, 8081, 
     sub {
+        # p @_;
+
         my ($fh, $thishost, $thisport) = @_;
         warn "new connection";
         my $h = AnyEvent::Handle->new( fh => $fh );
@@ -40,6 +41,7 @@ $g = tcp_server undef, 8081,
             sub {
                 $h->push_read( line => sub {
                     
+                    my $URL = $comparator{$thishost.$thisport};
                     # no regexp no overhead
                     my ($op, $other ) = split " ", $_[1], 2;
                     return if !defined $op;
@@ -56,7 +58,8 @@ $g = tcp_server undef, 8081,
                                 $h->push_write("Need argument.\nTry '?' to get help\n");
                             }
                             if ( is_web_uri $other ) {
-                                $URL = $other;
+                                $comparator{$thishost.$thisport} = $other;
+                                $URL = $comparator{$thishost.$thisport};
                                 $h->push_write("OK\n");
                                 warn $URL;
                             } else {
@@ -65,16 +68,22 @@ $g = tcp_server undef, 8081,
                             }
                         }
                         when ('HEAD') {
+                            warn $URL, $thisport;
+                            # p %comparator;
                             if (!defined($URL)) {
                                 $h->push_write("You should set URL\nTry '?' to get help\n");
                                 return;
                             }
                             
                             head_request ($URL, sub {
-                                                        my $ans = shift;
-                                                        #p $ans;
+                                                    my $ans = shift;
+
+                                                    if ($ans) {
                                                         $h->push_write( "OK ".(length $ans)."\n".$ans."\n" );
                                                         say "head OK ", length $ans;
+                                                    } else {
+                                                        $h->push_write( "NOT OK\nCant get this page\n$URL\n" );                                                    
+                                                    }
                                                     });
                         }
                         when ('GET') {
@@ -83,9 +92,16 @@ $g = tcp_server undef, 8081,
                                 return;
                             }
                             get_request ($URL, sub {
-                                                my $ans = shift;
-                                                $h->push_write( "OK ".(length $ans)."\n".$ans );
-                                                say "get OK ", length $ans;                                            
+                                                my ($ans, $length) = @_;
+                                                
+                                                $length //= length $ans;
+                                                if ($length){
+                                                    $h->push_write( "OK ".$length."\n".$ans."\n " );
+                                                    say "get OK ", $length;
+                                                } else {
+                                                    $h->push_write( "NOT OK\nCant get this page\n$URL\n" );                                                    
+                                                }
+
                                         });
 
                         }
@@ -134,7 +150,9 @@ sub get_request {
     http_get ($page, 
             sub {
                 my ($body, $header) = @_;
-                $cb->($body);
+                p $header;
+                #warn $header->{'content-length'};
+                $cb->($body, $header->{'content-length'});
                 $cv->end;
             });
 
