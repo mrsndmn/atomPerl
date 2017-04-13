@@ -1,21 +1,18 @@
 
 body {
-margin: 0;
-margin-bottom: 25px;
-padding: 0;
-background-color: #ddd;
-background-image: url("/images/perldancer-bg.jpg");
-background-repeat: no-repeat;
-background-position: top left;
-
-font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
-font-size: 13px;
-color: #333;
-}
+    margin: 0;
+    margin-bottom: 25px;
+    padding: 0;
+    background-color: #ddf;
+    
+    font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
+    font-size: 13px;
+    color: #333;
+    }
 
 h1 {
-font-size: 28px;
-color: #000;
+    font-size: 28px;
+    color: #000;
 }
 
 a  {color: #03c}
@@ -52,13 +49,6 @@ padding-left: 75px;
 padding-right: 30px;
 }
 
-
-#header {
-background-image: url("/images/perldancer.jpg");
-background-repeat: no-repeat;
-background-position: top left;
-height: 64px;
-}
 #header h1, #header h2 {margin: 0}
 #header h2 {
 color: #888;
@@ -167,12 +157,12 @@ margin-bottom: 5px;
 
 h1, h2, h3, h4, h5 {
 font-family: sans-serif;
-margin: 1.2em 0 0.6em 0;
+margin: 5px;
 }
 
 p {
 line-height: 1.5em;
-margin: 1.6em 0;
+margin: 5px;
 }
 
 code, .filepath, .app-info {

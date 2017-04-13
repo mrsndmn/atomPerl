@@ -18,23 +18,6 @@ builder {
     notes_web->to_app;
 }
 
-
-
-=begin comment
-# use this block if you want to include middleware such as Plack::Middleware::Deflater
-
-use notes_web;
-use Plack::Builder;
-
-builder {
-    enable 'Deflater';
-    notes_web->to_app;
-}
-
-=end comment
-
-=cut
-
 =begin comment
 # use this block if you want to include middleware such as Plack::Middleware::Deflater
 
