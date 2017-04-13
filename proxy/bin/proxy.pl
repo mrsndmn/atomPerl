@@ -75,11 +75,13 @@ $g = tcp_server undef, 8081,
                             }
                             
                             head_request ($URL, sub {
-                                                    my $ans = shift;
-
-                                                    if ($ans) {
-                                                        $h->push_write( "OK ".(length $ans)."\n".$ans."\n" );
-                                                        say "head OK ", length $ans;
+                                                    my ($ans, $length) = @_;
+                                                    warn $length;
+                                                    chomp $ans;
+                                                    $length //= length $ans;
+                                                    if ($length) {
+                                                        $h->push_write( "OK ".$length."\n".$ans."\n" );
+                                                        say "head OK ", $length ;
                                                     } else {
                                                         $h->push_write( "NOT OK\nCant get this page\n$URL\n" );                                                    
                                                     }
@@ -92,7 +94,7 @@ $g = tcp_server undef, 8081,
                             }
                             get_request ($URL, sub {
                                                 my ($ans, $length) = @_;
-                                                
+                                                chomp $ans;                                                
                                                 $length //= length $ans;
                                                 if ($length){
                                                     $h->push_write( "OK ".$length."\n".$ans."\n " );
@@ -133,7 +135,7 @@ sub head_request {
                 my ($body, $header) = @_;
                 #p $header;
                 my $ans = join "\n", map { "$_ : ". $header->{$_} } sort keys %$header;
-                $cb->($ans);
+                $cb->($ans, $header->{'content-length'});
                 $cv->end;
             });
 
