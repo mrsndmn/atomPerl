@@ -76,14 +76,12 @@ $g = tcp_server undef, 8081,
                             
                             head_request ($URL, sub {
                                                     my ($ans, $length) = @_;
-                                                    warn $length;
-                                                    chomp $ans;
-                                                    $length //= length $ans;
+
                                                     if ($length) {
                                                         $h->push_write( "OK ".$length."\n".$ans."\n" );
                                                         say "head OK ", $length ;
                                                     } else {
-                                                        $h->push_write( "NOT OK\nCant get this page\n$URL\n" );                                                    
+                                                        $h->push_write( "NOT OK\nCant head this page\n$URL\n" );                                                    
                                                     }
                                                     });
                         }
@@ -94,8 +92,7 @@ $g = tcp_server undef, 8081,
                             }
                             get_request ($URL, sub {
                                                 my ($ans, $length) = @_;
-                                                chomp $ans;                                                
-                                                $length //= length $ans;
+
                                                 if ($length){
                                                     $h->push_write( "OK ".$length."\n".$ans."\n " );
                                                     say "get OK ", $length;
@@ -135,7 +132,7 @@ sub head_request {
                 my ($body, $header) = @_;
                 #p $header;
                 my $ans = join "\n", map { "$_ : ". $header->{$_} } sort keys %$header;
-                $cb->($ans, $header->{'content-length'});
+                $cb->($ans, $header->{'content-length'} // length $ans);
                 $cv->end;
             });
 
@@ -151,9 +148,9 @@ sub get_request {
     http_get ($page, 
             sub {
                 my ($body, $header) = @_;
-                p $header;
+                # p $header;
                 #warn $header->{'content-length'};
-                $cb->($body, $header->{'content-length'});
+                $cb->($body, $header->{'content-length'} // length $body);
                 $cv->end;
             });
 
