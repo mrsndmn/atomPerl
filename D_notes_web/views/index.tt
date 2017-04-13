@@ -1,44 +1,54 @@
-<div align="center">
-    <div align="left" class="b-main">
-        <!-- Авторизация -->
-        <div class="b-auth b-block">
-            <h2>Auth</h2>
-            <form action="" method="post">
+     
+<% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>
+<% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>
+
+<!-- Авторизация -->
+<div align="left" class="b-main">
+    <div class="b-auth b-block">
+    <% IF session.logged_in %>
+        <h2>Auth</h2>
+            <form action="login" method="post" onsubmit="document.getElementById('submit').disable=true;">
                 <p><input type="text" name="username" placeholder="username" /></p>
                 <p><input type="password" name="password" placeholder="password" /></p>
-                <p><input type="submit" value="Login" /></p>
+                <p><input type="submit" value="Login" /> or <a href="/register">Register</a></p>
             </form>
-        </div>
-
-        <!-- Создание заметки -->
-        <div class="b-note-creation b-block">
-            <h2>Create note</h2>
-            <form action="">
-                <p><input type="title" name="title" placeholder="Title" /></p>
-                <p><textarea name="text" placeholder="Note text"></textarea></p>
-                <p><textarea name="users" placeholder="Users you want to share"></textarea></p>
-                <p><input type="submit" value="Create" /></p>
+    <% ELSE %>
+        <h2>You are welcome</h2>
+            <p style="margin: 30px"> </p>
+            <form action="logout" method="post" onsubmit="document.getElementById('submit').disable=true;">
+                <p align="center" ><input type="submit" value="Logout"/></p>            
             </form>
-        </div>
+    <% END %>
+    </div>
 
-        <!-- Список заметок -->
-        <div class="b-notes b-block">
-            <h2>My Notes</h2>
+<!-- Создание заметки -->
+    <div class="b-note-creation b-block">
+        <h2>Create note</h2>
+        <form action="">
+            <p><input type="title" name="title" placeholder="Title" /></p>
+            <p><textarea name="text" placeholder="Note text"></textarea></p>
+            <p><textarea name="users" placeholder="Users you want to share"></textarea></p>
+            <p><input type="submit" value="Create" /></p>
+        </form>
+    </div>
 
-            <div class="b-note">
-                <p class="b-note-title">
-                    Note Title
-                </p>
-                <p class="b-note-link">
-                    <a href="#">Note link</a>
-                </p>
-                <p class="b-note-text">
-                    Note text
-                </p>
-                <p class="b-note-users">
-                    Note shared users
-                </p>
-            </div>
+<!-- Список заметок -->
+    <div class="b-notes b-block">
+        <h2>My Notes</h2>
+
+        <div class="b-note">
+            <p class="b-note-title">
+                Note Title
+            </p>
+            <p class="b-note-link">
+                <a href="#">Note link</a>
+            </p>
+            <p class="b-note-text">
+                Note text
+            </p>
+            <p class="b-note-users">
+                Note shared users
+            </p>
         </div>
     </div>
-</div>
+</div>     

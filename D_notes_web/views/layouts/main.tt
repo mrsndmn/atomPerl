@@ -1,65 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="<% settings.charset %>">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title><% title %></title>
-  <link rel="stylesheet" href="<% request.uri_base %>/css/style.css"> 
-  <style>
-        .b-main {
-            display: inline-table;
-            margin: 8px;            
-        }
-        .b-auth {
+    <meta charset="<% settings.charset %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>
+        <% title %>
+    </title>
+    <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+    <style>
 
-        }
-        .b-note-notes {
-            margin: 10px 10px 10px 0;
-            
-        }
-        .b-block {
-            padding: 20px;
-            margin: 8px;
-            border: 1px solid #f1f1f1;
-            display: inline-table;
-        }
-        .b-note-creation {
-
-        }
-        input, textarea {
-            border: 1px solid #e1e1e1;
-            padding: 3px;
-        }
-
-        .b-note {
-            margin: 10px 10px 10px 0;
-        }
-
-        .b-note-title, .b-note-users {
-            font-weight: bold;
-        }
-
-        textarea[name=text] {
-            width: 300px;
-            height: 150px;
-        }
-        textarea[name=users] {
-            width: 300px;
-            height: 50px;
-        }
     </style>
 
-<!-- Grab jQuery from a CDN, fall back to local if necessary -->
-<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-<script type="text/javascript">/* <![CDATA[ */
-    !window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"><\/script>')
-/* ]]> */</script>
+    <!-- Grab jQuery from a CDN, fall back to local if necessary -->
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        !window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"><\/script>')
+/* ]]> */
+    </script>
 
 </head>
+
 <body>
-<% content %>
-<div id="footer">
-<!-- Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %> -->
-</div>
+    <div align="center">
+        <h1><a href="/">Web notes</a></h1>
+    </div>
+         <div align="center">
+
+            <% content %>
+         </div>
+    <div id="footer">
+        <!-- Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %> -->
+    </div>
 </body>
+
 </html>

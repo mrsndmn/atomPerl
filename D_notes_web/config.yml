@@ -45,9 +45,9 @@ plugins :
 # is different for each app.
 #
 #engines:
-#  session:
-#    Simple:
-#      cookie_name: testapp.session
+ session:
+   Simple:
+     cookie_name: testapp.session
 #
 #engines:
 #  session:
