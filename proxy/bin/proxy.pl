@@ -27,7 +27,6 @@ my $g;
 $g = tcp_server undef, 8081, 
     sub {
         # p @_;
-
         my ($fh, $thishost, $thisport) = @_;
         warn "new connection";
         my $h = AnyEvent::Handle->new( fh => $fh );
