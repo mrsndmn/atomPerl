@@ -5,6 +5,8 @@ use warnings;
 use DDP;
 use List::Util qw(any);
 use FindBin; 
+use YAML::Tiny;
+
 sub new {
     my ($class, %params) = @_;
     return bless \%params, $class;
@@ -12,18 +14,9 @@ sub new {
 sub getConfig {
     my $self = shift;
     my $binary_path = $FindBin::Bin;
-    open (my $fh, "<", "${binary_path}/../etc/social_network.conf") 
-                    or die "cant find config! at $binary_path/../etc/social_network.conf";
-    #hashref
-    my $conf;
-    # parsing
-    while (my $line = <$fh>) {
-        chomp $line;
-        next if (!$line or $line =~ /^\s*#/);
-        $line =~ /(?<param>\w+)\s*:\s*(?<value>[^\s]+)/;
-        $conf->{$+{'param'}} = $+{'value'};
-    }
-    
+
+    my $conf = YAML::Tiny->read( "$binary_path/../etc/social_network.yml" )->[0];
+    p $conf;
     checkConf($conf);
 
     return $conf;
@@ -32,7 +25,7 @@ sub getConfig {
 sub checkConf {
     my $conf = shift;
     my %reqiired = ( dbFile => 1);
-    my %optional = ( handshakes => 1 );
+    my %optional;# = ( handshakes => 1 );
 
     die "[DEAD] Invalid conf\n",
         "You must specify folowing params:\n",

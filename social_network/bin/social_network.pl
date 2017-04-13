@@ -1,17 +1,48 @@
 #!/usr/bin/env perl
-
 use strict;
 use warnings;
 use DDP;
 use 5.010;
-use FindBin;
 use Getopt::Long;
+use FindBin;
 use feature "switch";
 no warnings 'experimental';
 
 use lib "$FindBin::Bin/../lib";
 
 use Local::SocialNetwork;
+
+=head1 NAME
+
+    SocialNetwork app
+
+=head1 SYNOPSIS
+
+    Usage :
+
+        $0 command --options
+
+    Commands:
+
+        nofriends -- without options. Find lonely people.
+
+        friends -- Find common friends
+
+                With option --user {id1} --user {id2}
+        
+        num_hs -- The least handshakes num between users
+    
+                With option --user {id1} --user {id2}
+
+        getID -- Gettind dis of users with folowing name and surname
+
+                With option --userName {name} {surname}               
+
+        getName -- Getting name by id
+
+                With option --user {id1}
+        
+=cut
 
 my $command = shift;
 my @users;
@@ -39,11 +70,11 @@ given ($command) {
         # die "you must determine 2 users with --user=*user*" if !$user1 or !$user2;
         die "you must determine user with --user=*user*" if scalar(@users)<2;        
         my $num_hs = $obj->handshakes(@users[0..1]);
-        return $num_hs;
+        say $num_hs;
     }
     when ('getID') {
         #say @users[0,1];
-        say join ", ", @{$obj->get_id_by_name(@users[0,1])};
+        say join ", ", @{$obj->get_id_by_name(@userName[0,1])};
     }
     when ('getName') {
         my $id =$users[0];
@@ -54,3 +85,4 @@ given ($command) {
         say "bad command"
     }
 }    
+

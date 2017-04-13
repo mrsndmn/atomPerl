@@ -27,6 +27,11 @@ engines:
       start_tag: '<%'
       end_tag:   '%>'
 
+plugins : 
+  Database:
+    driver: 'sqlite'
+    database: 'data/web_note.db'
+
 # session engine
 #
 # Simple: in-memory session store - Dancer2::Session::Simple
