@@ -32,19 +32,26 @@ $g = tcp_server undef, 8081,
         my $h = AnyEvent::Handle->new( fh => $fh );
 
         $h->on_error( sub { $h->destroy; } );
-        
+        $h->timeout(1800);
+        $h->on_timeout ( sub {
+            delete $comparator{$thishost.$thisport};
+            $h->push_write("Goodbye. Timeout disconnect.\n");
+            $h->destroy;
+        });
         # Start message
         $h->push_write("You are welcome to my proxy\nTry '?' to get help\n");
         
-        $h->on_read (   
+        $h->on_read ( 
             sub {
+                $h->timeout_reset;
                 $h->push_read( line => sub {
                     
                     my $URL = $comparator{$thishost.$thisport};
                     # no regexp no overhead
-                    my ($op, $other ) = split " ", $_[1], 2;
+                    my ($op, $other) = split " ", $_[1], 2;
                     return if !defined $op;
                     chomp $op;
+                    $other //= "";
                     # no Switch no problems :: we have given when
                     
                     given ($op) {
@@ -52,7 +59,7 @@ $g = tcp_server undef, 8081,
                             $h->push_write($help);
                         }
                         when ('URL') {
-                            if (!defined($other)) {
+                            if ($other) {
                                 $h->push_write("Need argument.\nTry '?' to get help\n");
                             }
                             if ( is_web_uri $other ) {
@@ -104,6 +111,7 @@ $g = tcp_server undef, 8081,
                         }
                         
                         when ('FIN') {
+                            delete $comparator{$thishost.$thisport};
                             $h->push_write("Goodbye\n");
                             $h->destroy;
                         }
@@ -145,13 +153,16 @@ sub get_request {
 
     $cv->begin;
     http_get ($page, 
-            sub {
-                my ($body, $header) = @_;
+        on_body => sub {
+            warn "on body";
+            my ($body, $header) = @_;
                 # p $header;
                 #warn $header->{'content-length'};
-                $cb->($body, $header->{'content-length'} // length $body);
-                $cv->end;
-            });
+            $cb->($body,  length $body);
+        }, 
+        sub {
+            $cv->end;
+        });
 
 }
 
