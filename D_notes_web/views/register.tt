@@ -1,4 +1,4 @@
-<% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>
+<!--<% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>-->
 
 <div align="left" class="b-main">
     <div class="b-register b-block">

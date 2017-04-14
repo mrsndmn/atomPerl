@@ -1,12 +1,15 @@
      
+<!--<% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>
+<% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>-->
+
 <!-- Авторизация -->
 <div align="left" class="b-main">
     <div class="b-auth b-block">
-    
-        <h2>Auth</h2>
+        <h2>Auth session not logined</h2>
             <form action="" method="post" onsubmit="document.getElementById('submit').disable=true;">
                 <p><input type="text" name="username" placeholder="username" /></p>
                 <p><input type="password" name="password" placeholder="password" /></p>
                 <p><input type="submit" value="Login" /> or <a href="/register">Register</a></p>
             </form>
+    </div>
 </div>     

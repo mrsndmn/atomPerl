@@ -23,7 +23,7 @@ sub new {
 
 sub isValid {
     my ($self, $username, $password) = @_;
-    warn "VALIDATION", $username, " | ", $password;
+    warn "VALIDATION ", $username, " | ", $password;
     my $dbh = $self->{'dbh'};
     return $dbh->selectrow_arrayref(
                     'SELECT COUNT(*) FROM auth WHERE username = (?) and password == (?)',
@@ -35,9 +35,12 @@ sub isValid {
 
 sub newUser {
     my ($self, $username, $password) = @_;
-    warn "NEW USER", $username, " | ", $password;
+    warn "NEW USER ", $username, " | ", $password;
     my $dbh = $self->{'dbh'};
-    return 0 if $self->nick_exists($username);
+    if ($self->nick_exists($username)) {
+        warn "nik EXISTS";
+        return 0;
+    }
     my $sql = "INSERT INTO auth (username, password) VALUES( (?), (?) );";
     my $sth = $dbh->prepare($sql);
     $sth->execute($username, $password);
@@ -46,7 +49,7 @@ sub newUser {
 
 sub nick_exists {
     my ($self, $username) = @_;
-    warn "nick UNique check", $username;
+    warn "nick UNique check ", $username;
     my $dbh = $self->{'dbh'};
     return $dbh->selectrow_arrayref(
                     'SELECT COUNT(*) FROM auth WHERE username = (?)',

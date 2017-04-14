@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
     <meta charset="<% settings.charset %>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>
-        <% title %>
+        <% title || 'Atom notes' %>
     </title>
     <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
     <style>
@@ -22,6 +23,9 @@
 </head>
 
 <body>
+    <% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>
+    <% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>
+
     <div align="center">
         <h1><a href="/">Web notes</a></h1>
     </div>

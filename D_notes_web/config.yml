@@ -45,10 +45,13 @@ plugins :
 # is different for each app.
 #
 #engines:
- session:
-   Simple:
-     cookie_name: testapp.session
-#
+  session: Cookie
+  engines:
+    session:
+      Cookie:
+        secret_key: "my secret passphrase"
+        default_duration: 604800
+
 #engines:
 #  session:
 #    YAML:

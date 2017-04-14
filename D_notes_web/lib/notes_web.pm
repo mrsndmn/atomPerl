@@ -3,7 +3,7 @@ use Dancer2;
 use Digest::MD5 qw(md5_hex);
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-
+use DDP;
 use DBcommunication;
 
 our $VERSION = '0.1';
@@ -11,7 +11,19 @@ our $VERSION = '0.1';
 my $db = DBcommunication->new(dbFile => 'web_note.db');
 
 get '/' => sub {
-    template 'index' => { 'title' => 'Atom notes' };
+    my $logout = query_parameters->get('logout');
+    warn $logout;
+    if ($logout) {
+        session 'logged_in' => false;
+        template 'index' => { 
+            'title' => 'Atom notes',
+            'msg' => 'Logged out',
+        };
+    } else {
+        template 'index' => { 
+            'title' => 'Atom notes',
+        };
+    }
 };
 
 post '/' => sub {
@@ -24,18 +36,16 @@ post '/' => sub {
             'title' => 'Atom notes',
             'err' => 'This username or rassword is too short',
         };
-    } elsif (! $db->isValid($username, $password)) {
-        warn "wrong uname or passwd";
-        template 'register', {
-            'title' => 'Atom notes',
-            'err' => 'Wrong username or password',
-        };
-    } else {
+    } elsif ($db->isValid($username, $password)) {
         session 'logged_in' => true;
+        redirect '/new-note/'.$username;
+    }
+    else {
+        warn "wrong uname or passwd";
         template 'index', {
             'title' => 'Atom notes',
-            'msg' => "Hello, ".$username,
-        }
+            'err' => 'Wrong username or password',    
+        };
     };
 };
 
@@ -47,18 +57,15 @@ post '/register' => sub {
     my $username = body_parameters->get('username');
     my $password = md5_hex( body_parameters->get('password') );
     #TODO valid & escape
-    if (length($username) < 4 or length($password) < 4 or length($username) > 20 or length($password) > 20 ) {
-        warn "SHORT PASSWD OR UNAME";
+    warn length $username, length $password;
+    if (length($username) < 4 or length($password) < 4 or length($username) > 20 ) {
+        warn "SHORT PASSWD OR UNAME\n $username, $password";
         template 'register', {
             'title' => 'Notes registration',
             'err' => 'This username or rassword is too short or too long',
         };
     } elsif ($db->newUser($username, $password)) {
         redirect '/';
-        template 'index', {
-            'title' => 'Atom notes',
-            'msg' => 'Registration succeed',
-        };
     } else {
         template 'register', {
             'title' => 'Atom notes',
@@ -67,5 +74,13 @@ post '/register' => sub {
     }
 };
 
+get '/new-note/:name?' => sub {
+    my $username = route_parameters->get('name');
+    template 'new-note' => { 
+        'title' => 'Atom notes',
+        'username' => $username,
+        };
+};
 
+;
 true;
