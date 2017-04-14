@@ -59,10 +59,9 @@ $g = tcp_server undef, 8081,
                             $h->push_write($help);
                         }
                         when ('URL') {
-                            if ($other) {
+                            if (!$other) {
                                 $h->push_write("Need argument.\nTry '?' to get help\n");
-                            }
-                            if ( is_web_uri $other ) {
+                            } elsif ( is_web_uri $other ) {
                                 $comparator{$thishost.$thisport} = $other;
                                 $URL = $comparator{$thishost.$thisport};
                                 $h->push_write("OK\n");
@@ -84,7 +83,7 @@ $g = tcp_server undef, 8081,
                                                     my ($ans, $length) = @_;
 
                                                     if ($length) {
-                                                        $h->push_write( "OK ".$length."\n".$ans."\n" );
+                                                        $h->push_write( "\nOK ".$length."\n" );
                                                         say "head OK ", $length ;
                                                     } else {
                                                         $h->push_write( "NOT OK\nCant head this page\n$URL\n" );                                                    
@@ -98,12 +97,12 @@ $g = tcp_server undef, 8081,
                             }
                             get_request ($URL, sub {
                                                 my ($ans, $length) = @_;
-
-                                                if ($length){
-                                                    $h->push_write( "OK ".$length."\n".$ans."\n " );
-                                                    say "get OK ", $length;
+                                                # p @_;
+                                                if ($ans){
+                                                    $h->push_write( $ans );
+                                                    say "get OK ";
                                                 } else {
-                                                    $h->push_write( "NOT OK\nCant get this page\n$URL\n" );                                                    
+                                                    $h->push_write( "\nOK\n".$length."\n" );                                                    
                                                 }
 
                                         });
@@ -156,12 +155,13 @@ sub get_request {
         on_body => sub {
             warn "on body";
             my ($body, $header) = @_;
-                # p $header;
-                #warn $header->{'content-length'};
-            $cb->($body,  length $body);
+                
+            $cb->($body);
         }, 
         sub {
-            $cv->end;
+            my ($body, $header) = @_;
+            $cb->(undef, $header->{'content-length'} // length $body);
+            $cv->end;            
         });
 
 }
