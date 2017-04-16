@@ -30,7 +30,7 @@ our $VERSION = '1.00';
 
 sub new {
     my ($class, %params) = @_;
-    my $confReader = Local::ReadConf->  new();
+    my $confReader = Local::ReadConf->new();
     my $conf = $confReader->getConfig(); 
     my $dbFile = $conf->{dbFile};
     my $db = Local::DBcommunication->new( dbFile => $dbFile );

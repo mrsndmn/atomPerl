@@ -11,9 +11,14 @@ our $VERSION = '0.1';
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use DBcommunication;
-use Devel::Peek;
+use ReadConf;
+# use Devel::Peek;
 
-my $db = DBcommunication->new(dbFile => 'web_note.db');
+my $confReader = ReadConf->new();
+my $conf = $confReader->getConfig(); 
+my $dbFile = $conf->{dbFile};
+my $db = DBcommunication->new(dbFile => $dbFile);
+
 
 get '/' => sub {
     template 'index' => { 
@@ -97,7 +102,7 @@ get '/new-note' => sub {
     }
 
     my $notes = $db->getNotes($user_id);
-    p $notes;
+    # p $notes;
     session 'notes' => $notes;
     
     template 'new-note' => { 
@@ -119,7 +124,7 @@ post '/new-note' => sub {
         redirect '/';
 
     } elsif (!$text) {
-        template 'new-note' => { 
+         return template 'new-note' => { 
             'title' => 'Atom notes',
             'username' => $username,
             'err' => 'fill the \'text\' field',
@@ -143,16 +148,11 @@ post '/new-note' => sub {
         
         my $errors = $db->new_note($note_id, $user_id, $time, $title, $text, \@sharingUsers);
 
-        #warn join "\n", $username, $title, $text, $sharingUsers, $note_id;
-
         my $notes = $db->getNotes($user_id);
         # p $notes;
         session 'notes' => $notes;
 
-        template 'new-note' => { 
-            'title' => 'Atom notes',
-            'username' => $username,
-        };
+        redirect '/new-note';
     }
 };
 

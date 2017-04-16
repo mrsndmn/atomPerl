@@ -1,7 +1,2 @@
 # default in /data/*dbFile*
 dbFile : soc.db
-#   deikstre or width
-#   default width
-# handshakes : width
-# invalid line 
-#moreparam : morekeys
