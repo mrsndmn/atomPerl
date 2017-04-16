@@ -1,48 +1,71 @@
 
-<div align="center" class="b-main">
-    <div align="left">
+<div class="b-main">
+    <div align="left" style="display: inline-table">
         <% IF session.logged_in %>
-            <div class="b-block">
+            <div class="hello-block">
                 <h2>Hi, <% username %>!</h2>
-                    <p style="margin: 30px"> </p>
                     <form action="/" method="post">
                         <input type="hidden" name="logout" value="1" />
-                        <p align="center" ><input type="submit" value="Logout"/></p>            
+                        <p align="left" style="margin-left: 10px" ><input type="submit" value="Logout"/></p>            
                     </form>
             </div>    
                 <!-- Создание заметки -->
-            <div class="b-note-creation b-block">
-                <h2>Create note</h2>
+            <div class="b-note-creation b-block" style="display:block">
+                <h2>Create new note</h2>
                 <form action="" method="post">
-                    <p><input type="title" name="title" placeholder="Title" /></p>
-                    <p><textarea name="text" placeholder="Note text"></textarea></p>
-                    <p><textarea name="users" placeholder="Users you want to share"></textarea></p>
+                    <p><input type="title" name="title" autofocus placeholder="Title" /></p>
+                    <p><textarea name="text" style="width: 250px; min-width: 200px; max;" required placeholder="Note text"></textarea></p>
+                    <p><textarea name="share" wrap="soft" style="width: 200px; resize: vertical;" placeholder="Users you want to share"></textarea></p>
                     <p><input type="submit" value="Create" /></p>
                 </form>
             </div>
-
+    </div>
         <!-- Список заметок -->
-            <div class="b-notes b-block">
+            <div class="b-notes" align="left" style="max-width: 600px">
                 <h2>My Notes</h2>
+                <% FOR note in session.notes %>
+                    <div class="note-block">
+                            <p class="b-note-title">
+                                <% note.title %>
+                            </p>
+                            <p class="b-note-link">
+                                <a href="#">Note link</a>
+                            </p>
+                        <div class="b-note-text">
+                            <ul>
+                                <% FOR row in note.body %>
+                                    <li><% row %></li>
+                                <%END%>
+                            </ul>
+                            <hr></hr>
+                        </div>
+                        
+                            <p class="b-note-users">
+                                <% IF note.got_from == '' %>
+                                    <% IF note.sharedWith.size > 0 %>
+                                        Share with
+                                        <% FOR user in note.sharedWith %>
+                                            <p><% user %></p>
+                                        <%END%>
+                                    <% ELSE %>
+                                        Private
+                                    <% END %>
+                                    
+                                <% ELSE %>
+                                    Shared from
+                                    <% FOR user in note.got_from %>
+                                        <p><% user %></p>
+                                    <%END%>
+                                <% END %>
 
-                <div class="b-note">
-                    <p class="b-note-title">
-                        Note Title
-                    </p>
-                    <p class="b-note-link">
-                        <a href="#">Note link</a>
-                    </p>
-                    <p class="b-note-text">
-                        Note text
-                    </p>
-                    <p class="b-note-users">
-                        Note shared users
-                    </p>
-                </div>
+                            </p>
+                        
+                    </div>
+                <% END %>
             </div>
         
         <% ELSE %>
         <p class="error"> <strong>ERROR: </strong> You must <a href="/">auth</a> before creating note </p>
         <% END %>
-    </div>    
+    <!--</div>    -->
 </div>

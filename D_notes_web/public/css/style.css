@@ -6,9 +6,24 @@
     font-size: 17px;
     color: green;
 }
+.hello-block {
+    padding: 10px;
+    margin: 8px;
+    display:block;
+    border: 1px solid #f1f1f1;    
+}
 .error {
     font-size: 17px;
     color: crimson;
+}
+.b-note-text {
+    margin : 7px;    
+}
+.b-notes {
+    padding: 10px;
+    margin: 8px;
+    border: 1px solid #f1f1f1;
+    display: inline-table;  
 }
 .b-note-notes {
     margin: 10px 10px 10px 0;
@@ -24,13 +39,23 @@ input, textarea {
     border: 1px solid #e1e1e1;
     padding: 3px;
 }
+.note-block {
+    display: inline-table;
+    border: 1px solid #f1f1f1;
+    margin: 10px 10px 10px 0;     
+}
 
 .b-note {
     margin: 10px 10px 10px 0;
 }
 
-.b-note-title, .b-note-users {
+.b-note-title {
     font-weight: bold;
+    margin-right: 10px;
+}
+.b-note-users {
+    margin-right: 7px;
+    font-style: italic;
 }
 
 textarea[name=text] {
@@ -46,7 +71,7 @@ body {
     margin: 0;
     margin-bottom: 25px;
     padding: 0;
-    background-color: #e9d3eb;
+    background-color: #d3dbeb;
     
     font-family: "Lucida Grande", "Bitstream Vera Sans", "Verdana";
     font-size: 13px;

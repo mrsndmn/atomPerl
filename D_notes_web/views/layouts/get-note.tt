@@ -1,0 +1,17 @@
+<div class="note-block">
+    <p class="b-note-title"> <% note.title %> </p>
+    <p class="b-note-link">
+        <a href= <% noteref %> >
+            Note link
+        </a>
+    </p>
+    
+    <div class="b-note-text">
+        <ul>
+            <% FOR row in note.body %>
+                <li><% row %></li>
+            <%END%>
+        </ul>
+        <hr></hr>
+    </div>
+</div>

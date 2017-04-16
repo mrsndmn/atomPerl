@@ -1,10 +1,18 @@
-use strict;
+use strict;chomp
 use warnings;
 use 5.020;
 use DDP;
 $, = ", ";
 use AnyEvent::HTTP;
 use Data::Dumper;
+my @arr = qw( ddd\n dfsdfsfds\n\nadasa\n sfdfsdf\n );
+foreach  (@arr) {
+    say chomp;
+}
+
+p @arr;
+
+=Gsf
 
 http_request
       HEAD    => "https://www.google.com",
@@ -16,7 +24,6 @@ http_request
       }
    ;
 
-=Gsf
 my $i = 3;
 main($i);
 sub main {

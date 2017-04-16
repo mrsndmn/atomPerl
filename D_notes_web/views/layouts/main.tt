@@ -23,7 +23,7 @@
 </head>
 
 <body>
-    <% IF err %><p class="error"> <strong>ERROR: </strong>  <% err %> </p> <% END %>
+    <% IF err %><p class="error"> <b>ERROR: </b>  <% err %> </p> <% END %>
     <% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>
 
     <div align="center">
