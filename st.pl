@@ -1,16 +1,13 @@
-use strict;chomp
+use strict;
 use warnings;
 use 5.020;
 use DDP;
 $, = ", ";
-use AnyEvent::HTTP;
-use Data::Dumper;
-my @arr = qw( ddd\n dfsdfsfds\n\nadasa\n sfdfsdf\n );
-foreach  (@arr) {
-    say chomp;
-}
+use Encode qw(encode decode);
+use utf8;
+say "�Yh0P";
+say encode('utf8',"�Yh0P");
 
-p @arr;
 
 =Gsf
 

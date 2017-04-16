@@ -1,7 +1,7 @@
 <div class="note-block">
     <p class="b-note-title"> <% note.title %> </p>
     <p class="b-note-link">
-        <a href= <% noteref %> >
+        <a href=<% note.note_id %> >
             Note link
         </a>
     </p>
@@ -13,5 +13,8 @@
             <%END%>
         </ul>
         <hr></hr>
+        <a href="/new-note" style="margin: 10px">Back to new note</a>
+        <hr></hr>  
     </div>
+      
 </div>

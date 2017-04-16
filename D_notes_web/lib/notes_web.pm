@@ -96,7 +96,7 @@ get '/new-note' => sub {
         redirect '/';
     }
 
-    my $notes = $db->getNodes($user_id);
+    my $notes = $db->getNotes($user_id);
     p $notes;
     session 'notes' => $notes;
     
@@ -145,7 +145,7 @@ post '/new-note' => sub {
 
         #warn join "\n", $username, $title, $text, $sharingUsers, $note_id;
 
-        my $notes = $db->getNodes($user_id);
+        my $notes = $db->getNotes($user_id);
         # p $notes;
         session 'notes' => $notes;
 
@@ -156,15 +156,16 @@ post '/new-note' => sub {
     }
 };
 
-get qr{note/[a-f0-9]{16}} => sub {
-    my $note_id = splat;
-    warn $note_id;
-    my $id = unpack 'L', pack "H*", $note_id;
-    warn $note_id;
+get qr{^/note/([a-f0-9]{8})$} => sub {
+    my ($note_id) = splat;
+    my $id = unpack 'L', pack 'H*', $note_id;
 
-    
+    my $note = $db->want_note($id);
 
+    template 'get-note' => {
+        'note' => $note,
+    };
 
-}
+};
 
 true;

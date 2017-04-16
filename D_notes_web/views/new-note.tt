@@ -23,44 +23,48 @@
         <!-- Список заметок -->
             <div class="b-notes" align="left" style="max-width: 600px">
                 <h2>My Notes</h2>
-                <% FOR note in session.notes %>
-                    <div class="note-block">
-                            <p class="b-note-title">
-                                <% note.title %>
-                            </p>
-                            <p class="b-note-link">
-                                <a href="#">Note link</a>
-                            </p>
-                        <div class="b-note-text">
-                            <ul>
-                                <% FOR row in note.body %>
-                                    <li><% row %></li>
-                                <%END%>
-                            </ul>
-                            <hr></hr>
-                        </div>
-                        
-                            <p class="b-note-users">
-                                <% IF note.got_from == '' %>
-                                    <% IF note.sharedWith.size > 0 %>
-                                        Share with
-                                        <% FOR user in note.sharedWith %>
+                <%IF session.notes.size > 0 %>
+                    <% FOR note in session.notes %>
+                        <div class="note-block">
+                                <p class="b-note-title">
+                                    <% note.title %>
+                                </p>
+                                <p class="b-note-link">
+                                    <a href="/note/<% note.note_id %>">Note link</a>
+                                </p>
+                            <div class="b-note-text">
+                                <ul>
+                                    <% FOR row in note.body %>
+                                        <li><% row %></li>
+                                    <%END%>
+                                </ul>
+                                <hr></hr>
+                            </div>
+                            
+                                <p class="b-note-users">
+                                    <% IF note.got_from == '' %>
+                                        <% IF note.sharedWith.size > 0 %>
+                                            Share with
+                                            <% FOR user in note.sharedWith %>
+                                                <p><% user %></p>
+                                            <%END%>
+                                        <% ELSE %>
+                                            Private
+                                        <% END %>
+                                        
+                                    <% ELSE %>
+                                        Shared from
+                                        <% FOR user in note.got_from %>
                                             <p><% user %></p>
                                         <%END%>
-                                    <% ELSE %>
-                                        Private
                                     <% END %>
-                                    
-                                <% ELSE %>
-                                    Shared from
-                                    <% FOR user in note.got_from %>
-                                        <p><% user %></p>
-                                    <%END%>
-                                <% END %>
 
-                            </p>
-                        
-                    </div>
+                                </p>
+                            
+                        </div>
+                    <% END %>
+                <% ELSE %>
+                <p>Your notes will be here</p>
                 <% END %>
             </div>
         
