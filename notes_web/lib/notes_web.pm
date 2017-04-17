@@ -131,7 +131,7 @@ post '/new-note' => sub {
         };
     } else {
         foreach my $input ($title, $text) {
-            #encode_entities($input, '<>&"')
+            encode_entities($input, '<>&"')
         }
 
         my $time = time;
