@@ -31,9 +31,20 @@ $g = tcp_server undef, 8081,
         warn "new connection";
         my $h = AnyEvent::Handle->new( fh => $fh );
 
-        $h->on_error( sub { $h->destroy; } );
-        $h->timeout(1800);
-        $h->on_timeout ( sub {
+        $h->on_error( sub {
+            warn "last";
+            delete $comparator{$thishost.$thisport};            
+            $h->destroy; 
+        });
+
+        $h->on_eof( sub {
+            warn "eof;";
+            $h->destroy; 
+            delete $comparator{$thishost.$thisport};
+        });
+
+        $h->timeout(300);
+        $h->on_timeout( sub {
             delete $comparator{$thishost.$thisport};
             $h->push_write("Goodbye. Timeout disconnect.\n");
             $h->destroy;
@@ -123,9 +134,12 @@ $g = tcp_server undef, 8081,
             }
         );
 
+
     };
 
 $cv->recv;
+
+warn "in the end";
 
 sub head_request {
     my $page = shift;
