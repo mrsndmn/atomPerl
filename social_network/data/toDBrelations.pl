@@ -7,26 +7,9 @@ use DBI;
 use FindBin;
 use IO::Uncompress::Unzip;
 
-# like genius# like genius
-# like genius
-# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius
-
 my $dbFile = "$FindBin::Bin/soc.db";
 my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die;
 
-#open my $fh, "<:zip", "$FindBin::Bin/user.zip";
 my $z = IO::Uncompress::Unzip->new( "$FindBin::Bin/user_relation.zip" or die "unzip failed((\n") ;  
 
 my $c = 0;
@@ -41,9 +24,8 @@ while(my $line = $z->getline) {
     $c++;
     $i++;
     chomp $line;
-    #warn $line;
+
     push @fields, join ",", split " ", $line;
-    #warn $fields[$#fields];
 
     if ($c == 1_000_000) {
         my $s = $sql.(join ", ", map {"(".$_.")"} @fields);
