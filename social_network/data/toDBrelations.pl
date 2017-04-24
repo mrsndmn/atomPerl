@@ -15,7 +15,7 @@ my $z = IO::Uncompress::Unzip->new( "$FindBin::Bin/user_relation.zip" or die "un
 my $c = 0;
 my @fields;
 
-my $table = "test";
+my $table = "relations";
 my $column = "first_id, second_id";
 my $i  =0;
 my $sql =sprintf "insert into %s (%s) values ", $table, $column;
@@ -27,7 +27,7 @@ while(my $line = $z->getline) {
 
     push @fields, join ",", split " ", $line;
 
-    if ($c == 1_000_000) {
+    if ($c == 1e6) {
         my $s = $sql.(join ", ", map {"(".$_.")"} @fields);
         $dbh->quote($s);
         $dbh->do($s);
@@ -42,4 +42,5 @@ if (scalar(@fields)){
         my $s = $sql.(join ", ", map {"(".$_.")"} @fields);
         $dbh->quote($s);
         $dbh->do($s);
+        warn "last relations in base";        
 }

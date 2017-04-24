@@ -16,7 +16,7 @@ sub getConfig {
     my $binary_path = $FindBin::Bin;
 
     my $conf = YAML::Tiny->read( "$binary_path/../etc/social_network.yml" )->[0];
-    p $conf;
+    # p $conf;
     checkConf($conf);
 
     return $conf;

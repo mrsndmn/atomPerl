@@ -33,13 +33,16 @@ sub select_lonely {
 }
 sub select_common_friends {
     my ($self, $id0, $id1) = @_;
-    my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id == $id0 ".
-                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == $id0 ".
+    warn $id0, $id1;
+    my $sql = "SELECT * FROM (SELECT DISTINCT second_id FROM relations WHERE first_id == ? ".
+                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == ?) ".
                 "INTERSECT ".
-                "SELECT DISTINCT second_id FROM relations WHERE first_id == $id1 ".
-                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == $id1;";
+                "SELECT * FROM (SELECT DISTINCT second_id FROM relations WHERE first_id == ? ".
+                "UNION SELECT DISTINCT first_id FROM relations WHERE second_id == ?)".
+                ""
+                ;
     my $dbh = $self->{'dbh'};
-    my $array_ref = $dbh->selectall_arrayref( $sql );
+    my $array_ref = $dbh->selectall_arrayref( $sql, {}, $id0, $id0, $id1, $id1 );
     return  [ map {$_->[0]} @$array_ref ];
 }
 
@@ -47,26 +50,26 @@ sub select_friends_by_id {
     my ($self, $ids) = @_;
     my $dbh = $self->{'dbh'};
 
-    my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id IN (". (join ", ", @$ids).") ".
-        "UNION SELECT DISTINCT first_id FROM relations WHERE second_id IN (". (join ", ", @$ids).");";    
+    my $sql = "SELECT DISTINCT second_id FROM relations WHERE first_id IN (". (join ", ", ('?') x @$ids).") ".
+        "UNION SELECT DISTINCT first_id FROM relations WHERE second_id IN (". (join ", ", ('?') x @$ids).")";    
 
-    my $array_ref = $dbh->selectall_arrayref( $sql );
+    my $array_ref = $dbh->selectall_arrayref( $sql, {}, @$ids, @$ids );
     return [ map {$_->[0]} @$array_ref ];
 }
 
 sub select_names_by_id {
     my ($self, $ids) = @_;
     my $dbh = $self->{'dbh'};
-    my $sql = "SELECT * FROM users WHERE id IN (". (join ", ", @$ids).") ";
-    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} });
+    my $sql = "SELECT * FROM users WHERE id IN (". (join ", ", ('?') x @$ids).") ";
+    my $array_ref = $dbh->selectall_arrayref( $sql, { Slice => {} }, @$ids);
     return $array_ref;
 }
 
-sub select_count_users {
+sub select_max_id {
     my ($self) = @_;
     my $dbh = $self->{'dbh'};
     my $array_count = $dbh->selectall_arrayref(
-        "SELECT COUNT(*) FROM users;" );
+        "SELECT id FROM users ORDER BY id  DESC LIMIT 1;" );
     return $array_count->[0]->[0];
 }
 
@@ -74,8 +77,8 @@ sub select_id_by_name {
     my ($self, $name, $surname) = @_;
     my $dbh = $self->{'dbh'};
     die "you must determine name and surname" if !$name or !$surname;
-    my $sql = "SELECT id FROM users WHERE name == \"$name\" and surname == \"$surname\"";
-    my $array_ref =  $dbh->selectall_arrayref( $sql);
+    my $sql = "SELECT id FROM users WHERE name == ? and surname == ? ";
+    my $array_ref =  $dbh->selectall_arrayref( $sql, $name, $surname);
     return $array_ref->[0];
 }
 

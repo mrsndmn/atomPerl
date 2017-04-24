@@ -1,2 +1,2 @@
 # default in /data/*dbFile*
-dbFile : soc.db
+dbFile : shema_social.db
