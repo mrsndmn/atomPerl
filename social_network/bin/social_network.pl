@@ -60,25 +60,22 @@ given ($command) {
         say $names;
     }
     when ('friends') {
-        die "you must determine user with --user=*user*" if scalar(@users)<2;
+        die "you must determine both users with --user=*userID*" if scalar(@users)<2;
         my $common = $obj->get_common_friends(@users[0,1]);
-        # p $common;
-        my $names =  $obj->get_names_by_id($common);
-        say $names;
+        #my $names =  $obj->get_names_by_id($common);
+        say join "\n", @$common;
     }
     when ('num_hs') {
-        # die "you must determine 2 users with --user=*user*" if !$user1 or !$user2;
-        die "you must determine user with --user=*user*" if scalar(@users)<2;        
+        die "you must determine both users with --user=*userID*" if scalar(@users)<2;        
         my $num_hs = $obj->handshakes(@users[0..1]);
         say $num_hs;
     }
     when ('getID') {
-        #say @users[0,1];
         say join ", ", @{$obj->get_id_by_name(@userName[0,1])};
     }
     when ('getName') {
         my $id =$users[0];
-        die "use --userID to determine ID" if !$id;
+        die "use --user to determine ID" if !$id;
         say $obj->get_names_by_id($id);
     }
     default {

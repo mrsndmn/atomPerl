@@ -10,27 +10,10 @@ use IO::Uncompress::Unzip;
 my $dbFile = "$FindBin::Bin/soc.db";
 my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die;
 
-#open my $fh, "<:zip", "$FindBin::Bin/user.zip";
 my $z = IO::Uncompress::Unzip->new( "$FindBin::Bin/user.zip" or die "unzip failed((\n") ;  
 
 my $c = 0;
 my @fields;
-# like genius
-# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius# like genius
-# like genius
-# like genius
-# like genius
-# like genius
 
 my $table = "users";
 my $columns = "name, surname";
