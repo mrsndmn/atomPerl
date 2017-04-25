@@ -72,6 +72,7 @@ __PACKAGE__->meta->make_immutable();
 ```perl
 package Local::MusicLib::DB::SQLite;
 use Mouse;
+# what??
 extends 'DBI::ActiveRecord::DB::SQLite';
 
 sub _build_connection_params {
