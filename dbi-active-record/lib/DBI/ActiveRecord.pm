@@ -51,7 +51,7 @@ sub init_meta {
     Mouse::Util::MetaRole::apply_metaroles(
         for => $args{for_class},
         class_metaroles => {
-            class => ['DBI::ActiveRecord::Trait::Class'],
+            class => ['DBI::ActiveRecord::Trait::Class', 'DBI::ActiveRecord::Trait::Attribute::Field'],
         },
     );
     return $args{for_class}->meta();
@@ -91,6 +91,7 @@ sub table {
     my ($table_name) = @_;
     my $meta = caller->meta;
     $meta->table_name($table_name);
+    # warn $meta->table_name;
 }
 
 =head2 has_field($field, %params)
@@ -110,15 +111,16 @@ Sugar-функция для создания атрибутов, связанн�
 sub has_field {
     my ($field, %params) = @_;
     my $meta = caller->meta;
-    
+    warn $field."\n";
     if ( exists $params{'is'} and $params{'is'} ne 'rw' ) {
         warn "\'is\' attribute ignored in field $field.\n"
             ." Each field is \'rw\' always\n" ;
     }
     
     $params{'is'} = 'rw';
-    $meta->fields->add_field($field);
-    $meta->Attribute->new($field, %params);
+    $meta->add_field($field);
+    # warn ;
+    $meta->add_attribute( $field => %params);
 }
 
 1;

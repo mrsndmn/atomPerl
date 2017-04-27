@@ -25,7 +25,7 @@ has_field country => {
     isa => 'Str',
     index => 'common',
     default_limit => 2,
-}
+};
 
 has_field create_time => (
     isa => 'DateTime',

@@ -175,7 +175,7 @@ sub update {
         }
     }
     
-    $self->_update($obj->meta->table_name, $key_field, $key_value, $fields, $values)
+    $self->_update($obj->meta->table_name, $key_field, $key_value, $fields, \@bind);
 
     return 0;
 }

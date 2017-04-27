@@ -22,8 +22,8 @@ C<DBI::ActiveRecord::Trait::Attribute::Field> - роль-трейт для оп�
 
 subtype 'PositiveInt', {
     as => 'Int',
-    where => { $_ > 0 and $_ eq int($_) },
-    message => { "Wanted positive int! (without sign)" },
+    where => sub { $_ > 0 and $_ eq int($_) },
+    message => sub { "Wanted positive int! (without sign)" },
 };
 
 =head2 IndexEnum

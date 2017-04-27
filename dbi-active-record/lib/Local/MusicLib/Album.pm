@@ -2,11 +2,14 @@ package Local::MusicLib::Album;
 
 use DBI::ActiveRecord;
 use Local::MusicLib::DB::SQLite;
-
+#   Local::MusicLib::DB::SQLite
+#/mnt/Data/workSpace/perl/atomPerl/dbi-active-record/lib/Local/MusicLib/DB/SQlite.pm
 use DateTime;
 
+warn "db";
 db "Local::MusicLib::DB::SQLite";
 
+warn "album";
 table 'albums';
 
 has_field id => (
