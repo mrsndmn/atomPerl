@@ -24,6 +24,7 @@ C<DBI::ActiveRecord::Trait::Class> - роль для мета-классов о�
 has db_class => (
     is => 'rw',
     isa => 'Str',
+    required => 1,
 );
 
 =head2 table_name
@@ -35,6 +36,7 @@ has db_class => (
 has table_name => (
     is => 'rw',
     isa => 'Str',
+    required => 1,
 );
 
 =head2 primary_key
@@ -42,6 +44,13 @@ has table_name => (
 Имя поля, которое является первичным ключом. Обязательное.
 
 =cut
+
+has primary_key => (
+    is => 'rw',
+    isa => 'Str',
+    required => 1,
+
+);
 
 =head2 auto_increment_field
 
@@ -61,10 +70,15 @@ has auto_increment_field => (
 =cut
 
 has fields => (
+    traits  => ['Array'],   # The Array trait in the traits parameter tells Moose add_field methods that "just work" like 'push'.
     is => 'rw',
     isa => 'ArrayRef[Str]',
     default => sub { [] },
+    handles => {
+          add_field  => 'push',
+    },
 );
+
 
 =head1 METHODS
 

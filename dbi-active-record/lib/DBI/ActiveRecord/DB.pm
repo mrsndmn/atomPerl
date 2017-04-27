@@ -156,6 +156,30 @@ sub insert {
 
 =cut
 
+sub update {
+    my ($self, $obj) = @_;
+    my $fields = $obj->meta->fields;
+    
+    my @ok_fields = grep { $obj->meta->get_attribute($_)->index ne 'primary' } @$fields;
+
+    my @bind = ();
+    my ($key_field, $key_value);
+    for(@$fields) {
+        if ($obj->meta->get_attribute($_)->index eq 'primary') {
+            confess "There cant be nore than 1 primary field" if $key_field;
+            $key_field = $_;
+            $key_value = $obj->$key_field;
+        } else {
+            my $attr = $obj->meta->get_attribute($_);
+            push @bind, ( $attr->serializer ? $attr->serializer->($obj->$_) : $obj->$_ );   
+        }
+    }
+    
+    $self->_update($obj->meta->table_name, $key_field, $key_value, $fields, $values)
+
+    return 0;
+}
+
 =head2 delete($obj)
 
 Метод для удаления C<$obj> из БД, вызывающийся из наследников класса C<DBI::ActiveRecord::Object>.

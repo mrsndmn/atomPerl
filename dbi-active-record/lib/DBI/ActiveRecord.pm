@@ -30,7 +30,7 @@ C<DBI::ActiveRecord> - основной класс, через который п
 =cut
 
 Mouse::Exporter->setup_import_methods(
-    as_is => [qw/db table/],
+    as_is => [qw/db table has_field/],
     also => 'Mouse',
 ); 
 
@@ -106,5 +106,19 @@ Sugar-функция для создания атрибутов, связанн�
 Все созданные C<has_field> атрибуты складывается в мета-атрибут C<fields>, определяемый трейтом C<DBI::ActiveRecord::Trait::Class>.
 
 =cut
+
+sub has_field {
+    my ($field, %params) = @_;
+    my $meta = caller->meta;
+    
+    if ( exists $params{'is'} and $params{'is'} ne 'rw' ) {
+        warn "\'is\' attribute ignored in field $field.\n"
+            ." Each field is \'rw\' always\n" ;
+    }
+    
+    $params{'is'} = 'rw';
+    $meta->fields->add_field($field);
+    $meta->Attribute->new($field, %params);
+}
 
 1;

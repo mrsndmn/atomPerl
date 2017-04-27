@@ -20,11 +20,19 @@ C<DBI::ActiveRecord::Trait::Attribute::Field> - роль-трейт для оп�
 
 =cut
 
-=head2 IndexEmum
+subtype 'PositiveInt', {
+    as => 'Int',
+    where => { $_ > 0 and $_ eq int($_) },
+    message => { "Wanted positive int! (without sign)" },
+};
+
+=head2 IndexEnum
 
 Тип-перечисление ограничивающий значения атрибута значениями: C<primary>, C<uniq>, C<common>.
 
 =cut
+
+enum 'IndexEnum', [qw(primary uniq common)];
 
 =head1 ATTRIBUTES
 

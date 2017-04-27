@@ -77,7 +77,7 @@ sub _insert {
     $dbh->begin_work;
     my $last_insert_id;
     if($dbh->do("INSERT INTO $table ($fields_str) VALUES ($placeholders)", {}, @$values)) {
-        $last_insert_id = $autoinc_field ? $dbh->last_insert_id("", "", $table, $autoinc_field) : 0;
+        $last_insert_id = $autoinc_field ? $dbh->last_insert_id("", "", $table, $autoinc_field) : 0; # what about zero?
         $dbh->commit; 
     } else {
         $dbh->rollback;
@@ -93,6 +93,25 @@ sub _insert {
 Данные для полей C<$fields> обновляются значениями C<$values> в таблице C<$table>. Обновляется данные по первичному ключу C<$key_field> со значением C<$key_value>.
 
 =cut
+
+sub _update {
+    my ($self, $table, $key_field, $key_value, $fields, $values) = @_;
+
+    my $dbh = $self->connection;
+
+    my $update_fields = join " = ? , ", @$fields;
+
+    $dbh->begin_work;
+    my $last_updated_id;
+    if($dbh->do("UPDATE $table $update_fields  WHERE $key_field == $key_value", {}, @$values)) {
+        $dbh->commit; 
+    } else {
+        $dbh->rollback;
+        confess "can't do update request!";
+    }
+    #return $last_updated_id;
+
+}
 
 =head2 _delete($table, $key_field, $key_value)
 
