@@ -57,6 +57,11 @@ sub insert {
 
 =cut
 
+sub update {
+    my ($self) = @_;
+    return $self->meta->db_class->instance->update($self);
+}
+
 =head2 delete()
 
 Метод объекта для удаления данного объекта из БД.
