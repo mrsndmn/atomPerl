@@ -17,6 +17,7 @@ sub new {
 
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die "Cannot connect this db:\n";
     #warn "dbh created";
+    $dbh->do('PRAGMA foreign_keys = ON;');
     $params{'dbh'} = $dbh;
 
     return bless \%params, $class;

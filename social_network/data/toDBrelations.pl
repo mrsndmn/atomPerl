@@ -7,7 +7,7 @@ use DBI;
 use FindBin;
 use IO::Uncompress::Unzip;
 
-my $dbFile = "$FindBin::Bin/soc.db";
+my $dbFile = "$FindBin::Bin/shema_social.db";
 my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die;
 
 my $z = IO::Uncompress::Unzip->new( "$FindBin::Bin/user_relation.zip" or die "unzip failed((\n") ;  
