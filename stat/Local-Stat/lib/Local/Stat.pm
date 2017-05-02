@@ -52,6 +52,11 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
+sub new {
+    my ($self, $code) = @_;
+    
+}
+
 require XSLoader;
 XSLoader::load('Local::Stat', $VERSION);
 
