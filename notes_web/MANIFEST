@@ -14,7 +14,7 @@ public/images/perldancer.jpg
 public/javascripts/jquery.js
 public/css/error.css
 public/css/style.css
-lib/notes_web.pm
+lib/NotesWeb.pm
 environments/production.yml
 environments/development.yml
 t/001_base.t

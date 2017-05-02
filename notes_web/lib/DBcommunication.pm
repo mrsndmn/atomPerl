@@ -8,7 +8,7 @@ use DBI;
 use FindBin;
 
 use Encode qw(encode decode);
-# DBcommunication->new( dbFile => 'dbFile' );
+
 sub new {
     my ($class, %params) = @_;
     die "You must define \'dbFile\' in constructor" if !exists $params{'dbFile'};
@@ -17,12 +17,12 @@ sub new {
     $params{'dbFile'} = $dbFile;
 
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die "Cannot connect this db:\n";
-    warn "dbh created";
+
     $params{'dbh'} = $dbh;
     return bless \%params, $class;
 }
 
-sub isValid {
+sub is_valid {
     my ($self, $username, $password) = @_;
     my $dbh = $self->{'dbh'};
     return $dbh->selectrow_arrayref(
@@ -33,13 +33,12 @@ sub isValid {
                     )->[0];
 }
 
-sub newUser {
+sub new_user {
     my ($self, $username, $password) = @_;
     warn "NEW USER ", $username, " | ", $password;
     my $dbh = $self->{'dbh'};
-    # пытался все в одной sql сделать, но че-то хреново в SQLite сделали условия, решил, что оно того не стоит
-    #    надо было нармальную субд взять, но ладн
-    return undef if ($self->wantID($username));
+
+    return undef if ($self->want_column('id', $username));
 
     my $sql = "INSERT INTO auth (username, password) VALUES( (?), (?) );";
     my $sth = $dbh->prepare($sql);
@@ -55,7 +54,7 @@ sub new_note {
     if (defined $try_to_share) {
         foreach (@$try_to_share) {
             warn $_;
-            if (my $local_id = $self->wantID($_)) {
+            if (my $local_id = $self->want_column('id', $_)) {
                 push @toComparator, ($local_id, $note_id, $creatot_id) if $local_id != $creatot_id;
             } else {
                 $ans = $ans."Unknown: $_\n";
@@ -75,7 +74,7 @@ sub new_note {
     return $ans;
 }
 
-sub getNotes {
+sub get_notes {
     my ($self, $user_id) = @_;
 
     my $dbh = $self->{'dbh'};
@@ -86,11 +85,6 @@ sub getNotes {
                  'comparator.note_id == notes.id and comparator.who_id = ?';
     my $notesArr = $dbh->selectall_arrayref( $sql, { Slice => {} }, $user_id );
 
-    # select note_id, who_id from comparator where got_from == ?;
-    # как в social network проблема, новерняка есть приемчик. Как правильно-то??
-    # когда есть много строк, соответствующих какому-то полю
-    # наверное, надо было по-другому посторить таблицы в бд, сдаюсь
-    # или это нормально?  :sweat:
     return {} if !scalar @$notesArr;
 
     my $sth = $dbh->prepare('SELECT who_id FROM comparator WHERE note_id == ? and got_from = ? and got_from != \'\';');
@@ -106,10 +100,10 @@ sub getNotes {
         my $note_id = $_->{'note_id'};
         warn $note_id."\n".$user_id;
         $sth->execute($note_id, $user_id);
-        my @sharedWith = @{[ map { $self->wantNick($_) } map { @{$_} } @{$sth->fetchall_arrayref()}]};
+        my @sharedWith = @{[ map { $self->want_column('username', $_) } map { @{$_} } @{$sth->fetchall_arrayref()}]};
         warn @sharedWith;
         $_->{'sharedWith'} = \@sharedWith;
-        $_->{'got_from'} = $self->wantNick($_->{'got_from'});
+        $_->{'got_from'} = $self->want_column('username', $_->{'got_from'});
         $_->{'note_id'} =  unpack 'H*', pack 'L', $_->{'note_id'};
     }
 
@@ -121,7 +115,11 @@ sub want_note {
 
     my $dbh = $self->{'dbh'};
     my $note = $dbh->selectrow_hashref('SELECT id, title, body, time FROM notes where id = ?', {}, $note_id);
-    
+
+    # так сделал Николай в мастерклассе на ютубе, мн тоже пронравилось
+    # он мотивировал это тем, что в строке адресной 16ричные строчки 
+    # вынлдят приятнее и привычнее, я с этим согласен,
+    # но вообще, можно было бы и и так оставить, конечно, это чмсто эстетичесая фича
     $note->{id} = unpack 'H*', pack 'L', $note->{id};
 
     foreach my $key (keys %$note) {
@@ -142,29 +140,16 @@ sub note_id_exists {
     
 }
 
-sub wantNick  {
-    my ($self, $id) = @_;
-    warn $id;
-    return if !$id;
+sub want_column {
+    my ($self, $column, $username) = @_;
     my $dbh = $self->{'dbh'};
     my $isOk = $dbh->selectrow_arrayref(
-                    'SELECT username FROM auth WHERE id = (?)',
+                    'SELECT ? FROM auth WHERE username = (?)',
                     {},
-                    $id,
-                    );
-    return $isOk? $isOk->[0] : undef;
-}
-
-sub wantID {
-    my ($self, $username) = @_;
-    my $dbh = $self->{'dbh'};
-    my $isOk = $dbh->selectrow_arrayref(
-                    'SELECT id FROM auth WHERE username = (?)',
-                    {},
+                    $column,
                     $username,
                     );
 
-    p $isOk;
     return $isOk? $isOk->[0] : undef;
 }
 1;

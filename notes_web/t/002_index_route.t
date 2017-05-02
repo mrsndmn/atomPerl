@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 
-use notes_web;
+use NotesWeb;
 use Test::More tests => 2;
 use Plack::Test;
 use HTTP::Request::Common;
 
-my $app = notes_web->to_app;
+my $app = NotesWeb->to_app;
 is( ref $app, 'CODE', 'Got app' );
 
 my $test = Plack::Test->create($app);

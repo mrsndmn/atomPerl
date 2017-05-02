@@ -1,4 +1,4 @@
-package notes_web;
+package NotesWeb;
 use Dancer2;
 use HTML::Entities;
 
@@ -39,21 +39,21 @@ post '/' => sub {
         chomp $username;
         my $password = md5_hex( encode('utf8',body_parameters->get('password')) );
         #TODO valid & escape
-        my $valid_regexp = qr/[^A-Za-z\d_]/;
-        if ($username =~ $valid_regexp) {
+        my $valid_regexp =  qr/[\w_]{4,}/;
+        if ($username !~ $valid_regexp) {
             template 'index', {
                 'title' => 'Atom notes',
-                'err' => 'Username can consider letters or numbers or \'_\'',
+                'err' => 'Username can consider letters or numbers or \'_\'. Or too short username.',
             };
-        } elsif (length($username) < 4 or length($password) < 4) {
-            warn "SHORT PASSWD OR UNAME";
+        } elsif (length($password) < 4) {
+            warn "SHORT PASSWD";
             template 'index', {
                 'title' => 'Atom notes',
                 'err' => 'This username or rassword is too short',
             };
-        } elsif ($db->isValid($username, $password)) {
+        } elsif ($db->is_valid($username, $password)) {
             session 'username' => $username;
-            session 'user_id' => $db->wantID($username);
+            session 'user_id' => $db->want_column('id', $username);
             session 'logged_in' => true;
             redirect '/new-note';
         }
@@ -82,7 +82,7 @@ post '/register' => sub {
             'title' => 'Notes registration',
             'err' => 'This username or rassword is too short or too long',
         };
-    } elsif ($db->newUser($username, $password)) {
+    } elsif ($db->new_user($username, $password)) {
         redirect '/';
     } else {
         template 'register', {
@@ -101,13 +101,14 @@ get '/new-note' => sub {
         redirect '/';
     }
 
-    my $notes = $db->getNotes($user_id);
+    my $notes = $db->get_notes($user_id);
     # p $notes;
-    session 'notes' => $notes;
+    # session 'notes' => $notes;
     
     template 'new-note' => { 
         'title' => 'Atom notes',
         'username' => $username,
+        'notes' => $notes,
     };
 
 };
@@ -144,15 +145,21 @@ post '/new-note' => sub {
         }
         #Devel::Peek::Dump($sharing);
         my @sharingUsers =@{[ split '\r\n', $sharing ]};
-        #Devel::Peek::Dump($sharingUsers[0]);        
+        #Devel::Peek::Dump($sharingUsers[0]);
         
         my $errors = $db->new_note($note_id, $user_id, $time, $title, $text, \@sharingUsers);
 
-        my $notes = $db->getNotes($user_id);
+        my $notes = $db->get_notes($user_id);
         # p $notes;
-        session 'notes' => $notes;
-
-        redirect '/new-note';
+        # session 'notes' => $notes;
+        # не знаю, зачем это эксперимент, но соглашусь, это совершено неправильно
+        
+        template 'new-note' => { 
+            'title' => 'Atom notes',
+            'username' => $username,
+            'notes' => $notes,
+        };
+        # redirect '/new-note';
     }
 };
 
