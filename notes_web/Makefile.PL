@@ -8,9 +8,9 @@ my $eumm_version = $ExtUtils::MakeMaker::VERSION;
 $eumm_version =~ s/_//;
 
 WriteMakefile(
-    NAME                => 'notes_web',
+    NAME                => 'NotesWeb',
     AUTHOR              => q{YOUR NAME <youremail@example.com>},
-    VERSION_FROM        => 'lib/notes_web.pm',
+    VERSION_FROM        => 'lib/NotesWeb.pm',
     ABSTRACT            => 'YOUR APPLICATION ABSTRACT',
     ($eumm_version >= 6.3001
       ? ('LICENSE'=> 'perl')
@@ -22,5 +22,5 @@ WriteMakefile(
         'Dancer2'     => 0.205000,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'notes_web-*' },
+    clean               => { FILES => 'NotesWeb-*' },
 );

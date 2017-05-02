@@ -23,8 +23,8 @@
         <!-- Список заметок -->
             <div class="b-notes" align="left" style="max-width: 600px">
                 <h2>My Notes</h2>
-                <%IF session.notes.size > 0 %>
-                    <% FOR note in session.notes %>
+                <%IF notes.size > 0 %>
+                    <% FOR note in notes %>
                         <div class="note-block">
                                 <p class="b-note-title">
                                     <% note.title %>

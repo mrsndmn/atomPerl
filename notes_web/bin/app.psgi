@@ -7,26 +7,26 @@ use lib "$FindBin::Bin/../lib";
 
 
 # use this block if you don't need middleware, and only have a single target Dancer app to run here
-use notes_web;
+use NotesWeb;
 
-notes_web->to_app;
+NotesWeb->to_app;
 
 use Plack::Builder;
 
 builder {
     enable 'Deflater';
-    notes_web->to_app;
+    NotesWeb->to_app;
 }
 
 =begin comment
 # use this block if you want to include middleware such as Plack::Middleware::Deflater
 
-use notes_web;
-use notes_web_admin;
+use NotesWeb;
+use NotesWeb_admin;
 
 builder {
-    mount '/'      => notes_web->to_app;
-    mount '/admin'      => notes_web_admin->to_app;
+    mount '/'      => NotesWeb->to_app;
+    mount '/admin'      => NotesWeb_admin->to_app;
 }
 
 =end comment
