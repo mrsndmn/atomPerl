@@ -51,7 +51,7 @@ sub init_meta {
     Mouse::Util::MetaRole::apply_metaroles(
         for => $args{for_class},
         class_metaroles => {
-            class => ['DBI::ActiveRecord::Trait::Class', 'DBI::ActiveRecord::Trait::Attribute::Field'],
+            class => ['DBI::ActiveRecord::Trait::Class'],
         },
     );
     return $args{for_class}->meta();
@@ -118,9 +118,26 @@ sub has_field {
     }
     
     $params{'is'} = 'rw';
+    
     $meta->add_field($field);
     # warn ;
-    $meta->add_attribute( $field => %params);
+    use DDP;
+    p %params;
+    
+    # to create attribute 
+    # may be trait apply
+    # 'DBI::ActiveRecord::Trait::Attribute::Field'
+    Mouse::Meta::Attribute->new($field, (
+                                            'traits' => ['DBI::ActiveRecord::Trait::Class', 'DBI::ActiveRecord::Trait::Attribute::Field'],
+                                            %params
+                                        )
+                                );
+    use 5.020;
+    say (join "\n!", Mouse::meta->get_all_attributes);
+    # while (my ($k, $v) = each %params) {
+    #     warn $k, "|", $v, "|";
+    #     #$meta->$k($v);
+    # }
 }
 
 1;

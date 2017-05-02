@@ -32,4 +32,5 @@ has_field create_time => (
     serializer => sub { $_[0]->epoch },
     deserializer => sub { DateTime->from_epoch(epoch => $_[0]) },
 );
-
+no DBI::ActiveRecord;
+__PACKAGE__->meta->make_immutable();

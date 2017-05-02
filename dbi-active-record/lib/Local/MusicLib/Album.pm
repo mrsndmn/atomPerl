@@ -24,24 +24,27 @@ has_field name => (
     default_limit => 100,
 );
 
-has_field artist_id => {
+has_field artist_id => (
     isa => 'Int',
     index => 'common',
-};
+);
 
-has_field year => {
+has_field year => (
     isa => 'Int',
     index => 'common',
-};
+);
 
-has_field type => {
+has_field type => (
     isa => 'Str',
     #сингл, саундтрек, сборник, обычный альбом
     
-};
+);
 
 has_field create_time => (
     isa => 'DateTime',
     serializer => sub { $_[0]->epoch },
     deserializer => sub { DateTime->from_epoch(epoch => $_[0]) },
 );
+
+no DBI::ActiveRecord;
+__PACKAGE__->meta->make_immutable();
