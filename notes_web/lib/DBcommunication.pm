@@ -17,7 +17,7 @@ sub new {
     $params{'dbFile'} = $dbFile;
 
     my $dbh = DBI->connect("dbi:SQLite:dbname=$dbFile", "","", { RaiseError => 1 }) or die "Cannot connect this db:\n";
-
+    $dbh->do('PRAGMA foreign_keys = 1;');
     $params{'dbh'} = $dbh;
     return bless \%params, $class;
 }
@@ -35,7 +35,7 @@ sub is_valid {
 
 sub new_user {
     my ($self, $username, $password) = @_;
-    warn "NEW USER ", $username, " | ", $password;
+
     my $dbh = $self->{'dbh'};
 
     return undef if ($self->want_column('id', $username));
@@ -47,29 +47,30 @@ sub new_user {
 }
 
 sub new_note {
-    my ($self, $note_id, $creatot_id, $time, $title, $text, $try_to_share) = @_;
+    my ($self, $note_id, $creator_id, $time, $title, $text, $try_to_share) = @_;
     my @toComparator;
-    push @toComparator, $creatot_id, $note_id, '';
+    push @toComparator, $creator_id, $note_id, '';
     my $ans = "OK\n";
-    if (defined $try_to_share) {
-        foreach (@$try_to_share) {
-            warn $_;
-            if (my $local_id = $self->want_column('id', $_)) {
-                push @toComparator, ($local_id, $note_id, $creatot_id) if $local_id != $creatot_id;
-            } else {
-                $ans = $ans."Unknown: $_\n";
-            }
+
+    foreach (@$try_to_share) {
+
+        if (my $local_id = $self->want_column('id', $_)) {
+            push @toComparator, ($local_id, $note_id, $creator_id) if $local_id != $creator_id;
+        } else {
+            $ans = $ans."Unknown: $_\n";
         }
-    } 
-    p @toComparator;
-    warn $ans;
+    }
+
+
     my $dbh = $self->{'dbh'};
     my $NoteSQL = 'INSERT INTO notes values (?, ?, ?, ?)';
     my $sth = $dbh->prepare($NoteSQL);
     $sth->execute($note_id, $title, $text, time);
+    
+    my $comparatorSQL = 'INSERT INTO comparator values '.(join ',', ("(?, ?, ?)") x (scalar(@toComparator)/3));
 
-    my $comparatorSQL = ' INSERT INTO comparator values '.(join ',', (("(?, ?, ?)")x(scalar(@toComparator)/3)));
     $sth = $dbh->prepare($comparatorSQL);
+
     $sth->execute(@toComparator);
     return $ans;
 }
@@ -98,10 +99,10 @@ sub get_notes {
     foreach (@$notesArr) {
         $_->{'body'} = [ split '\r\n', $_->{'body'} ];
         my $note_id = $_->{'note_id'};
-        warn $note_id."\n".$user_id;
+
         $sth->execute($note_id, $user_id);
-        my @sharedWith = @{[ map { $self->want_column('username', $_) } map { @{$_} } @{$sth->fetchall_arrayref()}]};
-        warn @sharedWith;
+        my @sharedWith = ( map { $self->want_column('username', $_) } map { @{$_} } @{$sth->fetchall_arrayref()} );
+
         $_->{'sharedWith'} = \@sharedWith;
         $_->{'got_from'} = $self->want_column('username', $_->{'got_from'});
         $_->{'note_id'} =  unpack 'H*', pack 'L', $_->{'note_id'};
@@ -118,7 +119,7 @@ sub want_note {
 
     # так сделал Николай в мастерклассе на ютубе, мн тоже пронравилось
     # он мотивировал это тем, что в строке адресной 16ричные строчки 
-    # вынлдят приятнее и привычнее, я с этим согласен,
+    # выглядят приятнее, я с этим согласен,
     # но вообще, можно было бы и и так оставить, конечно, это чмсто эстетичесая фича
     $note->{id} = unpack 'H*', pack 'L', $note->{id};
 
@@ -141,14 +142,26 @@ sub note_id_exists {
 }
 
 sub want_column {
-    my ($self, $column, $username) = @_;
+    my ($self, $column, $smth) = @_;
     my $dbh = $self->{'dbh'};
-    my $isOk = $dbh->selectrow_arrayref(
-                    'SELECT ? FROM auth WHERE username = (?)',
+    my $isOk;
+
+    return if !$smth;
+    if ($column eq 'id') {
+        $isOk = $dbh->selectrow_arrayref(
+                    'SELECT id FROM auth WHERE username = ?',
+                    { Slice => {} },
+                    $smth,
+                    );    
+    } elsif ($column eq 'username') {
+        $isOk = $dbh->selectrow_arrayref(
+                    'SELECT username FROM auth WHERE id = ?',
                     {},
-                    $column,
-                    $username,
-                    );
+                    $smth,
+                    );    
+    } else {
+        die 'no such column';
+    }
 
     return $isOk? $isOk->[0] : undef;
 }

@@ -39,14 +39,15 @@ post '/' => sub {
         chomp $username;
         my $password = md5_hex( encode('utf8',body_parameters->get('password')) );
         #TODO valid & escape
-        my $valid_regexp =  qr/[\w_]{4,}/;
+        # \w загребает русски буквы тоже, мне это не нужно, кроме того
+        # всякие запятые и другие пунктационные символы, тогда их нужно будет эскейпить еще, лучше пусть будет как есть
+        my $valid_regexp =  qr/[A-Za-z_]{4,20}/;
         if ($username !~ $valid_regexp) {
             template 'index', {
                 'title' => 'Atom notes',
                 'err' => 'Username can consider letters or numbers or \'_\'. Or too short username.',
             };
         } elsif (length($password) < 4) {
-            warn "SHORT PASSWD";
             template 'index', {
                 'title' => 'Atom notes',
                 'err' => 'This username or rassword is too short',
@@ -58,7 +59,6 @@ post '/' => sub {
             redirect '/new-note';
         }
         else {
-            warn "wrong uname or passwd";
             template 'index', {
                 'title' => 'Atom notes',
                 'err' => 'Wrong username or password',    
@@ -75,9 +75,8 @@ post '/register' => sub {
     my $username = body_parameters->get('username');
     my $password = md5_hex( body_parameters->get('password') );
     #TODO valid & escape
-    warn length $username, length $password;
-    if (length($username) < 4 or length($password) < 4 or length($username) > 20 ) {
-        warn "SHORT PASSWD OR UNAME\n $username, $password";
+    my $valid_regexp =  qr/[A-Za-z_]{4,20}/;
+    if ($username !~ $valid_regexp or length($password) < 4) {
         template 'register', {
             'title' => 'Notes registration',
             'err' => 'This username or rassword is too short or too long',
@@ -102,9 +101,7 @@ get '/new-note' => sub {
     }
 
     my $notes = $db->get_notes($user_id);
-    # p $notes;
-    # session 'notes' => $notes;
-    
+
     template 'new-note' => { 
         'title' => 'Atom notes',
         'username' => $username,
@@ -119,7 +116,7 @@ post '/new-note' => sub {
     my $title = body_parameters->get('title') || 'Untitled';
     my $text = body_parameters->get('text');
     my $sharing = body_parameters->get('share');
-     warn "session", session('logged_in');
+
     if (!session('logged_in')) {
         # will ask to auth
         redirect '/';
@@ -143,17 +140,15 @@ post '/new-note' => sub {
             $note_id = crc32 ($title.$time.$note_id);
             last if !$db->note_id_exists($note_id);
         }
-        #Devel::Peek::Dump($sharing);
-        my @sharingUsers =@{[ split '\r\n', $sharing ]};
-        #Devel::Peek::Dump($sharingUsers[0]);
+
+        my @sharingUsers = (split '\r\n', $sharing);
         
         my $errors = $db->new_note($note_id, $user_id, $time, $title, $text, \@sharingUsers);
 
         my $notes = $db->get_notes($user_id);
-        # p $notes;
+
         # session 'notes' => $notes;
-        # не знаю, зачем это эксперимент, но соглашусь, это совершено неправильно
-        
+        # не знаю, зачем был это эксперимент, но соглашусь, это совершено неправильно
         template 'new-note' => { 
             'title' => 'Atom notes',
             'username' => $username,
