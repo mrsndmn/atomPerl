@@ -24,7 +24,7 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	
+	new_metric
 );
 
 our $VERSION = '0.01';
@@ -52,10 +52,16 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-sub new {
-    my ($self, $code) = @_;
-    
+# my $obj = Local::Stat->new_metric(sub {qw/min max avg/});
+# p $obj->code;
+
+sub new_metric {
+    my ($class, $code) = @_;
+    use DDP;
+    p $code;
+    return bless { code => $code }, $class;
 }
+
 
 require XSLoader;
 XSLoader::load('Local::Stat', $VERSION);
@@ -104,7 +110,7 @@ If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-MrSndmn, E<lt>mrsndmn@localdomainE<gt>
+MrSndmn, E<lt>mrsndmn46@gmail.com<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

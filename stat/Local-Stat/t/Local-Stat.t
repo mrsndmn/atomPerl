@@ -7,12 +7,18 @@
 
 use strict;
 use warnings;
+use lib 'lib';
 
-use Test::More tests => 1;
+use Test::More tests => 3;
 BEGIN { use_ok('Local::Stat') };
 
 #########################
-
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
+use Local::Stat;
+use DDP;
 
+my $obj = Local::Stat->new_metric(sub {qw/min max avg/});
+ok ($obj->{'code'});
+p $obj->{'code'};
+is(join (" ", &{$obj->{'code'}}), "min max avg" , 'Code in constructor');
