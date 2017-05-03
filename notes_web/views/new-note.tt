@@ -13,6 +13,8 @@
             <div class="b-note-creation b-block" style="display:block">
                 <h2>Create new note</h2>
                 <form action="" method="post">
+                    <p><input type="hidden" name="csrf_token" value="<% csrf_token %>" /></p>
+
                     <p><input type="title" name="title" autofocus placeholder="Title" /></p>
                     <p><textarea name="text" style="width: 250px; min-width: 200px; max;" required placeholder="Note text"></textarea></p>
                     <p><textarea name="share" wrap="soft" style="width: 200px; resize: vertical;" placeholder="Users you want to share"></textarea></p>

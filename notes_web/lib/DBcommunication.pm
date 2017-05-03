@@ -124,9 +124,9 @@ sub want_note {
     $note->{id} = unpack 'H*', pack 'L', $note->{id};
 
     foreach my $key (keys %$note) {
-            $note->{$key} = decode('utf8', $note->{$key});
+        $note->{$key} = decode('utf8', $note->{$key});
     }
-
+    
     return $note;
 }
 
@@ -134,35 +134,32 @@ sub note_id_exists {
     my ($self, $id) = @_;
     my $dbh = $self->{'dbh'};
     return $dbh->selectrow_arrayref(
-                    'SELECT COUNT(*) FROM notes WHERE id = (?)',
-                    {},
-                    $id,
-                    )->[0];
+        'SELECT COUNT(*) FROM notes WHERE id = (?)',
+        {}, 
+        $id,
+    )->[0];
     
 }
 
 sub want_column {
     my ($self, $column, $smth) = @_;
+    return if !$smth;
+
     my $dbh = $self->{'dbh'};
     my $isOk;
 
-    return if !$smth;
-    if ($column eq 'id') {
-        $isOk = $dbh->selectrow_arrayref(
-                    'SELECT id FROM auth WHERE username = ?',
-                    { Slice => {} },
-                    $smth,
-                    );    
-    } elsif ($column eq 'username') {
-        $isOk = $dbh->selectrow_arrayref(
-                    'SELECT username FROM auth WHERE id = ?',
-                    {},
-                    $smth,
-                    );    
-    } else {
-        die 'no such column';
-    }
+    my $condition_column = { 
+        id => 'username', 
+        username => 'id',
+    }->{$column};
+    die "unknown clumn" unless defined $condition_column;
 
+    $isOk = $dbh->selectrow_arrayref(
+        "SELECT $column FROM auth WHERE $condition_column = ?",
+        {Slice => {}},
+        $smth,
+    );
+    warn p $isOk;
     return $isOk? $isOk->[0] : undef;
 }
 1;

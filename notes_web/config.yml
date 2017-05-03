@@ -31,6 +31,8 @@ plugins :
   Database:
     driver: 'sqlite'
     database: 'data/web_note.db'
+  CSRF:
+    session_key_name: 'plugin.csrf'
 
 # session engine
 #

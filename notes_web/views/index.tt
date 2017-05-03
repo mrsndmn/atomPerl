@@ -5,6 +5,8 @@
     
         <h2>Auth</h2>
             <form action="" method="post" onsubmit="document.getElementById('submit').disable=true;">
+                <p><input type="hidden" name="csrf_token" value="<% csrf_token %>" /></p>
+                
                 <p><input type="text" name="username" placeholder="username" /></p>
                 <p><input type="password" name="password" placeholder="password" /></p>
                 <p><input type="submit" value="Login" /> or <a href="/register">Register</a></p>
