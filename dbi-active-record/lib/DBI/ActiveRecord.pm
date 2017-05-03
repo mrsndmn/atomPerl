@@ -116,28 +116,15 @@ sub has_field {
         warn "\'is\' attribute ignored in field $field.\n"
             ." Each field is \'rw\' always\n" ;
     }
+    $meta->add_field($field);
     
     $params{'is'} = 'rw';
-    
-    $meta->add_field($field);
+    $params{'traits'} = ['DBI::ActiveRecord::Trait::Attribute::Field'];
     # warn ;
     use DDP;
     p %params;
     
-    # to create attribute 
-    # may be trait apply
-    # 'DBI::ActiveRecord::Trait::Attribute::Field'
-    Mouse::Meta::Attribute->new($field, (
-                                            'traits' => ['DBI::ActiveRecord::Trait::Class', 'DBI::ActiveRecord::Trait::Attribute::Field'],
-                                            %params
-                                        )
-                                );
-    use 5.020;
-    say (join "\n!", Mouse::meta->get_all_attributes);
-    # while (my ($k, $v) = each %params) {
-    #     warn $k, "|", $v, "|";
-    #     #$meta->$k($v);
-    # }
+    $meta->add_attribute($field => \%params);
 }
 
 1;
