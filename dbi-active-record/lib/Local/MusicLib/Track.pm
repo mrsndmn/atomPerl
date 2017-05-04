@@ -25,6 +25,7 @@ has_field name => (
 
 has_field extension => (
     isa => 'Str',
+    index => 'common',
 );
 
 has_field album_id => (
