@@ -6,6 +6,7 @@
         // extension name : html
         "*.tt": "html",
         "*.js": "html",
-        "scc": "html"
+        "scc": "html",
+        "*.xs": "c"
     }
 }
