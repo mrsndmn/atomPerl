@@ -21,11 +21,11 @@ has_field name => (
     default_limit => 100,
 );
 
-has_field country => {
+has_field country => (
     isa => 'Str',
     index => 'common',
     default_limit => 2,
-};
+);
 
 has_field create_time => (
     isa => 'DateTime',

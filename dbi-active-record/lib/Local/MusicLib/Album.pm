@@ -27,11 +27,13 @@ has_field name => (
 has_field artist_id => (
     isa => 'Int',
     index => 'common',
+    default_limit => 100,
 );
 
 has_field year => (
     isa => 'Int',
     index => 'common',
+    default_limit => 100,
 );
 
 has_field type => (
