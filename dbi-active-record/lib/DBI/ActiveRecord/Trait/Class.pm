@@ -124,7 +124,7 @@ after make_immutable => sub {
                     return $class->select($field_name, $keys);
                 });
             } else {
-                confess "default_limit must be defined for not uniq indexes!" unless defined $attr->default_limit;
+                confess "default_limit must be defined for common indexes!" unless defined $attr->default_limit;
                 $self->add_method( "select_by_".$field_name => sub {
                     my ($class, $keys, $limit) = @_;
                     $limit ||= $attr->default_limit;
