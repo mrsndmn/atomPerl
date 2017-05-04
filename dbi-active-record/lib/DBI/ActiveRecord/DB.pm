@@ -48,9 +48,17 @@ has connection => (
     isa => 'Object',
     lazy => 1,
     default => sub {
+        #? это каждый раз вызывается?
         my ($self) = @_;
         my $params = $self->connection_params;
-        return DBI->connect(@$params);
+        # 
+        if (scalar @$params == 5) {
+            my $on_connection_sql = pop @$params;
+            my $dbh =  DBI->connect(@$params);
+            my $sth = $dbh->prepare($on_connection_sql);
+            $sth->execute();
+        }    
+        return $dbh;
     },
 );
 
