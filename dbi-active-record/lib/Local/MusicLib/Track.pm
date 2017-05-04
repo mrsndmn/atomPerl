@@ -20,18 +20,19 @@ has_field id => (
 has_field name => (
     isa => 'Str',
     index => 'common',
-    default_limit => 100,
+    default_limit => 10,
 );
 
 has_field extension => (
     isa => 'Str',
     index => 'common',
+    default_limit => 10,    
 );
 
 has_field album_id => (
     isa => 'Int',
     index => 'common',
-    default_limit => 100,
+    default_limit => 10,
 );
 
 has_field create_time => (

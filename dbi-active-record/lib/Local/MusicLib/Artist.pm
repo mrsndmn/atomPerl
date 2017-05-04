@@ -24,8 +24,8 @@ has_field name => (
 enum 'country_enum', [qw(en ru uk)];
 
 has_field country => (
-    isa => 'Str',
-    index => 'country_enum',
+    isa => 'country_enum',
+    index => 'common',
     default_limit => 2,
 );
 
