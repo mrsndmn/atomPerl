@@ -48,7 +48,6 @@ has connection => (
     isa => 'Object',
     lazy => 1,
     default => sub {
-        #? это каждый раз вызывается?
         my ($self) = @_;
         my $params = $self->connection_params;
         my $dbh =  DBI->connect(@$params);
