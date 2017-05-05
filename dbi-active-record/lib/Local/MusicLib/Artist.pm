@@ -2,6 +2,7 @@ package Local::MusicLib::Artist;
 
 use DBI::ActiveRecord;
 use Local::MusicLib::DB::SQLite;
+use Mouse::Util::TypeConstraints;
 
 use DateTime;
 
@@ -21,10 +22,14 @@ has_field name => (
     default_limit => 100,
 );
 
-enum 'country_enum', [qw(en ru uk)];
+subtype 'country_code', {
+    as => 'Str',
+    where => sub { length $_ == 2 },
+    message => sub { "Wanted positive int! (without sign)" },
+};
 
 has_field country => (
-    isa => 'country_enum',
+    isa => 'country_code',
     index => 'common',
     default_limit => 2,
 );
