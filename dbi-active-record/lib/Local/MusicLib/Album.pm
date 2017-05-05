@@ -6,10 +6,8 @@ use Mouse::Util::TypeConstraints;
 
 use DateTime;
 
-warn "db";
 db "Local::MusicLib::DB::SQLite";
 
-warn "album";
 table 'albums';
 
 has_field id => (

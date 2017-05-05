@@ -50,13 +50,16 @@ has connection => (
     default => sub {
         my ($self) = @_;
         my $params = $self->connection_params;
-        my $dbh =  DBI->connect(@$params);
+        my $dbh;
         # 
         if (scalar @$params == 5) {
             my $on_connection_sql = pop @$params;
+            $dbh =  DBI->connect(@$params) or die "Cant connect to db!";
             my $sth = $dbh->prepare($on_connection_sql);
             $sth->execute();
-        }    
+        }     else {
+            $dbh =  DBI->connect(@$params) or die "Cant connect to db!";
+        }
         return $dbh;
     },
 );

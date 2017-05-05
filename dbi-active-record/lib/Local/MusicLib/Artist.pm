@@ -24,8 +24,8 @@ has_field name => (
 
 subtype 'country_code', {
     as => 'Str',
-    where => sub { length $_ == 2 },
-    message => sub { "Wanted positive int! (without sign)" },
+    where => sub { $_ =~ /\w{2}/},
+    message => sub { "Wanted 2 symbol country_code" },
 };
 
 has_field country => (
@@ -39,5 +39,6 @@ has_field create_time => (
     serializer => sub { $_[0]->epoch },
     deserializer => sub { DateTime->from_epoch(epoch => $_[0]) },
 );
+
 no DBI::ActiveRecord;
 __PACKAGE__->meta->make_immutable();

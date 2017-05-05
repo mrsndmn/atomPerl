@@ -111,7 +111,7 @@ Sugar-функция для создания атрибутов, связанн�
 sub has_field {
     my ($field, %params) = @_;
     my $meta = caller->meta;
-    warn $field."\n";
+    # warn $field;
     if ( exists $params{'is'} and $params{'is'} ne 'rw' ) {
         warn "\'is\' attribute ignored in field $field.\n"
             ." Each field is \'rw\' always\n" ;
@@ -120,9 +120,9 @@ sub has_field {
     
     $params{'is'} = 'rw';
     $params{'traits'} = ['DBI::ActiveRecord::Trait::Attribute::Field'];
-    # warn ;
-    use DDP;
-    p %params;
+
+    # use DDP;
+    # warn p %params;
     
     $meta->add_attribute($field => \%params);
 }
