@@ -9,7 +9,8 @@ use Local::MusicLib::Artist;
 use Local::MusicLib::Track;
 use Local::MusicLib::Album;
 
-my $artist = Local::MusicLib::Artist->new()
+my $artist = Local::MusicLib::Artist->new();
+
 
 # вот единственное, что результаты тста в бд загоняются, нафиг это надо
 # но в модулеуже используются транзакции, а внутри транзакции нельзя запустить ещзе одну
