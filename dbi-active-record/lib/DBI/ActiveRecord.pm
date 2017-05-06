@@ -5,6 +5,8 @@ use Mouse::Util::MetaRole;
 
 use Carp qw/confess/;
 
+our $VERSION = 1.0;
+
 =encoding utf8
 
 =head1 NAME
