@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use DDP;
-use Test::More tests => 14;
+use Test::More tests => 15;
 use List::Util qw(all);
 use lib 'lib';
 
@@ -9,9 +9,7 @@ use Local::MusicLib::Artist;
 use Local::MusicLib::Track;
 use Local::MusicLib::Album;
 
-my $artist = Local::MusicLib::Artist->new();
-my $track = Local::MusicLib::Track->new();
-my $album = Local::MusicLib::Album->new();
+my $artist = Local::MusicLib::Artist->new()
 
 # вот единственное, что результаты тста в бд загоняются, нафиг это надо
 # но в модулеуже используются транзакции, а внутри транзакции нельзя запустить ещзе одну
@@ -35,6 +33,9 @@ ok(defined $artist->id, "artist's id");
 
 my $id = $artist->id;
 
+my $serialize_dt = $dbh->selectrow_arrayref("SELECT create_time FROM artist WHERE id = $id")->[0];
+is($serialize_dt, $dt->epoch, "artist's create_time serialized");
+
 $artist->name("System of a down");
 my $update_ok = $artist->update();
 
@@ -48,14 +49,12 @@ my $artist_fom_db = $artist->select("id", $id);
 is($artist_fom_db->name, 'System of a down', 'selected artist\'s name');
 is($artist_fom_db->country, 'us', 'selected artist\'s country');
 is($artist_fom_db->create_time, $dt, 'selected artist\'s date time');
-# todo check serialized dt
-#todo test connection
+
 is_deeply($artist->select_by_id($id), $artist_fom_db ,"select_by_id method works");
 is_deeply($artist->select_by_name($artist->name), $artist->select("name", $artist->name), "select_by_name method works");
 
 $artist->delete();
 is_deeply($artist->select_by_id($id), undef,"deleted artist");
-#todo on error rollback
 # $dbh->rollback();
 $dbh->disconnect();
 1;
