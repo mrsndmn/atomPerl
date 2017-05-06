@@ -1,14 +1,19 @@
-package Local::Test;
+package lib::Local::Test;
 
 use Test::Class::Moose;
-
-use Local::Metric::Schema;
 
 sub test_startup {
     my ($self) = @_;
 
+    $self->next::method();
+    
     warn "Test with Test::Class::Moose\n";
 
+    use File::Spec::Functions qw( catdir );
+    use FindBin qw( $Bin );
+    my $db_path = join "::", $Bin, '..', 'lib', 'Local', 'MusicLib', 'DB';
+
+    $self->{dbh} = $db_path."::"."SQLite";
     return;
 }
 
