@@ -28,7 +28,6 @@ C<DBI::ActiveRecord::DB::SQLite> - базовый класс-адаптер дл
 
 sub _select {
     my ($self, $table, $fields, $key_field, $keys, $is_uniq, $limit) = @_;
-
     my $dbh = $self->connection;
 
     my $where_str = "";
@@ -36,6 +35,10 @@ sub _select {
     my @bind  = @$keys;
     if(@bind == 1) {
         $where_str = "$table.$key_field = ?";
+        unless($is_uniq) {
+            $limit_str = "LIMIT ?";
+            push @bind, $limit;
+        }
     } else {
         $where_str = "$table.$key_field IN (".( join ", ", map { "?" } @bind ).")";
         unless($is_uniq) {
@@ -98,12 +101,13 @@ sub _update {
     my ($self, $table, $key_field, $key_value, $fields, $values) = @_;
 
     my $dbh = $self->connection;
-
+    use DDP;
+    # p @_;
     my $update_fields = join " = ? , ", @$fields;
 
     $dbh->begin_work;
     my $last_updated_id;
-    if($dbh->do("UPDATE $table $update_fields  WHERE $key_field == $key_value", {}, @$values)) {
+    if($dbh->do("UPDATE $table SET $update_fields = ?  WHERE $key_field == $key_value", {}, @$values)) {
         $dbh->commit; 
     } else {
         $dbh->rollback;

@@ -106,6 +106,11 @@ sub select {
     confess "field '$field' isn't index field!" unless $key_attr->index;
 
     my $is_uniq = $key_attr->index ne 'common';
+    # default limit support
+    unless ($is_uniq or $limit or @$keys > 1) {
+        $limit = $key_attr->default_limit;
+    }
+
     my @select_keys = @$keys;
     if($key_attr->serializer) {
         $_ = $key_attr->serializer->($_) for @select_keys;    
@@ -170,24 +175,25 @@ sub update {
     my ($self, $obj) = @_;
     my $fields = $obj->meta->fields;
     
-    my @ok_fields = grep { $obj->meta->get_attribute($_)->index ne 'primary' } @$fields;
-
-    my @bind = ();
+    my (@bind, @update_fields);
     my ($key_field, $key_value);
     for(@$fields) {
-        if ($obj->meta->get_attribute($_)->index eq 'primary') {
+        my $attr = $obj->meta->get_attribute($_);
+
+        if (defined $attr->index and $attr->index eq 'primary') {
             confess "There cant be nore than 1 primary field" if $key_field;
             $key_field = $_;
             $key_value = $obj->$key_field;
         } else {
-            my $attr = $obj->meta->get_attribute($_);
+            push @update_fields, $_;
+
             push @bind, ( $attr->serializer ? $attr->serializer->($obj->$_) : $obj->$_ );   
         }
     }
     
-    $self->_update($obj->meta->table_name, $key_field, $key_value, $fields, \@bind);
+    $self->_update($obj->meta->table_name, $key_field, $key_value, \@update_fields, \@bind);
 
-    return 0;
+    return 1;
 }
 
 =head2 delete($obj)
