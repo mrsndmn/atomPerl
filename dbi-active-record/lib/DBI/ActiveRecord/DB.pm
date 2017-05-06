@@ -107,7 +107,10 @@ sub select {
 
     my $is_uniq = $key_attr->index ne 'common';
     # default limit support
+    # чтобы работала, как select_by_${common_field}
+    # может, это и лишнее
     unless ($is_uniq or $limit or @$keys > 1) {
+        confess "default_limit must be defined for common indexes!" unless defined $key_attr->default_limit;
         $limit = $key_attr->default_limit;
     }
 
