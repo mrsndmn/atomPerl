@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use DDP;
-use Test::More tests => 11;
+use Test::More tests => 13;
 use List::Util qw(all);
 use lib 'lib';
 
@@ -41,4 +41,7 @@ is($artist_fom_db->country, 'us', 'selected artist\'s country');
 is($artist_fom_db->create_time, $dt, 'selected artist\'s date time');
 # todo check serialized dt
 #todo test connection
+is_deeply($artist->select_by_id($artist->id), $artist_fom_db ,"select_by_id method works");
+is_deeply($artist->select_by_name($artist->name), $artist->select("name", $artist->name), "select_by_name method works");
+
 1;
