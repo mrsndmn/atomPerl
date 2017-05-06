@@ -9,3 +9,6 @@ use lib 'lib';
 BEGIN { use_ok("Local::MusicLib::Artist"); }
 BEGIN { use_ok("Local::MusicLib::Track"); }
 BEGIN { use_ok("Local::MusicLib::Album"); }
+
+
+1;
