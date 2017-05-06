@@ -24,14 +24,12 @@ has_field name => (
 
 subtype 'country_code', {
     as => 'Str',
-    where => sub { $_ =~ /\w{2}/},
+    where => sub { $_ =~ /^\w{2}$/},
     message => sub { "Wanted 2 symbol country_code" },
 };
 
 has_field country => (
     isa => 'country_code',
-    index => 'common',
-    default_limit => 2,
 );
 
 has_field create_time => (

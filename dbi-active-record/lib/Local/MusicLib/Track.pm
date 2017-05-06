@@ -23,16 +23,14 @@ has_field name => (
     default_limit => 10,
 );
 
-has_field extension => (
-    isa => 'Str',
-    index => 'common',
-    default_limit => 10,    
-);
-
 has_field album_id => (
     isa => 'Int',
     index => 'common',
     default_limit => 10,
+);
+
+has_field extension => (
+    isa => 'Str',
 );
 
 has_field create_time => (
@@ -43,7 +41,7 @@ has_field create_time => (
 
 has_field duration => (
     isa => 'DateTime',
-    serializer => sub { 
+    serializer => sub {         
         DateTime::Format::Strptime->new(pattern => '%T')->parse_datetime($_[0])->sec();
     },
     deserializer => sub {

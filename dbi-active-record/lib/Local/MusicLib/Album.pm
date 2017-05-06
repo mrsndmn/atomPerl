@@ -30,8 +30,6 @@ has_field artist_id => (
 
 has_field year => (
     isa => 'Int',
-    index => 'common',
-    default_limit => 100,
 );
 
 #                      сингл  саундтрек  сборник    обычный альбом
