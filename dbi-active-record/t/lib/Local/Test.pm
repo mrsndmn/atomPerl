@@ -1,19 +1,49 @@
-package lib::Local::Test;
+package Local::Test;
 
 use Test::Class::Moose;
+use FindBin qw( $Bin );
+use lib "$Bin/../lib";
+
+use Local::MusicLib::Artist;
 
 sub test_startup {
     my ($self) = @_;
 
     $self->next::method();
     
-    warn "Test with Test::Class::Moose\n";
+    return;
+}
+# todo test order, alb_id, tr_id;
+sub test_setup {
+    my ($self) = @_;
+    my $artist = Local::MusicLib::Artist->new();
+    $artist->name("Midas Fall");
+    $artist->country("UK");
+    my $dt = DateTime->now;
+    $artist->create_time($dt);
+    my $insert_ok = $artist->insert();
 
-    use File::Spec::Functions qw( catdir );
-    use FindBin qw( $Bin );
-    my $db_path = join "::", $Bin, '..', 'lib', 'Local', 'MusicLib', 'DB';
+    die "previosly test artist" unless $insert_ok or not defined $artist->id;
 
-    $self->{dbh} = $db_path."::"."SQLite";
+    $self->{'artist'} = $artist;
+
+    my $album = Local::MusicLib::Album->new();
+    $album->name("The Menagerie Inside");
+    $album->artist_id($artist->id);
+    $album->year(1999);
+    $album->type("single");
+    $album->create_time($dt);
+
+    $self->{'album'} =  $album;
+
+    my $track = Local::MusicLib::Track->new()
+
+    $track->name();
+    $track->album_id();
+    $track->extension();
+    $track->create_time();
+    $track->duration();
+
     return;
 }
 
