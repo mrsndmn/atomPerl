@@ -21,7 +21,7 @@ $artist->name("SOAD");
 $artist->country("us");
 my $dt = DateTime->now;
 $artist->create_time($dt);
-my $insert_ok = $artist->insert($artist);
+my $insert_ok = $artist->insert();
 
 ok($insert_ok, "inserted artist");
 is($artist->name, "SOAD", "artist's name");
