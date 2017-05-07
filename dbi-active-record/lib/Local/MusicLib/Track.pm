@@ -45,7 +45,7 @@ has_field duration => (
         DateTime::Format::Strptime->new(pattern => '%T')->parse_datetime($_[0])->sec();
     },
     deserializer => sub {
-        DateTime::Duration->new(seconds => $_[0],)->hms;
+        DateTime->new(seconds => $_[0],)->hms;
     },
 );
 

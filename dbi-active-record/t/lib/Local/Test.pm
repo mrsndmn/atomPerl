@@ -5,17 +5,13 @@ use FindBin qw( $Bin );
 use lib "$Bin/../lib";
 
 use Local::MusicLib::Artist;
+use Local::MusicLib::Track;
 
 sub test_startup {
     my ($self) = @_;
 
-    $self->next::method();
-    
-    return;
-}
-# todo test order, alb_id, tr_id;
-sub test_setup {
-    my ($self) = @_;
+    $self->{'dbh'} = Local::MusicLib::Artist->meta->db_class->instance->connection;
+
     my $artist = Local::MusicLib::Artist->new();
     $artist->name("Midas Fall");
     $artist->country("UK");
@@ -28,39 +24,21 @@ sub test_setup {
     $self->{'artist'} = $artist;
 
     my $album = Local::MusicLib::Album->new();
-    $album->name("The Menagerie Inside");
-    $album->artist_id($artist->id);
-    $album->year(1999);
-    $album->type("single");
-    $album->create_time($dt);
-
     $self->{'album'} =  $album;
 
-    my $track = Local::MusicLib::Track->new()
+    my $track = Local::MusicLib::Track->new();
+    $self->{'track'} = $track;    
 
-    $track->name();
-    $track->album_id();
-    $track->extension();
-    $track->create_time();
-    $track->duration();
+    $self->next::method();
 
     return;
 }
 
-# sub test_setup {
-#     my ($self) = @_;
+sub test_shutdown {
+    my ($self) = @_;
+    # $self->{$_}->delete() foreach (qw(track artist album));
 
-#     $self->{schema}->txn_begin();
+}
 
-#     return;
-# }
-
-# sub test_teardown {
-#     my ($self) = @_;
-
-#     $self->{schema}->txn_rollback();
-
-#     return;
-# }
 
 1;
