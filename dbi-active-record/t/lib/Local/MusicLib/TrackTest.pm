@@ -17,7 +17,9 @@ sub test_track {
     subtest attributes => sub {
         my $track = shift;
 
-        my $duration = DateTime->new(seconds => 180)->hms;
+        my %dtd = DateTime::Duration->new(seconds => 180)->deltas;
+        my $duration = DateTime->new(%dtd)->hms;
+        warn $duration;
         my $dt = DateTime->now;
 
         $track->name("The Phantom of the Opera");
@@ -27,7 +29,7 @@ sub test_track {
         $track->create_time($dt);
         
         is($track->name, "The Phantom of the Opera", 'track name set');
-        is($track->album_id,    , 'track album_id set');
+        is($track->album_id, $album->id , 'track album_id set');
         is($track->extension, "mp3", 'track extension set');
         is($track->duratoin, $duration, 'track duration set');
         is($track->create_time, $dt, 'track date/time set');

@@ -121,7 +121,7 @@ sub test_album {
     $album->year(1999);
     $album->type("single");
     $album->create_time($dt);
-    die "smth went wrong cant insert album" unless $album->insert();
+    die "smth went wrong cant insert albumz" unless $album->insert();
 
     $test->{'album'} = $album;
     
