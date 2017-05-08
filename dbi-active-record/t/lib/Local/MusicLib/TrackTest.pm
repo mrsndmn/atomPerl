@@ -22,10 +22,12 @@ sub test_track {
 
     subtest attributes => sub {
         my ($track, $album) = @_;
+        
+        use DateTime::Format::Duration;
 
-        # my %dt_dur = DateTime::Duration->new(seconds => 180)->deltas;
-        my $duration = DateTime->new(seconds => 180);
-        p $track;
+        my $duration = DateTime::Format::Duration->new(pattern => '%r', normalise => 1 )->
+            format_duration_from_deltas( seconds => 180 );
+        
         my $dt = DateTime->now;
         ok(defined $album->id, "alb id not null");
         $track->name("The Phantom of the Opera");
@@ -54,10 +56,13 @@ sub test_track {
 
         my $trck_from_db = $dbh->selectrow_hashref("SELECT * FROM tracks WHERE id = ?", {Slice => {}}, $id);
         
+        my $dur = DateTime::Format::Duration->new( pattern => '%r' )->parse_duration($track->duration);
+        my $expected_duration = DateTime::Format::Duration->new( pattern => '%s' )->format_duration($dur);
+   
         is($trck_from_db->{'name'}, $track->name, 'select name from db');
         is($trck_from_db->{'album_id'}, $track->album_id, 'select album_id from db');
         is($trck_from_db->{'extension'}, $track->extension, 'select extension from db');
-        is($trck_from_db->{'duration'}, $track->duration, 'select duration from db');
+        is($trck_from_db->{'duration'}, $expected_duration, 'select duration from db');
         is($trck_from_db->{'create_time'}, $track->create_time->epoch, "track's create_time serialized");
         
         return;
@@ -71,7 +76,12 @@ sub test_track {
         my $trck_from_db = $dbh->selectrow_hashref("SELECT * FROM tracks WHERE id = ?", {Slice => {}}, $id);
 
         my $sec = $trck_from_db->{'create_time'};
-        $trck_from_db->{'create_time'} = DateTime::Duration->new(seconds => $sec)->hms;
+        $trck_from_db->{'create_time'} = DateTime->from_epoch(epoch => $sec );
+
+        my $dur = DateTime::Format::Duration->new( pattern => '%r', normalise => 1 );
+        my $hms = $dur->format_duration_from_deltas( seconds => $trck_from_db->{duration} );
+
+        $trck_from_db->{duration} = $hms;
 
         is_deeply($selected_trck, $trck_from_db, "select() track works");
 

@@ -2,6 +2,7 @@ package Local::MusicLib::Track;
 
 use DBI::ActiveRecord;
 use Local::MusicLib::DB::SQLite;
+use Mouse::Util::TypeConstraints;
 
 use DateTime;
 use DateTime::Duration;
@@ -39,13 +40,26 @@ has_field create_time => (
     deserializer => sub { DateTime->from_epoch(epoch => $_[0]) },
 );
 
+#!
+subtype 'hh:mm:ss' => {
+    as => 'Str',
+    where => sub { $_ =~ /^\d\d:\d\d:\d\d$/},
+    message => sub { "Wanted hh:mm:ss string" },
+};
+
 has_field duration => (
-    isa => 'DateTime',
-    serializer => sub {         
-        DateTime::Format::Strptime->new(pattern => '%T')->parse_datetime($_[0])->sec();
+    isa => 'hh:mm:ss',
+    serializer => sub {
+        my $dur = DateTime::Format::Duration->new( pattern => '%r' )->parse_duration($_[0]);
+        my $sec = DateTime::Format::Duration->new( pattern => '%s' )->format_duration($dur);
+
+        return $sec;
     },
     deserializer => sub {
-        DateTime->new(seconds => $_[0],)->hms;
+        my $dur = DateTime::Format::Duration->new( pattern => '%r', normalise => 1 );
+        my $hms = $dur->format_duration_from_deltas( seconds => $_[0] );
+
+        return $hms;
     },
 );
 
