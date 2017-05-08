@@ -9,12 +9,12 @@ use DDP;
 my $dt = DateTime->now;
 
 sub test_album {
-    my ($test) = @_;
+    my ($dbh, $artist, $album, $track) = @_;
 
-    my $dbh = $test->{'dbh'};
-    my $artist = $test->{'artist'};
-    my $album = $test->{'album'};
-    my $track = $test->{'track'};
+    # my $dbh = $test->{'dbh'};
+    # my $artist = $test->{'artist'};
+    # my $album = $test->{'album'};
+    # my $track = $test->{'track'};
     
     subtest attributes => sub {
         my $album = shift;
@@ -122,9 +122,11 @@ sub test_album {
     $album->type("single");
     $album->create_time($dt);
     die "smth went wrong cant insert albumz" unless $album->insert();
-
-    $test->{'album'} = $album;
+    ok(defined $album->id, "insert id ok after delete");
+    # $test->{'album'} = $album;
     
+    # p $test->SUPER::ok;
+
 }
 
 1;

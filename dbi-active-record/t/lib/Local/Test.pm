@@ -1,6 +1,7 @@
 package Local::Test;
 
 use Test::Class::Moose;
+
 use FindBin qw( $Bin );
 use lib "$Bin/../lib";
 
@@ -29,7 +30,7 @@ sub test_startup {
     my $track = Local::MusicLib::Track->new();
     $self->{'track'} = $track;    
 
-    $self->next::method();
+    # $self->next::method();
 
     return;
 }
@@ -40,5 +41,22 @@ sub test_shutdown {
 
 }
 
+## break on error
+sub test_mus_lib {
+    my ($self) = @_;
+
+    subtest 'Album testing' => \&Local::MusicLib::AlbumTest::test_album, 
+        $self->{dbh},
+        $self->{artist}, 
+        $self->{album}, 
+        $self->{track};
+
+    subtest 'Track testing' => \&Local::MusicLib::TrackTest::test_track,
+        $self->{dbh},       
+        $self->{artist}, 
+        $self->{album}, 
+        $self->{track};
+
+}
 
 1;
