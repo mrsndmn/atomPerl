@@ -14,14 +14,6 @@ sub test_startup {
     $self->{'dbh'} = Local::MusicLib::Artist->meta->db_class->instance->connection;
 
     my $artist = Local::MusicLib::Artist->new();
-    $artist->name("Midas Fall");
-    $artist->country("UK");
-    my $dt = DateTime->now;
-    $artist->create_time($dt);
-    my $insert_ok = $artist->insert();
-
-    die "previosly test artist" unless $insert_ok or not defined $artist->id;
-
     $self->{'artist'} = $artist;
 
     my $album = Local::MusicLib::Album->new();
@@ -37,13 +29,32 @@ sub test_startup {
 
 sub test_shutdown {
     my ($self) = @_;
-    # $self->{$_}->delete() foreach (qw(track artist album));
+    foreach (qw(track artist album)) {
+        eval {$self->{$_}->delete()};
+        warn "delete not works in $_" if @!;
+    }
+    $self->{dbh}->disconnect;
 
 }
 
-## break on error
-sub test_mus_lib {
+## how to break on error
+sub test_mus_lib : Test( no_plan ) {
     my ($self) = @_;
+
+    # subtest 'using MusicLib' => sub {
+    #     BEGIN { 
+    #         use_ok("Local::MusicLib::Artist");
+    #         use_ok("Local::MusicLib::Track");
+    #         use_ok("Local::MusicLib::Album"); 
+    #     }
+    # };
+
+
+    subtest 'Artist testing' => \&Local::MusicLib::ArtistTest::test_artist,
+        $self->{dbh},
+        $self->{artist}, 
+        $self->{album}, 
+        $self->{track};
 
     subtest 'Album testing' => \&Local::MusicLib::AlbumTest::test_album, 
         $self->{dbh},

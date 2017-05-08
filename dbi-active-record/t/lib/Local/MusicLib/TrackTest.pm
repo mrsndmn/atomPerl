@@ -133,7 +133,9 @@ sub test_track {
         return; 
     }, $track;
 
-
+    my $insert_ok =  $track->insert();
+    ok($insert_ok, "insert id ok after delete");
+    
 }
 
 1;

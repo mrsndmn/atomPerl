@@ -6,11 +6,11 @@ use Local::MusicLib::Album;
 
 use DDP;
 
-my $dt = DateTime->now;
-
 sub test_album {
     my ($dbh, $artist, $album, $track) = @_;
 
+    my $dt = DateTime->now;
+    
     # my $dbh = $test->{'dbh'};
     # my $artist = $test->{'artist'};
     # my $album = $test->{'album'};
@@ -18,8 +18,6 @@ sub test_album {
     
     subtest attributes => sub {
         my $album = shift;
-
-        my $dt = DateTime->now;
 
         $album->name("The Menagerie Inside");
         $album->artist_id($artist->id);
@@ -66,6 +64,10 @@ sub test_album {
         $alb_from_db->{'create_time'} = DateTime->from_epoch(epoch => $epoch);
 
         is_deeply($selected_alb, $alb_from_db, "select() album works");
+
+        my $result = $album->select("name", ["The Menagerie Inside"]);
+        ok((List::Util::all {$_->name eq 'The Menagerie Inside'} @$result), "selected list of albums");
+
 
         return;
     }, $album, $dbh;
@@ -123,7 +125,6 @@ sub test_album {
     $album->create_time($dt);
     die "smth went wrong cant insert albumz" unless $album->insert();
     ok(defined $album->id, "insert id ok after delete");
-    # $test->{'album'} = $album;
     
     # p $test->SUPER::ok;
 
