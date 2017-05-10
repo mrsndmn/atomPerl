@@ -1,4 +1,4 @@
-package Local::Stat;
+package LocalStat;
 
 use 5.018000;
 use strict;
@@ -14,7 +14,7 @@ our @ISA = qw(Exporter);
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration	use Local::Stat ':all';
+# This allows declaration	use LocalStat ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = ( 'all' => [ qw(
@@ -24,10 +24,18 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	new_metric
+	
 );
 
 our $VERSION = '0.01';
+
+sub new {
+    my ($class, $code) = @_;
+    # use DDP;
+    # p $code;
+    return bless { code => $code }, $class;
+}
+
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
@@ -36,7 +44,7 @@ sub AUTOLOAD {
     my $constname;
     our $AUTOLOAD;
     ($constname = $AUTOLOAD) =~ s/.*:://;
-    croak "&Local::Stat::constant not defined" if $constname eq 'constant';
+    croak "&LocalStat::constant not defined" if $constname eq 'constant';
     my ($error, $val) = constant($constname);
     if ($error) { croak $error; }
     {
@@ -52,19 +60,8 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-# my $obj = Local::Stat->new_metric(sub {qw/min max avg/});
-# p $obj->code;
-
-sub new_metric {
-    my ($class, $code) = @_;
-    use DDP;
-    p $code;
-    return bless { code => $code }, $class;
-}
-
-
 require XSLoader;
-XSLoader::load('Local::Stat', $VERSION);
+XSLoader::load('LocalStat', $VERSION);
 
 # Preloaded methods go here.
 
@@ -76,16 +73,16 @@ __END__
 
 =head1 NAME
 
-Local::Stat - Perl extension for blah blah blah
+LocalStat - Perl extension for blah blah blah
 
 =head1 SYNOPSIS
 
-  use Local::Stat;
+  use LocalStat;
   blah blah blah
 
 =head1 DESCRIPTION
 
-Stub documentation for Local::Stat, created by h2xs. It looks like the
+Stub documentation for LocalStat, created by h2xs. It looks like the
 author of the extension was negligent enough to leave the stub
 unedited.
 
@@ -110,7 +107,7 @@ If you have a web site set up for your module, mention it here.
 
 =head1 AUTHOR
 
-MrSndmn, E<lt>mrsndmn46@gmail.com<gt>
+MrSndmn, E<lt>mrsndmn@localdomainE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

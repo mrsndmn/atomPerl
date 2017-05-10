@@ -3,10 +3,10 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME              => 'Local::Stat',
-    VERSION_FROM      => 'lib/Local/Stat.pm', # finds $VERSION, requires EU::MM from perl >= 5.5
+    NAME              => 'LocalStat',
+    VERSION_FROM      => 'lib/LocalStat.pm', # finds $VERSION, requires EU::MM from perl >= 5.5
     PREREQ_PM         => {}, # e.g., Module::Name => 1.1
-    ABSTRACT_FROM     => 'lib/Local/Stat.pm', # retrieve abstract from module
+    ABSTRACT_FROM     => 'lib/LocalStat.pm', # retrieve abstract from module
     AUTHOR            => 'MrSndmn <mrsndmn@localdomain>',
     #LICENSE           => 'perl',
     #Value must be from legacy list of licenses here
@@ -24,7 +24,7 @@ if  (eval {require ExtUtils::Constant; 1}) {
   # changes.
   my @names = (qw());
   ExtUtils::Constant::WriteConstants(
-                                     NAME         => 'Local::Stat',
+                                     NAME         => 'LocalStat',
                                      NAMES        => \@names,
                                      DEFAULT_TYPE => 'IV',
                                      C_FILE       => 'const-c.inc',

@@ -1,6 +1,0 @@
-Revision history for Perl extension Local::Stat.
-
-0.01  Wed May  3 00:23:07 2017
-	- original version; created by h2xs 1.23 with options
-		-n Local::Stat -b 5.18.0
-

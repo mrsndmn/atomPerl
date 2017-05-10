@@ -1,10 +1,10 @@
 Changes
+LocalStat.xs
 Makefile.PL
 MANIFEST
 ppport.h
 README
-Stat.xs
-t/Local-Stat.t
+t/LocalStat.t
 fallback/const-c.inc
 fallback/const-xs.inc
-lib/Local/Stat.pm
+lib/LocalStat.pm

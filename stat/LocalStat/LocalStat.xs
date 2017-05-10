@@ -7,6 +7,9 @@
 
 #include "const-c.inc"
 
-MODULE = Local::Stat		PACKAGE = Local::Stat		
+MODULE = LocalStat		PACKAGE = LocalStat		
 
 INCLUDE: const-xs.inc
+
+// mmm?
+PROTOTYPES: ENABLE
