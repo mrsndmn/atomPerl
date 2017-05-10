@@ -1,0 +1,6 @@
+DBMS : sqlite # sqlite or postgres
+dbname : data/muslib.db
+# for psql
+host :  # may be localhost or other
+username : # you username
+password : # you password
