@@ -29,7 +29,7 @@ sub test_startup {
 
 sub test_shutdown {
     my ($self) = @_;
-    foreach (qw(track artist album)) {
+    foreach (qw(track album artist)) {
         eval {$self->{$_}->delete()};
         warn "delete not works in $_" if @!;
     }
