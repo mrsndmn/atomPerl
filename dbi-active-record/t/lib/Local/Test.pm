@@ -31,7 +31,7 @@ sub test_shutdown {
     my ($self) = @_;
     foreach (qw(track album artist)) {
         eval {$self->{$_}->delete()};
-        warn "delete not works in $_" if @!;
+        warn "delete not works in $_" if $@;
     }
     $self->{dbh}->disconnect;
 

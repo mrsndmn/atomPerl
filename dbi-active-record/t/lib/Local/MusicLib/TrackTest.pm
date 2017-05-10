@@ -98,7 +98,7 @@ sub test_track {
             
             my $ev = '$other_trck = $track->'."select_by_$field".'($track->$field);';
             eval $ev;
-            fail "eval error" if @!;
+            fail "eval error" if $@;
 
             is_deeply($other_trck, $trck_from_select, "method select_by_$field");
 

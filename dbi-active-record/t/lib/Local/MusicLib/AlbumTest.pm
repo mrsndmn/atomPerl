@@ -82,7 +82,7 @@ sub test_album {
             
             my $ev = '$other_alb = $album->'."select_by_$field".'($album->$field);';
             eval $ev;
-            fail "eval error" if @!;
+            fail "eval error" if $@;
 
             is_deeply($other_alb, $alb_from_select, "method select_by_$field");
 
