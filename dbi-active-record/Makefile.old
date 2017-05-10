@@ -23,30 +23,30 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/Config.pm).
+# These definitions are from config.sh (via /usr/lib64/perl5/Config.pm).
 # They may have been overridden via Makefile.PL or on the command line.
 AR = ar
-CC = cc
+CC = gcc
 CCCDLFLAGS = -fPIC
-CCDLFLAGS = -Wl,-E
+CCDLFLAGS = -Wl,--enable-new-dtags -Wl,-z,relro 
 DLEXT = so
 DLSRC = dl_dlopen.xs
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
-LD = cc
-LDDLFLAGS = -shared -O2 -L/usr/local/lib -fstack-protector
-LDFLAGS =  -fstack-protector -L/usr/local/lib
+LD = gcc
+LDDLFLAGS = -shared -Wl,-z,relro  -L/usr/local/lib -fstack-protector-strong
+LDFLAGS = -Wl,-z,relro  -fstack-protector-strong -L/usr/local/lib
 LIBC = libc-2.24.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 4.9.13-200.fc25.x86_64
+OSVERS = 4.10.1-1.fc25.x86_64
 RANLIB = :
-SITELIBEXP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/site_perl/5.20.1
-SITEARCHEXP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/site_perl/5.20.1/x86_64-linux
+SITELIBEXP = /usr/local/share/perl5
+SITEARCHEXP = /usr/local/lib64/perl5
 SO = so
-VENDORARCHEXP = 
-VENDORLIBEXP = 
+VENDORARCHEXP = /usr/lib64/perl5/vendor_perl
+VENDORLIBEXP = /usr/share/perl5/vendor_perl
 
 
 # --- MakeMaker constants section:
@@ -69,9 +69,9 @@ INST_LIB = blib/lib
 INST_MAN1DIR = blib/man1
 INST_MAN3DIR = blib/man3
 MAN1EXT = 1
-MAN3EXT = 3
+MAN3EXT = 3pm
 INSTALLDIRS = site
-INSTALL_BASE = /home/SndmnNote/perl5
+INSTALL_BASE = /home/mrsndmn/perl5
 DESTDIR = 
 PREFIX = $(INSTALL_BASE)
 INSTALLPRIVLIB = $(INSTALL_BASE)/lib/perl5
@@ -80,11 +80,11 @@ INSTALLSITELIB = $(INSTALL_BASE)/lib/perl5
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
 INSTALLVENDORLIB = $(INSTALL_BASE)/lib/perl5
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = $(INSTALL_BASE)/lib/perl5/x86_64-linux
+INSTALLARCHLIB = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux
+INSTALLSITEARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
-INSTALLVENDORARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux
+INSTALLVENDORARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
 INSTALLBIN = $(INSTALL_BASE)/bin
 DESTINSTALLBIN = $(DESTDIR)$(INSTALLBIN)
@@ -110,18 +110,18 @@ INSTALLSITEMAN3DIR = $(INSTALL_BASE)/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = $(INSTALL_BASE)/man/man3
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1
-PERL_ARCHLIB = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux
-PERL_ARCHLIBDEP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux
+PERL_LIB = /usr/share/perl5
+PERL_ARCHLIB = /usr/lib64/perl5
+PERL_ARCHLIBDEP = /usr/lib64/perl5
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = Makefile.old
 MAKE_APERL_FILE = Makefile.aperl
 PERLMAINCC = $(CC)
-PERL_INC = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/CORE
-PERL_INCDEP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/CORE
-PERL = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
-FULLPERL = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
+PERL_INC = /usr/lib64/perl5/CORE
+PERL_INCDEP = /usr/lib64/perl5/CORE
+PERL = "/usr/bin/perl"
+FULLPERL = "/usr/bin/perl"
 ABSPERL = $(PERL)
 PERLRUN = $(PERL)
 FULLPERLRUN = $(FULLPERL)
@@ -134,7 +134,7 @@ PERM_DIR = 755
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /home/SndmnNote/perl5/lib/perl5/ExtUtils/MakeMaker.pm
+MAKEMAKER   = /usr/share/perl5/vendor_perl/ExtUtils/MakeMaker.pm
 MM_VERSION  = 7.24
 MM_REVISION = 72400
 
@@ -161,7 +161,7 @@ H_FILES  =
 MAN1PODS = 
 MAN3PODS = lib/DBI/ActiveRecord.pm \
 	lib/DBI/ActiveRecord/DB.pm \
-	lib/DBI/ActiveRecord/DB/SQLite.pm \
+	lib/DBI/ActiveRecord/DB/CommonSQL.pm \
 	lib/DBI/ActiveRecord/Object.pm \
 	lib/DBI/ActiveRecord/Trait/Attribute/Field.pm \
 	lib/DBI/ActiveRecord/Trait/Class.pm
@@ -189,14 +189,18 @@ PERL_ARCHIVE_AFTER =
 
 TO_INST_PM = lib/DBI/ActiveRecord.pm \
 	lib/DBI/ActiveRecord/DB.pm \
+	lib/DBI/ActiveRecord/DB/CommonSQL.pm \
+	lib/DBI/ActiveRecord/DB/PostgreSQL.pm \
 	lib/DBI/ActiveRecord/DB/SQLite.pm \
 	lib/DBI/ActiveRecord/Object.pm \
 	lib/DBI/ActiveRecord/Trait/Attribute/Field.pm \
 	lib/DBI/ActiveRecord/Trait/Class.pm \
 	lib/Local/MusicLib/Album.pm \
 	lib/Local/MusicLib/Artist.pm \
+	lib/Local/MusicLib/DB/PostgreSQL.pm \
 	lib/Local/MusicLib/DB/SQLite.pm \
-	lib/Local/MusicLib/Track.pm
+	lib/Local/MusicLib/Track.pm \
+	lib/Local/MusicLib/etc/config.yml
 
 
 # --- MakeMaker platform_constants section:
@@ -425,14 +429,14 @@ POD2MAN = $(POD2MAN_EXE)
 manifypods : pure_all config  \
 	lib/DBI/ActiveRecord.pm \
 	lib/DBI/ActiveRecord/DB.pm \
-	lib/DBI/ActiveRecord/DB/SQLite.pm \
+	lib/DBI/ActiveRecord/DB/CommonSQL.pm \
 	lib/DBI/ActiveRecord/Object.pm \
 	lib/DBI/ActiveRecord/Trait/Attribute/Field.pm \
 	lib/DBI/ActiveRecord/Trait/Class.pm
 	$(NOECHO) $(POD2MAN) --section=3 --perm_rw=$(PERM_RW) -u \
 	  lib/DBI/ActiveRecord.pm $(INST_MAN3DIR)/DBI::ActiveRecord.$(MAN3EXT) \
 	  lib/DBI/ActiveRecord/DB.pm $(INST_MAN3DIR)/DBI::ActiveRecord::DB.$(MAN3EXT) \
-	  lib/DBI/ActiveRecord/DB/SQLite.pm $(INST_MAN3DIR)/DBI::ActiveRecord::DB::SQLite.$(MAN3EXT) \
+	  lib/DBI/ActiveRecord/DB/CommonSQL.pm $(INST_MAN3DIR)/DBI::ActiveRecord::DB::CommonSQL.$(MAN3EXT) \
 	  lib/DBI/ActiveRecord/Object.pm $(INST_MAN3DIR)/DBI::ActiveRecord::Object.$(MAN3EXT) \
 	  lib/DBI/ActiveRecord/Trait/Attribute/Field.pm $(INST_MAN3DIR)/DBI::ActiveRecord::Trait::Attribute::Field.$(MAN3EXT) \
 	  lib/DBI/ActiveRecord/Trait/Class.pm $(INST_MAN3DIR)/DBI::ActiveRecord::Trait::Class.$(MAN3EXT) 
@@ -511,7 +515,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) 'configure_requires:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  ExtUtils::MakeMaker: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'dynamic_config: 1' >> META_new.yml
-	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150005'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license: unknown' >> META_new.yml
 	$(NOECHO) $(ECHO) 'meta-spec:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  url: http://module-build.sourceforge.net/META-spec-v1.4.html' >> META_new.yml
@@ -522,7 +526,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'version: 1' >> META_new.yml
-	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.012'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
@@ -531,7 +535,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
 	$(NOECHO) $(ECHO) '   "dynamic_config" : 1,' >> META_new.json
-	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150005",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "license" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -817,8 +821,8 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 
 # --- MakeMaker makeaperl section ---
 MAP_TARGET    = perl
-FULLPERL      = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
-MAP_PERLINC   = "-Iblib/arch" "-Iblib/lib" "-I/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux" "-I/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1"
+FULLPERL      = "/usr/bin/perl"
+MAP_PERLINC   = "-Iblib/arch" "-Iblib/lib" "-I/usr/lib64/perl5" "-I/usr/share/perl5"
 
 $(MAP_TARGET) :: $(MAKE_APERL_FILE)
 	$(MAKE) $(USEMAKEFILE) $(MAKE_APERL_FILE) $@
@@ -873,7 +877,7 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> DBI-ActiveRecord.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR></AUTHOR>' >> DBI-ActiveRecord.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> DBI-ActiveRecord.ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-5.20" />' >> DBI-ActiveRecord.ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-thread-multi-5.24" />' >> DBI-ActiveRecord.ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> DBI-ActiveRecord.ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> DBI-ActiveRecord.ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> DBI-ActiveRecord.ppd
@@ -885,14 +889,18 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  'lib/DBI/ActiveRecord.pm' 'blib/lib/DBI/ActiveRecord.pm' \
 	  'lib/DBI/ActiveRecord/DB.pm' 'blib/lib/DBI/ActiveRecord/DB.pm' \
+	  'lib/DBI/ActiveRecord/DB/CommonSQL.pm' 'blib/lib/DBI/ActiveRecord/DB/CommonSQL.pm' \
+	  'lib/DBI/ActiveRecord/DB/PostgreSQL.pm' 'blib/lib/DBI/ActiveRecord/DB/PostgreSQL.pm' \
 	  'lib/DBI/ActiveRecord/DB/SQLite.pm' 'blib/lib/DBI/ActiveRecord/DB/SQLite.pm' \
 	  'lib/DBI/ActiveRecord/Object.pm' 'blib/lib/DBI/ActiveRecord/Object.pm' \
 	  'lib/DBI/ActiveRecord/Trait/Attribute/Field.pm' 'blib/lib/DBI/ActiveRecord/Trait/Attribute/Field.pm' \
 	  'lib/DBI/ActiveRecord/Trait/Class.pm' 'blib/lib/DBI/ActiveRecord/Trait/Class.pm' \
 	  'lib/Local/MusicLib/Album.pm' 'blib/lib/Local/MusicLib/Album.pm' \
 	  'lib/Local/MusicLib/Artist.pm' 'blib/lib/Local/MusicLib/Artist.pm' \
+	  'lib/Local/MusicLib/DB/PostgreSQL.pm' 'blib/lib/Local/MusicLib/DB/PostgreSQL.pm' \
 	  'lib/Local/MusicLib/DB/SQLite.pm' 'blib/lib/Local/MusicLib/DB/SQLite.pm' \
-	  'lib/Local/MusicLib/Track.pm' 'blib/lib/Local/MusicLib/Track.pm' 
+	  'lib/Local/MusicLib/Track.pm' 'blib/lib/Local/MusicLib/Track.pm' \
+	  'lib/Local/MusicLib/etc/config.yml' 'blib/lib/Local/MusicLib/etc/config.yml' 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 
