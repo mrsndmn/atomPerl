@@ -1,12 +1,12 @@
 package Local::MusicLib::Album;
 
 use DBI::ActiveRecord;
-use Local::MusicLib::DB::PostgreSQL;
+use Local::MusicLib::DB::SQLite;
 use Mouse::Util::TypeConstraints;
 
 use DateTime;
 
-db "Local::MusicLib::DB::PostgreSQL";
+db "Local::MusicLib::DB::SQLite";
 
 table 'album';
 
