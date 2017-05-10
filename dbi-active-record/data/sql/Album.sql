@@ -1,7 +1,7 @@
 CREATE TABLE album (
     id INTEGER primary key,
     name TEXT,
-    artist_id VARCHAR,
+    artist_id INTEGER,
     year INTEGER,
     type TEXT,
     create_time INTEGER,

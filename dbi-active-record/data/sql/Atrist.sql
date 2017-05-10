@@ -1,4 +1,4 @@
-CREATE TABLE artist (
+sCREATE TABLE artist (
     id INTEGER primary key,
     name TEXT,
     country TEXT,

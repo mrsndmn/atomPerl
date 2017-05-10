@@ -1,4 +1,4 @@
-package DBI::ActiveRecord::DB::SQLite;
+package DBI::ActiveRecord::DB::PostgreSQL;
 
 use Mouse;
 extends 'DBI::ActiveRecord::DB';

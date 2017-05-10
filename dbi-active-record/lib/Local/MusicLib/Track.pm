@@ -1,14 +1,14 @@
 package Local::MusicLib::Track;
 
 use DBI::ActiveRecord;
-use Local::MusicLib::DB::SQLite;
+use Local::MusicLib::DB::PostgreSQL;
 use Mouse::Util::TypeConstraints;
 
 use DateTime;
 use DateTime::Duration;
 use DateTime::Format::Strptime;
 
-db "Local::MusicLib::DB::SQLite";
+db "Local::MusicLib::DB::PostgreSQL";
 
 table 'tracks';
 
