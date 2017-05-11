@@ -35,7 +35,7 @@ my $stat = LocalStat->new(\&get_metric);
 subtest add_metric => sub {
     my $stat = shift;
     
-    $stat->add('cnt', 2);
+    # $stat->add('cnt', 2);
     eval {
         $stat->add('cnt', 1);
         $stat->add('cnt', 2);
@@ -65,7 +65,8 @@ sub get_metric {
     push @list, 'max' if $name =~ /max/;
     push @list, qw(max min sum cnt avg) if $name =~ /all/;
     
-    warn "empty metic\n" if scalar(@list);
+    warn "list: ". scalar @list;
+    warn "empty metic\n" if ! scalar @list ;
 
     return @list;
 }

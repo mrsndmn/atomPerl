@@ -2,7 +2,6 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include <string.h>
 
 #include "ppport.h"
 
@@ -30,11 +29,13 @@ CODE:
     SV **code_ref = hv_fetch( attributes , "code", 4, 0);
     
     if ( ! SvROK(*code_ref) || ( SvTYPE(SvRV(*code_ref)) != SVt_PVCV ) ) croak("code must be coderef");
-    CV *code = (CV*)SvRV(*code_ref);
-
+    SV *code = SvRV(*code_ref);
+    
+    // metric hash
+    // doto typemap
     // merics get
-    SV **metrics_ref = hv_fetch( attributes , "metrics", 7, 1);
     HV *metric;
+    SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
     if ( !SvRV(*metrics_ref) ) {
         // if no metrics in object
         metric = newHV();
@@ -63,8 +64,17 @@ CODE:
         
         SPAGAIN;
         for (int i = 0; i < count; i++) {
-            char * arg = POPp;
-            if (strcmp(arg)) av_push(options, POPp);
+            av_push(options,(SV*)POPp);
+            // char * arg = POPp;
+            // if (strcmp(arg, "cnt") = 0) {
+            //     av_push(options, POPp);
+            // } else if (strcmp(arg, "max") = 0) {
+            //     av_push(options, POPp);
+            // } else if (strcmp(arg, "min") = 0) {
+            //     av_push(options, POPp);
+            // } else if (strcmp(arg, "avg") = 0) {
+            //     av_push(options, POPp);
+            // }
 
         }
         PUTBACK;
