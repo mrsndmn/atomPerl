@@ -2,6 +2,7 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include <string.h>
 
 #include "ppport.h"
 
@@ -45,9 +46,31 @@ CODE:
     if ( hv_exists( metric, metric_name, strlen(metric_name) )) {
         // metric exists
         //& update all fields
+
     } else {
         // metric not exists
-        //& insert all fields      
-    }
+        //& insert all fields
+        dSP ;
+        int count;
+        
+        ENTER;
+        SAVETMPS;
+        PUSHMARK(SP);
+        mXPUSHp(metric_name, strlen(metric_name));
+        PUTBACK;
+        count = call_sv( code, G_ARRAY);
+        AV *options = newAV();
+        
+        SPAGAIN;
+        for (int i = 0; i < count; i++) {
+            char * arg = POPp;
+            if (strcmp(arg)) av_push(options, POPp);
+
+        }
+        PUTBACK;
+        FREETMPS;
+        LEAVE;
+  
+    };
     
     
