@@ -35,9 +35,12 @@ my $stat = LocalStat->new(\&get_metric);
 subtest add_metric => sub {
     my $stat = shift;
     
-    $stat->add('cnt', 2);
     use DDP;
+    $stat->add('cnt', 3);
     p $stat;
+    $stat->add('cnt', 2);
+    p $stat;
+    
     eval {
         $stat->add('cnt', 1);
         $stat->add('cnt', 2);
