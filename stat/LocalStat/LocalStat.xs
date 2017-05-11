@@ -10,6 +10,7 @@
 // just c code here
 // what is I32
 // dump how?
+// как не меняя метстами ф-ии сделать
 // typemap как сделать, чтобы не все хэши были 
 // таакими объектами, как я хотел
 
@@ -20,6 +21,41 @@
 MODULE = LocalStat		PACKAGE = LocalStat		
 INCLUDE: const-xs.inc
 
+
+
+SV* stat (SV *self)
+
+INIT:
+    AV *results;
+    results = (AV *)sv_2mortal((SV *)newAV());
+CODE: 
+    if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
+    HV *attributes = (HV*)SvRV(self);
+
+    HV *all_metrics = newHV();// = hv_fetch( attributes, "metrics", 7, 0);
+    SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
+    //?? is it right
+    
+    if ( !SvOK(*metrics_ref) ) {
+        // :(
+    } else {
+        all_metrics = (HV*)SvRV(*metrics_ref);
+        
+        char *m_name;
+        I32 name_length;
+
+
+        SV* metric_SV;
+        HV* metric;
+        while (metric_SV = hv_iternextsv(all_metrics, &m_name, &name_length)) {
+            metric = (HV*)metric_SV;
+
+        }
+    }
+    RETVAL = newRV((SV*)results);
+OUTPUT:
+    RETVAL
+    
 
 void add (self, metric_name, value)
     SV *self;
@@ -133,36 +169,4 @@ CODE:
     }
 
 
-    SV* stat (SV *self)
-INIT:
-    AV *results;
-    results = (AV *)sv_2mortal((SV *)newAV());
-CODE: 
-    if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
-    HV *attributes = (HV*)SvRV(self);
-
-    HV *all_metrics = newHV();// = hv_fetch( attributes, "metrics", 7, 0);
-    SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
-    //?? is it right
-    
-    if ( !SvOK(*metrics_ref) ) {
-        // :(
-    } else {
-        all_metrics = (HV*)SvRV(*metrics_ref);
-        
-        char *m_name;
-        I32 name_length;
-
-
-        SV* metric_SV;
-        HV* metric;
-        while (metric_SV = hv_iternextsv(all_metrics, &m_name, &name_length)) {
-            metric = (HV*)metric_SV;
-
-        }
-    }
-    RETVAL = newRV((SV*)results);
-OUTPUT:
-    RETVAL
-    
  
