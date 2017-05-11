@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 BEGIN { use_ok('LocalStat') };
 
 use LocalStat;
@@ -25,6 +25,22 @@ subtest test_counstructor => sub {
 
 }, \&get_metric;
 
+
+my $stat = LocalStat->new(\&get_metric);
+
+subtest add_metric => sub {
+    my $stat = shift;
+    
+    # $stat->add('cnt', 2);
+
+    eval {
+        $stat->add('cnt', 1);
+        $stat->add('cnt', 2);
+    };
+
+
+    ok( ! $@ , "add ok");
+}, $stat;
 
 
 
