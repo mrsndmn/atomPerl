@@ -31,6 +31,7 @@ our $VERSION = '0.01';
 
 sub new {
     my ($class, $code) = @_;
+    die "code must be coderef" if ref $code ne 'CODE';
     # use DDP;
     # p $code;
     return bless { code => $code }, $class;
