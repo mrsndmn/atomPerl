@@ -79,7 +79,7 @@ CODE:
     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
     //?? is it right
     if ( !SvOK(*metrics_ref) ) {
-        hv_store(attributes, "metrics", 7, newRV((HV*)metrics),0);
+        hv_store(attributes, "metrics", 7, newRV((SV*)metrics),0);
         // hv_store(metrics, "try", 3, newSViv(0), 0);    
     } else {
         metrics = (HV*)SvRV(*metrics_ref);
@@ -108,7 +108,7 @@ CODE:
         //& insert all fields
         // create metric
         HV *this_metric = newHV();
-        hv_store(metrics, metric_name, strlen(metric_name), newRV((HV*)this_metric), 0);
+        hv_store(metrics, metric_name, strlen(metric_name), newRV((SV*)this_metric), 0);
 
         AV *values = newAV();
         AV *options = newAV();
