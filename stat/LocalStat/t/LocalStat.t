@@ -75,6 +75,7 @@ subtest add_metric => sub {
 subtest stat_metric => sub {
     my $stat = shift;
     ok(1);
+    $stat->stat;
 }, $stat;
 
 

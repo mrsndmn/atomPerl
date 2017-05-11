@@ -24,7 +24,6 @@ INCLUDE: const-xs.inc
 
 
 SV* stat (SV *self)
-
 INIT:
     AV *results;
     results = (AV *)sv_2mortal((SV *)newAV());
@@ -114,8 +113,8 @@ CODE:
         AV *values = newAV();
         AV *options = newAV();
 
-        hv_store(this_metric, "values", strlen("values"), newRV((AV*)values), 0);        
-        hv_store(this_metric, "options", strlen("options"), newRV((AV*)options), 0);        
+        hv_store(this_metric, "values", strlen("values"), newRV((SV*)values), 0);        
+        hv_store(this_metric, "options", strlen("options"), newRV((SV*)options), 0);        
 
         dSP ;
         int count;
