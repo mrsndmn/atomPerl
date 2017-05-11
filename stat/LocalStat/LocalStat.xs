@@ -7,8 +7,9 @@
 
 #include "const-c.inc"
 
-//just c code here
-
+// just c code here
+// как работает typemap, куда его пихать, как сделать, чтобы не все хэши были 
+// таакими объектами, как я хотел
 
 MODULE = LocalStat		PACKAGE = LocalStat		
 INCLUDE: const-xs.inc
@@ -34,23 +35,30 @@ CODE:
     // metric hash
     // doto typemap
     // merics get
-    HV *metric;
+    HV *metrics;// = hv_fetch( attributes, "metrics", 7, 0);
     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
-    if ( !SvRV(*metrics_ref) ) {
-        // if no metrics in object
-        metric = newHV();
-    } else {
-        metric = (HV*)SvRV(*metrics_ref);
+    
+    if (! hv_exists( attributes, "metrics", 7 )) {
+        croak("i think i works");   
     }
 
+    metrics = (HV*)SvRV(*metrics_ref);
+    
+    // will store all data & metric ooptions
+    // if stat() called, i'll count stat
+
     // metric get
-    if ( hv_exists( metric, metric_name, strlen(metric_name) )) {
+    if ( hv_exists( metrics, metric_name, strlen(metric_name) ) ) {
         // metric exists
         //& update all fields
 
     } else {
         // metric not exists
         //& insert all fields
+        // create metric
+        HV *this_metric = newHV();
+        hv_store(metrics, metric_name, strlen(metric_name), (SV*)this_metric, 0);
+
         dSP ;
         int count;
         
@@ -64,23 +72,45 @@ CODE:
         
         SPAGAIN;
         for (int i = 0; i < count; i++) {
-            av_push(options,(SV*)POPp);
-            // char * arg = POPp;
-            // if (strcmp(arg, "cnt") = 0) {
+            char *opt = POPp;
+            if (strcmp(opt, "cnt") == 0) {
+                av_push(options, (SV*)newSVpv(opt, strlen(opt)));
+                hv_store(this_metric, "cnt", 3, (SV*)newSViv(value), 0);        
+            }
+            // } else if (strcmp(opt, "cnt") = 0) {
+
+            //     av_push(options, (SV*)SvPV(opt, strlen(opt)));
+            //     hv_store(this_metric, "cnt", 3, (SV*)newSvIV(value), 0);        
+            
+            // } else if (strcmp(opt, "cnt") = 0) {
+            
+            //     av_push(options, (SV*)SvPV(opt, strlen(opt)));
+            //     hv_store(this_metric, "cnt", 3, (SV*)newSvIV(value), 0);        
+            
+            // } else 
+            // } else if (strcmp(opt, "max") = 0) {
             //     av_push(options, POPp);
-            // } else if (strcmp(arg, "max") = 0) {
+            // } else if (strcmp(opt, "min") = 0) {
             //     av_push(options, POPp);
-            // } else if (strcmp(arg, "min") = 0) {
-            //     av_push(options, POPp);
-            // } else if (strcmp(arg, "avg") = 0) {
+            // } else if (strcmp(opt, "avg") = 0) {
             //     av_push(options, POPp);
             // }
-
         }
+        hv_store(metrics, "opt_list", strlen("opt_list"), (SV*)options, 0);
+        //now valid keys saved in $self->{metrics}->{opt_list}
+        
+        hv_store(metrics, metric_name, strlen(metric_name), (SV*)this_metric, 0);
+        
         PUTBACK;
         FREETMPS;
         LEAVE;
   
     };
     
-    
+void stat (self)
+    SV *self;
+CODE: 
+    if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
+    HV *attributes = (HV*)SvRV(self);
+
+
