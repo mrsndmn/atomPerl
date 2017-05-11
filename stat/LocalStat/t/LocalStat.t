@@ -7,8 +7,9 @@
 
 use strict;
 use warnings;
+use DDP;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 BEGIN { use_ok('LocalStat') };
 
 use LocalStat;
@@ -35,17 +36,31 @@ my $stat = LocalStat->new(\&get_metric);
 subtest add_metric => sub {
     my $stat = shift;
     
-    use DDP;
-    $stat->add('cnt', 3);
-    p $stat;
-    $stat->add('cnt', 2);
-    p $stat;
-    
+    # $stat->add('cnt', 3);
+    # p $stat;
+    # $stat->add('cnt', 2);
+    # p $stat;
+
     eval {
         $stat->add('cnt', 1);
         $stat->add('cnt', 2);
     };
     ok( ! $@ , "add ok");
+    my $ans = {
+        cnt => {
+            options => [qw( cnt )],
+            values => [qw(1 2)]
+        }
+    };
+
+    # p $stat;
+    # p $stat->{'metrics'};
+    is_deeply($stat->{'metrics'}, $ans, "values and metrics added");
+    
+    $stat->add('avg', 1);
+    $stat->add('sum', 2);
+    ok(exists $stat->{'metrics'}->{'avg'}, "more metics");
+    ok(exists $stat->{'metrics'}->{'sum'}, "more metics");
 
     eval {
         my $bad_stat = LocalStat->new(sub{});
@@ -57,6 +72,10 @@ subtest add_metric => sub {
 
 }, $stat;
 
+subtest stat_metric => sub {
+    my $stat = shift;
+    ok(1);
+}, $stat;
 
 
 sub get_metric {
