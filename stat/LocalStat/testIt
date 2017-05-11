@@ -1,4 +1,6 @@
 #!/bin/bash
+clear;
+clear;
 perl Makefile.PL > /dev/null;
 make > /dev/null;
 make test;
