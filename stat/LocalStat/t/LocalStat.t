@@ -23,23 +23,33 @@ subtest test_counstructor => sub {
     ok(blessed $stat, "object blessed");
     is($stat->{'code'}, $code, "code ref saved");
 
+    eval {
+        my $bad_stat = LocalStat->new("STRING NOT CODEREF");
+    };
+    ok( $@ , "coderef check");
+    
 }, \&get_metric;
 
 
 my $stat = LocalStat->new(\&get_metric);
-
 subtest add_metric => sub {
     my $stat = shift;
     
-    # $stat->add('cnt', 2);
-
+    $stat->add('cnt', 2);
     eval {
         $stat->add('cnt', 1);
         $stat->add('cnt', 2);
     };
-
-
     ok( ! $@ , "add ok");
+
+    eval {
+        my $bad_stat = LocalStat->new(sub{});
+        $bad_stat->{'code'} = "str";
+        $bad_stat->add('cnt', 1);
+    };
+    ok( $@ , "coderef check in add()");
+    
+
 }, $stat;
 
 
