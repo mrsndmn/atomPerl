@@ -58,7 +58,7 @@ subtest add_metric => sub {
     
     my $ans = {
         cnt => {
-            options => [qw( cnt )],
+            params => [qw( cnt )],
             values => [qw(1 2)]
         }
     };
@@ -95,15 +95,15 @@ subtest stat_metric => sub {
 
     my $expected = {
         avg => {
-            options => [ 'avg' ],
+            params => [ 'avg' ],
             values  => [ 1 ]
         },
         cnt => {
-            options => [ 'cnt' ],
+            params => [ 'cnt' ],
             values  => [ 1, 2 ]
         },
         sum => {
-            options => [],
+            params => [],
             values  => []
         }
     };

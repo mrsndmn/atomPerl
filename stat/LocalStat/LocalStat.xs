@@ -62,7 +62,7 @@ void add (self, metric_name, value)
     SV *self;
     char *metric_name;
     int value;
-CODE:
+PPCODE:
     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
 
     HV *attributes = (HV*)SvRV(self);
@@ -91,13 +91,12 @@ CODE:
     }
     
 
-    // will store all data & metric ooptions
+    // will store all data & metric oparams
     // if stat() called, i'll count stat
 
     // metric get
     if ( hv_exists( metrics, metric_name, strlen(metric_name) ) ) {
         // metric exists
-        //& update all fields
         SV **this_metric_ref = hv_fetch(metrics, metric_name, strlen(metric_name), 0);
         HV *this_metric = (HV*)SvRV(*this_metric_ref);
 
@@ -108,16 +107,17 @@ CODE:
 
     } else {
         // metric not exists
-        //& insert all fields
         // create metric
         HV *this_metric = newHV();
         hv_store(metrics, metric_name, strlen(metric_name), newRV((SV*)this_metric), 0);
 
-        AV *values = newAV();
-        AV *options = newAV();
+        AV *values;
+        // Newx(values, 1, AV);
+        values = newAV();   
+        AV *params = newAV();
 
         hv_store(this_metric, "values", strlen("values"), newRV((SV*)values), 0);        
-        hv_store(this_metric, "options", strlen("options"), newRV((SV*)options), 0);        
+        hv_store(this_metric, "params", strlen("params"), newRV((SV*)params), 0);        
 
         dSP ;
         int count;
@@ -131,11 +131,13 @@ CODE:
         count = call_sv( code, G_ARRAY);
         
         for (int i = 0; i < count; i++) {
-            char *opt = POPp;
-            if (    (strcmp(opt, "cnt") == 0) || (strcmp(opt, "max") == 0)
-                 || (strcmp(opt, "min") == 0) || (strcmp(opt, "avg") == 0) )
+            char *param = POPp;
+            if (    (strcmp(param, "cnt") == 0) || (strcmp(param, "max") == 0)
+                 || (strcmp(param, "min") == 0) || (strcmp(param, "avg") == 0) )
             {
-                av_push(options, (SV*)newSVpv(opt, strlen(opt)));
+                // creating metric
+                av_push(params, (SV*)newSVpv(param, strlen(param)));
+                // adding value
                 av_push(values, (SV*)newSViv(value));
             }
         }
@@ -144,3 +146,39 @@ CODE:
         LEAVE;
     }
 
+void stat_DESTROY(SV *self)
+    PPCODE:
+    // printf("in DESTROY\n");
+    XSRETURN(0);
+
+    // void stat_DESTROY(SV *self)
+
+    //     // COPYPASTE!!!!!!!!
+    //     // todo safefree() : all
+    //     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
+    //     HV *attributes = (HV*)SvRV(self);
+
+    //     HV *all_metrics = newHV();
+    //     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 0);
+        
+    //     if ( SvOK(*metrics_ref) ) {
+    //         all_metrics = (HV*)SvRV(*metrics_ref);
+            
+    //         char *m_name;
+    //         I32 name_length;
+    //         SV* metric;
+
+    //         // keys count
+    //         I32 knum = hv_iterinit(all_metrics);
+
+    //         for (I32 i = 0; i < knum ; i++) {
+    //             metric = hv_iternextsv(all_metrics, &m_name, &name_length);
+                
+    //             if ( !SvOK(metric) ) croak("metric is invalid");
+                
+                
+
+    //         }
+    //     } else {
+    //             croak("smth went wrong in DESTROY");
+    //     }
