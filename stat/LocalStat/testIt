@@ -1,8 +1,13 @@
 #!/bin/bash
 clear;
 clear;
+
 perl Makefile.PL > /dev/null;
+
 make > /dev/null;
+echo "TEST_VERBOSE=1" >> ./Makefile;
 make test;
+
 make clean > /dev/null;
-rm -rf Makefile.old > /dev/null;
+rm -rf Makefile.old;
+

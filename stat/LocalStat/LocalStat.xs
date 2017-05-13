@@ -18,38 +18,41 @@
 // я решил, что буду считать значение опций в конче, когда вызовут stat
 // потому что иначе было бы много проблем с avg
 
-MODULE = LocalStat		PACKAGE = LocalStat		
+MODULE = LocalStat		PACKAGE = LocalStat		PREFIX = stat_
 INCLUDE: const-xs.inc
 
 
 
 SV* stat (SV *self)
 CODE: 
-    AV *results = (AV *)sv_2mortal((SV *)newAV());
+    HV *results = (HV *)sv_2mortal((SV *)newHV());
 
     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
     HV *attributes = (HV*)SvRV(self);
 
-    HV *all_metrics = newHV();// = hv_fetch( attributes, "metrics", 7, 0);
-    SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
-    //?? is it right
+    HV *all_metrics = newHV();
+    SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 0);
     
-    if ( !SvOK(*metrics_ref) ) {
-        // :(
-    } else {
+    if ( SvOK(*metrics_ref) ) {
         all_metrics = (HV*)SvRV(*metrics_ref);
         
         char *m_name;
         I32 name_length;
+        SV* metric;
 
+        // keys count
+        I32 knum = hv_iterinit(all_metrics);
 
-        SV* metric_SV;
-        HV* metric;
-        while (metric_SV = hv_iternextsv(all_metrics, &m_name, &name_length)) {
-            metric = (HV*)metric_SV;
-
+        for (I32 i = 0; i < knum ; i++) {
+            metric = hv_iternextsv(all_metrics, &m_name, &name_length);
+            
+            if ( !SvOK(metric) ) croak("metric is invalid");
+            hv_store(results, m_name, name_length, (SV*)metric, 0);
         }
+    } else {
+            croak("smth went wronf");
     }
+
     RETVAL = newRV((SV*)results);
 OUTPUT:
     RETVAL
@@ -72,18 +75,19 @@ CODE:
     if ( ! SvROK(*code_ref) || ( SvTYPE(SvRV(*code_ref)) != SVt_PVCV ) ) croak("code must be coderef");
     SV *code = SvRV(*code_ref);
     
-    // doto typemap
+    // doto typemap or not todo
     // merics get
     HV *metrics = newHV();// = hv_fetch( attributes, "metrics", 7, 0);
     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 1);
-    //?? is it right
+
     if ( !SvOK(*metrics_ref) ) {
+
         hv_store(attributes, "metrics", 7, newRV((SV*)metrics),0);
-        // hv_store(metrics, "try", 3, newSViv(0), 0);    
+
     } else {
+
         metrics = (HV*)SvRV(*metrics_ref);
-        // if (!SvOK(metrics) ) croak("nnnnnnnnooooo");
-        // hv_store(metrics, "try", 3, newSViv(1), 0);    
+
     }
     
 
@@ -126,7 +130,6 @@ CODE:
         PUTBACK;
         count = call_sv( code, G_ARRAY);
         
-        SPAGAIN;
         for (int i = 0; i < count; i++) {
             char *opt = POPp;
             if (    (strcmp(opt, "cnt") == 0) || (strcmp(opt, "max") == 0)
@@ -135,36 +138,9 @@ CODE:
                 av_push(options, (SV*)newSVpv(opt, strlen(opt)));
                 av_push(values, (SV*)newSViv(value));
             }
-
-            // } else if (strcmp(opt, "cnt") = 0) {
-
-            //     av_push(options, (SV*)SvPV(opt, strlen(opt)));
-            //     hv_store(this_metric, "cnt", 3, (SV*)newSvIV(value), 0);        
-            
-            // } else if (strcmp(opt, "cnt") = 0) {
-            
-            //     av_push(options, (SV*)SvPV(opt, strlen(opt)));
-            //     hv_store(this_metric, "cnt", 3, (SV*)newSvIV(value), 0);        
-            
-            // } else 
-            // } else if (strcmp(opt, "max") = 0) {
-            //     av_push(options, POPp);
-            // } else if (strcmp(opt, "min") = 0) {
-            //     av_push(options, POPp);
-            // } else if (strcmp(opt, "avg") = 0) {
-            //     av_push(options, POPp);
-            // }
         }
-        // hv_store(metrics, "opt_list", strlen("opt_list"), (SV*)options, 0);
-        //now valid keys saved in $self->{metrics}->{opt_list}
-        
-        // hv_store(metrics, metric_name, strlen(metric_name), (SV*)this_metric, 0);
-        
-        PUTBACK;
+
         FREETMPS;
         LEAVE;
-  
     }
 
-
- 

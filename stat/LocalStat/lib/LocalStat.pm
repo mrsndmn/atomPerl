@@ -61,6 +61,10 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
+#  CRUTCH
+# sub DESTROY { 
+# }
+
 require XSLoader;
 XSLoader::load('LocalStat', $VERSION);
 

@@ -31,21 +31,31 @@ subtest test_counstructor => sub {
     
 }, \&get_metric;
 
+sub get_metric {
+    my $name = shift; 
+
+    my @list;
+    push @list, 'avg' if $name =~ /avg/;
+    push @list, 'cnt' if $name =~ /cnt/;
+    push @list, 'sum' if $name =~ /sum/;
+    push @list, 'min' if $name =~ /min/;
+    push @list, 'max' if $name =~ /max/;
+    push @list, qw(max min sum cnt avg) if $name =~ /all/;
+
+    return @list;
+}
 
 my $stat = LocalStat->new(\&get_metric);
+
 subtest add_metric => sub {
     my $stat = shift;
     
-    # $stat->add('cnt', 3);
-    # p $stat;
-    # $stat->add('cnt', 2);
-    # p $stat;
-
     eval {
         $stat->add('cnt', 1);
         $stat->add('cnt', 2);
     };
     ok( ! $@ , "add ok");
+    
     my $ans = {
         cnt => {
             options => [qw( cnt )],
@@ -62,40 +72,44 @@ subtest add_metric => sub {
     ok(exists $stat->{'metrics'}->{'avg'}, "more metics");
     ok(exists $stat->{'metrics'}->{'sum'}, "more metics");
 
+
+    ## todo new metric is empty:!!!!!
     eval {
-        my $bad_stat = LocalStat->new(sub{});
+        my $code = sub { };
+        my $bad_stat = LocalStat->new($code);
         $bad_stat->{'code'} = "str";
         $bad_stat->add('cnt', 1);
     };
     ok( $@ , "coderef check in add()");
-    
 
 }, $stat;
 
 subtest stat_metric => sub {
     my $stat = shift;
-    ok(1);
-    p $stat->stat;
+    my $got;
     
+    eval {
+        $got = $stat->stat;
+    };
+    ok( ! $@ , "stat() not dead");
+
+    my $expected = {
+        avg => {
+            options => [ 'avg' ],
+            values  => [ 1 ]
+        },
+        cnt => {
+            options => [ 'cnt' ],
+            values  => [ 1, 2 ]
+        },
+        sum => {
+            options => [],
+            values  => []
+        }
+    };
+
+    is_deeply($got, $expected, 'stat works');
 }, $stat;
-
-
-sub get_metric {
-    my $name = shift; 
-
-    my @list;
-    push @list, 'avg' if $name =~ /avg/;
-    push @list, 'cnt' if $name =~ /cnt/;
-    push @list, 'sum' if $name =~ /sum/;
-    push @list, 'min' if $name =~ /min/;
-    push @list, 'max' if $name =~ /max/;
-    push @list, qw(max min sum cnt avg) if $name =~ /all/;
-    
-    warn "list: ". scalar @list;
-    warn "empty metic\n" if ! scalar @list ;
-
-    return @list;
-}
 
 #########################
 
