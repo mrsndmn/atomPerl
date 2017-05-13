@@ -24,10 +24,9 @@ INCLUDE: const-xs.inc
 
 
 SV* stat (SV *self)
-INIT:
-    AV *results;
-    results = (AV *)sv_2mortal((SV *)newAV());
 CODE: 
+    AV *results = (AV *)sv_2mortal((SV *)newAV());
+
     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
     HV *attributes = (HV*)SvRV(self);
 
