@@ -32,6 +32,7 @@ CODE:
 
     HV *all_metrics = newHV();
     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 0);
+    if ( ! SvROK(*metrics_ref) || ( SvTYPE(SvRV(*metrics_ref)) != SVt_PVHV ) ) croak("code must be hashref");
     
     if ( SvOK(*metrics_ref) ) {
         all_metrics = (HV*)SvRV(*metrics_ref);
@@ -98,7 +99,10 @@ PPCODE:
     if ( hv_exists( metrics, metric_name, strlen(metric_name) ) ) {
         // metric exists
         SV **this_metric_ref = hv_fetch(metrics, metric_name, strlen(metric_name), 0);
+        if ( ! SvROK(*metrics_ref) || ( SvTYPE(SvRV(*metrics_ref)) != SVt_PVHV ) ) croak("code must be hashref");
+        
         HV *this_metric = (HV*)SvRV(*this_metric_ref);
+        // if ( ! SvOK(this_metric) ) croak("metric must be hashref");
 
         SV **values_ref = hv_fetch(this_metric, "values", strlen("values"), 0);
         AV *values = (AV*)SvRV(*values_ref);
