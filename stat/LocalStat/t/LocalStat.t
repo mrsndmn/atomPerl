@@ -15,6 +15,29 @@ BEGIN { use_ok('LocalStat') };
 use LocalStat;
 use Scalar::Util qw(blessed);
 
+
+my $code_ref = sub {
+   my $metric_name = shift;
+   return ('avg', 'sum', 'cnt') if $metric_name eq 'metric1';
+   return ('avg', 'sum') if $metric_name eq 'm2';
+   return ('cnt');
+};
+my $stt = LocalStat->new($code_ref);
+$stt->add('metric1', 1);
+$stt->add('m3', 2);
+$stt->add('m2', 3);
+$stt->add('metric1', 4);
+$stt->add('m2', 5);
+my $result = $stt->stat;
+use Data::Dumper;
+print Data::Dumper->Dump([$result]);
+# ----
+# {
+#   metric1 => {avg => 2.5, sum => 5, cnt => 2},
+#   m2 => {avg => 4, sum => 8},
+#   m3 => {cnt => 1},
+# }
+
 ok(LocalStat->can('new'));
 
 subtest test_counstructor => sub {

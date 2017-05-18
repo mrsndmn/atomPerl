@@ -19,7 +19,7 @@ INCLUDE: const-xs.inc
 
 SV* stat (SV *self)
 CODE: 
-    HV *results = (HV *)sv_2mortal((SV *)newHV());
+    HV *results = newHV();
 
     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
     HV *attributes = (HV*)SvRV(self);
@@ -146,37 +146,4 @@ PPCODE:
 
 void stat_DESTROY(SV *self)
     PPCODE:
-    // printf("in DESTROY\n");
     XSRETURN(0);
-
-    // void stat_DESTROY(SV *self)
-
-    //     // COPYPASTE!!!!!!!!
-    //     // todo safefree() : all
-    //     if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
-    //     HV *attributes = (HV*)SvRV(self);
-
-    //     HV *all_metrics = newHV();
-    //     SV **metrics_ref = hv_fetch(attributes , "metrics", 7, 0);
-        
-    //     if ( SvOK(*metrics_ref) ) {
-    //         all_metrics = (HV*)SvRV(*metrics_ref);
-            
-    //         char *m_name;
-    //         I32 name_length;
-    //         SV* metric;
-
-    //         // keys count
-    //         I32 knum = hv_iterinit(all_metrics);
-
-    //         for (I32 i = 0; i < knum ; i++) {
-    //             metric = hv_iternextsv(all_metrics, &m_name, &name_length);
-                
-    //             if ( !SvOK(metric) ) croak("metric is invalid");
-                
-                
-
-    //         }
-    //     } else {
-    //             croak("smth went wrong in DESTROY");
-    //     }
