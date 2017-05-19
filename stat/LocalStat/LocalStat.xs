@@ -21,7 +21,6 @@ CODE:
 	SV **metrics_ref = hv_fetchs(attributes , "metrics", 0);
 	if ( ! SvROK(*metrics_ref) || ( SvTYPE(SvRV(*metrics_ref)) != SVt_PVHV ) ) croak("code must be hashref");
 	
-	// SV *clone = newSVsv(*metrics_ref);
 	HV *clone;
 	HV *all_metrics;
 	if ( SvOK(*metrics_ref) && SvROK(*metrics_ref) ) {
@@ -55,7 +54,7 @@ CODE:
 
 				SV *sum = *av_fetch(arr, 0, 1);
 				SV *cnt = *av_fetch(arr, 1, 1);
-				//? SvIV or sv_iv  ???
+
 				if( SvIV(cnt) == 0) {
 					// croak("0 divisiion prevented");
 												// undef
@@ -65,7 +64,7 @@ CODE:
 					double dsum = SvNV(sum);
 					double dcnt = SvNV(cnt);
 					double avg = (double)(dsum / dcnt);
-					// printf("\n%d\n%d\n%f",SvIV(sum), SvIV(cnt), avg);
+
 					hv_store(m_hash, "avg", 3, (SV*)newSVnv(avg), 0);
 				}
 				hv_store(clone, m_name, name_length, newRV((SV*)m_hash), 0);
@@ -96,7 +95,7 @@ PPCODE:
 	SV *code = SvRV(*code_ref);
 	
 	// merics get
-	HV *metrics = newHV();// = hv_fetchs( attributes, "metrics", 0);
+	HV *metrics = newHV();
 	SV **metrics_ref = hv_fetchs(attributes , "metrics", 1);
 
 	if ( !SvOK(*metrics_ref) ) {
@@ -113,7 +112,7 @@ PPCODE:
 			croak("code must be hashref");
 		
 		HV *this_metric = (HV*)SvRV(*this_metric_ref);
-		// printf("%s:\n", metric_name);
+
 		char *p_name;	
 		I32 name_length;
 		SV* param;
@@ -125,8 +124,6 @@ PPCODE:
 		for (I32 i = 0; i < knum ; i++) {
 			
 			param = hv_iternextsv(this_metric, &p_name, &name_length);
-			// if ( !SvOK(param) ) croak("metric is invalid");
-			// printf("\n\t%s   -- %d | %d \n", p_name, SvIV(param), value);
 
 			if (strcmp(p_name, "max") == 0) {
 				int max = SvIV(param);
@@ -193,8 +190,7 @@ PPCODE:
 				AV *arr = newAV(); 
 				av_push(arr, (SV*)newSViv(value));
 				av_push(arr, (SV*)newSViv(1));
-													//? это стоит понимать как массив мы кастуем к указателю на скаляр
-													//? что здесь происходит?
+
 				hv_store(this_metric, "avg", 3, (SV*)newRV((SV*)arr), 0);
 			}
 		}
