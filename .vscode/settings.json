@@ -3,10 +3,10 @@
     "editor.minimap.enabled": true,
     "code-runner.defaultLanguage": "perl",
     "files.associations": {
-        // extension name : html
         "*.tt": "html",
         "*.js": "html",
         "scc": "html",
-        "*.xs": "c"
+        "*.xs": "c",
+        "*.inc": "cpp"
     }
 }

@@ -28,9 +28,10 @@ $stt->add('m3', 2);
 $stt->add('m2', 3);
 $stt->add('metric1', 4);
 $stt->add('m2', 5);
+# warn p $stt;
 my $result = $stt->stat;
-use Data::Dumper;
-print Data::Dumper->Dump([$result]);
+use DDP;
+warn p $result;
 # ----
 # {
 #   metric1 => {avg => 2.5, sum => 5, cnt => 2},
@@ -118,20 +119,17 @@ subtest stat_metric => sub {
 
     my $expected = {
         avg => {
-            params => [ 'avg' ],
-            values  => [ 1 ]
+            avg => 1,
         },
         cnt => {
-            params => [ 'cnt' ],
-            values  => [ 1, 2 ]
+            cnt => 2,
         },
         sum => {
-            params => [],
-            values  => []
+            
         }
     };
 
-    is_deeply($got, $expected, 'stat works');
+    is($got, 16, 'stat works');
 }, $stat;
 
 #########################
