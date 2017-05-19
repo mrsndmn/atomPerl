@@ -16,30 +16,6 @@ use LocalStat;
 use Scalar::Util qw(blessed);
 
 
-my $code_ref = sub {
-   my $metric_name = shift;
-   return ('avg', 'sum', 'cnt') if $metric_name eq 'metric1';
-   return ('avg', 'sum') if $metric_name eq 'm2';
-   return ('max');
-};
-my $stt = LocalStat->new($code_ref);
-$stt->add('metric1', 1);
-$stt->add('m3', 2);
-$stt->add('m3', 2);
-$stt->add('m2', 3);
-$stt->add('metric1', 4);
-$stt->add('m2', 5);
-# warn p $stt;
-my $result = $stt->stat;
-use DDP;
-warn p $result;
-# ----
-# {
-#   metric1 => {avg => 2.5, sum => 5, cnt => 2},
-#   m2 => {avg => 4, sum => 8},
-#   m3 => {cnt => 1},
-# }
-
 ok(LocalStat->can('new'));
 
 subtest test_counstructor => sub {
@@ -81,24 +57,12 @@ subtest add_metric => sub {
     };
     ok( ! $@ , "add ok");
     
-    my $ans = {
-        cnt => {
-            params => [qw( cnt )],
-            values => [qw(1 2)]
-        }
-    };
-
-    # p $stat;
-    # p $stat->{'metrics'};
-    is_deeply($stat->{'metrics'}, $ans, "values and metrics added");
-    
     $stat->add('avg', 1);
     $stat->add('sum', 2);
+
     ok(exists $stat->{'metrics'}->{'avg'}, "more metics");
     ok(exists $stat->{'metrics'}->{'sum'}, "more metics");
 
-
-    ## todo new metric is empty:!!!!!
     eval {
         my $code = sub { };
         my $bad_stat = LocalStat->new($code);
@@ -112,27 +76,50 @@ subtest add_metric => sub {
 subtest stat_metric => sub {
     my $stat = shift;
     my $got;
-    
+    $stat->add('cnt', 2);
+    $stat->add('cnt', 1231);
+    $stat->add('avg-sum-min-max-cnt', 2);
+    $stat->add('avg-sum-min-max-cnt', -10);
+    $stat->add('avg-sum-min-max-cnt', -10);
+    $stat->add('avg-sum-min-max-cnt', 20);
+    $stat->add('avg', 2);
+    $stat->add('avg', 2);
+    $stat->add('avg', 5);
+    $stat->add('min', 2);
+    $stat->add('min', 4);
+    $stat->add('max', 2);
+    $stat->add('max', 3);
+    $stat->add('sum', 2);   
+    # p $stat->stat();
+    # p $stat;
+
     eval {
         $got = $stat->stat;
     };
     ok( ! $@ , "stat() not dead");
-
-    my $expected = {
-        avg => {
-            avg => 1,
+    # p $got;
+    my $expected =  {
+        'avg-sum-min-max-cnt' => {
+            avg =>  0.5,
+            cnt =>  4,
+            max =>  20,
+            min =>  -10,
+            sum =>  2
         },
-        cnt => {
-            cnt => 2,
-        },
-        sum => {
-            
-        }
+        avg => { avg =>  2.5 },        
+        cnt => { cnt => 4 },
+        max => { max => 3 },
+        min => { min => 2 },
+        sum => { sum => 4 }
     };
+    is_deeply($got, $expected, 'stat works');
 
-    is($got, 16, 'stat works');
+    is_deeply($stat->stat, {}, 'metrics cleaned');
+
 }, $stat;
 
+
+# p $stat->stat;
 #########################
 
 # Insert your test code below, the Test::More module is use()ed here so read

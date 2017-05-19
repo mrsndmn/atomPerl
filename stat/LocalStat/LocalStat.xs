@@ -9,50 +9,73 @@
 
 // just c code here
 
-// void printer (int i) {
-// 	printf("int: %d\n\n\n\n", i);
-// }
-
 MODULE = LocalStat		PACKAGE = LocalStat		PREFIX = stat_
 INCLUDE: const-xs.inc
 
-
-
 SV* stat (SV *self)
 CODE: 
-	HV *results = newHV();
 
 	if ( !SvROK(self) || !sv_derived_from(self, "LocalStat")) croak("not LocalStat obj");
 	HV *attributes = (HV*)SvRV(self);
 
-	HV *all_metrics = newHV();
 	SV **metrics_ref = hv_fetchs(attributes , "metrics", 0);
 	if ( ! SvROK(*metrics_ref) || ( SvTYPE(SvRV(*metrics_ref)) != SVt_PVHV ) ) croak("code must be hashref");
 	
-	if ( SvOK(*metrics_ref) ) {
+	// SV *clone = newSVsv(*metrics_ref);
+	HV *clone;
+	HV *all_metrics;
+	if ( SvOK(*metrics_ref) && SvROK(*metrics_ref) ) {
 		all_metrics = (HV*)SvRV(*metrics_ref);
+
+		clone = newHVhv(all_metrics);
+		// sv_dump((SV*)clone);
+		// sv_dump((SV*)all_metrics);
 
 		char *m_name;
 		I32 name_length;
 		SV* metric;
 
 		// keys count
-		I32 knum = hv_iterinit(all_metrics);
+		I32 knum = hv_iterinit(clone);
 
 		// for each metric:
 		for (I32 i = 0; i < knum ; i++) {
-			
-			metric = hv_iternextsv(all_metrics, &m_name, &name_length);
-			if ( !SvOK(metric) ) croak("metric is invalid");
-			
 
-			hv_store(results, m_name, name_length, (SV*)metric, 0);
+			// calculating answer hash
+			metric = hv_iternextsv(clone, &m_name, &name_length);
+			if ( !SvOK(metric) ) croak("metric is invalid");
+			if(SvTYPE(SvRV(metric)) != SVt_PVHV) croak("bad metric");
+			
+			HV *m_hash = newHVhv((HV*)SvRV(metric));
+			
+			if(hv_exists( m_hash, "avg", 3) ){
+				// avg -> [ %sum% , %cnt% ]				
+				SV *_avg = *hv_fetchs(m_hash, "avg", 0);
+				AV *arr = (AV*)SvRV(_avg);
+
+				SV *sum = *av_fetch(arr, 0, 1);
+				SV *cnt = *av_fetch(arr, 1, 1);
+				//? SvIV or sv_iv  ???
+				if( SvIV(cnt) == 0) {
+					// croak("0 divisiion prevented");
+												// undef
+					hv_store(m_hash, "avg", 3, (SV*)newSV(0), 0);
+				} else {
+					// sv_dump(sum);
+					double dsum = SvNV(sum);
+					double dcnt = SvNV(cnt);
+					double avg = (double)(dsum / dcnt);
+					// printf("\n%d\n%d\n%f",SvIV(sum), SvIV(cnt), avg);
+					hv_store(m_hash, "avg", 3, (SV*)newSVnv(avg), 0);
+				}
+				hv_store(clone, m_name, name_length, newRV((SV*)m_hash), 0);
+			}
 		}
 	} else {
-			croak("smth went wronf");
+			croak("metrics mustbe hashref");
 	}
-
-	RETVAL = newRV((SV*)results);
+	hv_undef(all_metrics);
+	RETVAL = newRV((SV*)clone);
 OUTPUT:
 	RETVAL
 	
@@ -90,7 +113,7 @@ PPCODE:
 			croak("code must be hashref");
 		
 		HV *this_metric = (HV*)SvRV(*this_metric_ref);
-
+		// printf("%s:\n", metric_name);
 		char *p_name;	
 		I32 name_length;
 		SV* param;
@@ -102,20 +125,41 @@ PPCODE:
 		for (I32 i = 0; i < knum ; i++) {
 			
 			param = hv_iternextsv(this_metric, &p_name, &name_length);
-			if ( !SvOK(param) ) croak("metric is invalid");
-			
+			// if ( !SvOK(param) ) croak("metric is invalid");
+			// printf("\n\t%s   -- %d | %d \n", p_name, SvIV(param), value);
+
 			if (strcmp(p_name, "max") == 0) {
-				printf("%d", param);
-				croak("\n\n\n\n\n");
+				int max = SvIV(param);
+				if( max < value) {
+					hv_store(this_metric, p_name, name_length, ((SV*)newSViv(value)), 0);
+				}
+			} else if (strcmp(p_name, "min") == 0) {
+				int min = SvIV(param);				
+				if( min > value) {
+					hv_store(this_metric, p_name, name_length, ((SV*)newSViv(value)), 0);
+				}
+			} else if (strcmp(p_name, "sum") == 0) {
+				int s = value + SvIV(param);
+				hv_store(this_metric, p_name, name_length, ((SV*)(newSViv(s))), 0);
+			} else if (strcmp(p_name, "cnt") == 0) {
+				int count = SvIV(param) + 1;
+				hv_store(this_metric, p_name, name_length, ((SV*)(newSViv(count))), 0);
+			} else if (strcmp(p_name, "avg") == 0) {
+				// avg -> [ %sum% , %cnt% ]
+				//todo null pointer check
+				SV **_avg = hv_fetchs(this_metric, "avg", 0);
+				if( !SvROK(*_avg) || (SvTYPE(SvRV(*_avg)) != SVt_PVAV) )
+					croak("avg must be arrayref");
+				AV *avg = (AV*)SvRV(*_avg);
+
+				SV *sum = *av_fetch(avg, 0, 1);
+				SV *cnt = *av_fetch(avg, 1, 1);
+				sum = newSViv(SvIV(sum) + value);
+				cnt = newSViv(SvIV(cnt) + 1);
+				av_store(avg, 0, sum);
+				av_store(avg, 1, cnt);
 			}
-			
-			// hv_store(results, m_name, name_length, (SV*)metric, 0);
 		}
-
-		// SV **values_ref = hv_fetchs(this_metric, "values", 0);
-		// AV *values = (AV*)SvRV(*values_ref);
-
-		// av_push(values, (SV*)newSViv(value));            
 
 	} else {
 		// metric not exists
@@ -141,20 +185,19 @@ PPCODE:
 			if (strcmp(param, "cnt") == 0) 
 				hv_store(this_metric, "cnt", 3, (SV*)newSViv(1), 0);
 			
+			if (strcmp(param, "sum") == 0) 
+				hv_store(this_metric, "sum", 3, (SV*)newSViv(value), 0);
+
 			if (strcmp(param, "avg") == 0) { 
 				// avg -> [ %sum% , %cnt% ]
 				AV *arr = newAV(); 
 				av_push(arr, (SV*)newSViv(value));
 				av_push(arr, (SV*)newSViv(1));
-														// это стоит понимать как массив мы кастуем к указателю на скаляр
-														// что здесь происходит?
+													//? это стоит понимать как массив мы кастуем к указателю на скаляр
+													//? что здесь происходит?
 				hv_store(this_metric, "avg", 3, (SV*)newRV((SV*)arr), 0);
 			}
-
 		}
-
-		// hv_store(this_metric, "params", strlen("params"), (SV*)newSViv(bitmask), 0);		
-		// printf ("mname: %s\nparams: %d\n", metric_name, bitmask);
         FREETMPS;
 		LEAVE;
 	}
