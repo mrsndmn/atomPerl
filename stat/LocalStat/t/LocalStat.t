@@ -20,10 +20,11 @@ my $code_ref = sub {
    my $metric_name = shift;
    return ('avg', 'sum', 'cnt') if $metric_name eq 'metric1';
    return ('avg', 'sum') if $metric_name eq 'm2';
-   return ('cnt');
+   return ('max');
 };
 my $stt = LocalStat->new($code_ref);
 $stt->add('metric1', 1);
+$stt->add('m3', 2);
 $stt->add('m3', 2);
 $stt->add('m2', 3);
 $stt->add('metric1', 4);
