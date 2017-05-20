@@ -106,7 +106,7 @@ sub _update {
 
     $dbh->begin_work;
     my $last_updated_id;
-    if($dbh->do("UPDATE $table SET $update_fields = ?  WHERE $key_field = $key_value", {}, @$values)) {
+    if($dbh->do("UPDATE $table SET $update_fields = ?  WHERE $key_field = ?", {}, @$values, $key_value)) {
         $dbh->commit; 
     } else {
         $dbh->rollback;

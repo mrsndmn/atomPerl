@@ -41,14 +41,14 @@ has_field create_time => (
 );
 
 #!
-subtype 'hh:mm:ss' => {
+subtype 'Duration' => {
     as => 'Str',
     where => sub { $_ =~ /^\d\d:\d\d:\d\d$/},
     message => sub { "Wanted hh:mm:ss string" },
 };
 
 has_field duration => (
-    isa => 'hh:mm:ss',
+    isa => 'Duration',
     serializer => sub {
         my $dur = DateTime::Format::Duration->new( pattern => '%r' )->parse_duration($_[0]);
         my $sec = DateTime::Format::Duration->new( pattern => '%s' )->format_duration($dur);

@@ -33,10 +33,10 @@ has_field year => (
 );
 
 #                      сингл  саундтрек  сборник    обычный альбом
-enum 'album_type', [qw(single soundtrack collection album)];
+enum 'AlbumType', [qw(single soundtrack collection album)];
 
 has_field type => (
-    isa => 'album_type',
+    isa => 'AlbumType',
     index => 'common',
     default_limit => 100,    
 );

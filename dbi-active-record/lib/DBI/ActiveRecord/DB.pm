@@ -22,17 +22,17 @@ C<DBI::ActiveRecord::DB> - базовый абстрактный класс-ад
 
 Атрибут, в котором задаются параметры подключения к БД, в виде ссылки на массив. Например:
 
-    $instance->connection_params([ 'dbi:SQLite:dbname=/tmp/somebase.db', '', '', {} ]);
+	$instance->connection_params([ 'dbi:SQLite:dbname=/tmp/somebase.db', '', '', {} ]);
 
 Значение атрибута, может быть автоматически сгененрированно, путем определения в наследниках метода C<_build_connection_params>, который должен возвращать ссылка на массив с параметрами.
 
 =cut
 
 has connection_params => (
-    is => 'rw',
-    isa => 'ArrayRef',
-    lazy => 1,
-    builder => '_build_connection_params',
+	is => 'rw',
+	isa => 'ArrayRef',
+	lazy => 1,
+	builder => '_build_connection_params',
 );
 
 sub _build_connection_params { confess "Method must be subclassed" }
@@ -44,24 +44,24 @@ sub _build_connection_params { confess "Method must be subclassed" }
 =cut
 
 has connection => (
-    is => 'rw',
-    isa => 'Object',
-    lazy => 1,
-    default => sub {
-        my ($self) = @_;
-        my $params = $self->connection_params;
-        my $dbh;
-        # 
-        if (scalar @$params == 5) {
-            my $on_connection_sql = pop @$params;
-            $dbh =  DBI->connect(@$params) or die "Cant connect to db!";
-            my $sth = $dbh->prepare($on_connection_sql);
-            $sth->execute();
-        }     else {
-            $dbh =  DBI->connect(@$params) or die "Cant connect to db!";
-        }
-        return $dbh;
-    },
+	is => 'rw',
+	isa => 'Object',
+	lazy => 1,
+	default => sub {
+		my ($self) = @_;
+		my $params = $self->connection_params;
+		my $dbh;
+		# 
+		if (scalar @$params == 5) {
+			my $on_connection_sql = pop @$params;
+			$dbh =  DBI->connect(@$params) or die "Cant connect to db!";
+			my $sth = $dbh->prepare($on_connection_sql);
+			$sth->execute();
+		}     else {
+			$dbh =  DBI->connect(@$params) or die "Cant connect to db!";
+		}
+		return $dbh;
+	},
 );
 
 my $instance;
@@ -76,9 +76,9 @@ sub BUILD { $instance = $_[0] }
 =cut
 
 sub instance {
-    my ($class) = @_;
-    $instance ||= $class->new();
-    return $instance;
+	my ($class) = @_;
+	$instance ||= $class->new();
+	return $instance;
 }
 
 =head2 select($klass, $field, $keys, $limit)
@@ -94,41 +94,41 @@ sub instance {
 =cut
 
 sub select {
-    my ($self, $klass, $field, $keys, $limit) = @_;
+	my ($self, $klass, $field, $keys, $limit) = @_;
 
-    my $wantarray = ref $keys ? 1 : 0;
-    $keys = [ $keys ] unless ref $keys;
+	my $wantarray = ref $keys ? 1 : 0;
+	$keys = [ $keys ] unless ref $keys;
 
-    confess "can't do select on zero keys list!" unless @$keys;
-    confess "limit can be applied only for one-key select request!" if $limit && $limit > 1 && @$keys > 1;
+	confess "can't do select on zero keys list!" unless @$keys;
+	confess "limit can be applied only for one-key select request!" if $limit && $limit > 1 && @$keys > 1;
 
-    my $key_attr = $klass->meta->get_attribute($field);
-    confess "field '$field' isn't index field!" unless $key_attr->index;
+	my $key_attr = $klass->meta->get_attribute($field);
+	confess "field '$field' isn't index field!" unless $key_attr->index;
 
-    my $is_uniq = $key_attr->index ne 'common';
-    # default limit support
-    # чтобы работала, как select_by_${common_field}
-    # может, это и лишнее
-    unless ($is_uniq or $limit or @$keys > 1) {
-        confess "default_limit must be defined for common indexes!" unless defined $key_attr->default_limit;
-        $limit = $key_attr->default_limit;
-    }
+	my $is_uniq = $key_attr->index ne 'common';
+	# default limit support
+	# чтобы работала, как select_by_${common_field}
+	# может, это и лишнее
+	unless ($is_uniq or $limit or @$keys > 1) {
+		confess "default_limit must be defined for common indexes!" unless defined $key_attr->default_limit;
+		$limit = $key_attr->default_limit;
+	}
 
-    my @select_keys = @$keys;
-    if($key_attr->serializer) {
-        $_ = $key_attr->serializer->($_) for @select_keys;    
-    }
+	my @select_keys = @$keys;
+	if($key_attr->serializer) {
+		$_ = $key_attr->serializer->($_) for @select_keys;    
+	}
 
-    my $result = [];
-    my $data = $self->_select($klass->meta->table_name, $klass->meta->fields, $field, \@select_keys, $is_uniq, $limit);
-    for(@$data) {
-        for my $k (keys %$_) {
-            my $attr = $klass->meta->get_attribute($k);
-            $_->{$k} = $attr->deserializer->($_->{$k}) if $attr->deserializer;
-        }
-        push @$result, $klass->new($_);
-    }
-    return $wantarray ? $result : $result->[0];
+	my $result = [];
+	my $data = $self->_select($klass->meta->table_name, $klass->meta->fields, $field, \@select_keys, $is_uniq, $limit);
+	for(@$data) {
+		for my $k (keys %$_) {
+			my $attr = $klass->meta->get_attribute($k);
+			$_->{$k} = $attr->deserializer->($_->{$k}) if $attr->deserializer;
+		}
+		push @$result, $klass->new($_);
+	}
+	return $wantarray ? $result : $result->[0];
 }
 
 =head2 insert($obj)
@@ -142,28 +142,28 @@ sub select {
 =cut
 
 sub insert {
-    my ($self, $obj) = @_;
+	my ($self, $obj) = @_;
 
-    my $fields = $obj->meta->fields;
-    my @ok_fields = grep { not $obj->meta->get_attribute($_)->auto_increment } @$fields;
-    my @bind = ();
-    for(@ok_fields) {
-        my $attr = $obj->meta->get_attribute($_);
-        push @bind, ( $attr->serializer ? $attr->serializer->($obj->$_) : $obj->$_ );
-    }
+	my $fields = $obj->meta->fields;
+	my @ok_fields = grep { not $obj->meta->get_attribute($_)->auto_increment } @$fields;
+	my @bind = ();
+	for(@ok_fields) {
+		my $attr = $obj->meta->get_attribute($_);
+		push @bind, ( $attr->serializer ? $attr->serializer->($obj->$_) : $obj->$_ );
+	}
 
-    my $autoinc_field = $obj->meta->auto_increment_field;
-    my $last_insert_id = $self->_insert($obj->meta->table_name, $autoinc_field, \@ok_fields, \@bind);
-    if($autoinc_field) {
-        if(defined $last_insert_id) {
-            my $attr = $obj->meta->get_attribute($autoinc_field);
-            $last_insert_id = $attr->deserializer->($last_insert_id) if $attr->deserializer;
-            $obj->$autoinc_field($last_insert_id);
-        } else {
-            confess "can't set auto increment field value!";
-        }
-    }
-    return 1;
+	my $autoinc_field = $obj->meta->auto_increment_field;
+	my $last_insert_id = $self->_insert($obj->meta->table_name, $autoinc_field, \@ok_fields, \@bind);
+	if($autoinc_field) {
+		if(defined $last_insert_id) {
+			my $attr = $obj->meta->get_attribute($autoinc_field);
+			$last_insert_id = $attr->deserializer->($last_insert_id) if $attr->deserializer;
+			$obj->$autoinc_field($last_insert_id);
+		} else {
+			confess "can't set auto increment field value!";
+		}
+	}
+	return 1;
 }
 
 =head2 update($obj)
@@ -175,28 +175,24 @@ sub insert {
 =cut
 
 sub update {
-    my ($self, $obj) = @_;
-    my $fields = $obj->meta->fields;
-    
-    my (@bind, @update_fields);
-    my ($key_field, $key_value);
-    for(@$fields) {
-        my $attr = $obj->meta->get_attribute($_);
+	my ($self, $obj) = @_;
+	my $fields = $obj->meta->fields;
+	
+	my ($key_field, $key_value);
+	$key_field = $obj->meta->primary_key;
+	$key_value = $obj->$key_field;
 
-        if (defined $attr->index and $attr->index eq 'primary') {
-            confess "There cant be nore than 1 primary field" if $key_field;
-            $key_field = $_;
-            $key_value = $obj->$key_field;
-        } else {
-            push @update_fields, $_;
+	my (@bind, @update_fields);	
+	@update_fields = grep { not $obj->meta->get_attribute($_)->auto_increment } @$fields;
+	
+	foreach my $field (@update_fields) {
+		my $attr = $obj->meta->get_attribute($field);		
+		push @bind, ( $attr->serializer ? $attr->serializer->($obj->$field) : $obj->$field );   
+	}
 
-            push @bind, ( $attr->serializer ? $attr->serializer->($obj->$_) : $obj->$_ );   
-        }
-    }
-    
-    $self->_update($obj->meta->table_name, $key_field, $key_value, \@update_fields, \@bind);
+	$self->_update($obj->meta->table_name, $key_field, $key_value, \@update_fields, \@bind);
 
-    return 1;
+	return 1;
 }
 
 =head2 delete($obj)
@@ -208,14 +204,14 @@ sub update {
 =cut
 
 sub delete {
-    my ($self, $obj) = @_;
+	my ($self, $obj) = @_;
 
-    my $key_field = $obj->meta->primary_key;
-    my $key_attr  = $obj->meta->get_attribute($key_field);
-    my $key_value = $obj->$key_field;
-    $key_value    = $key_attr->serializer->($key_value) if $key_attr->serializer;
+	my $key_field = $obj->meta->primary_key;
+	my $key_attr  = $obj->meta->get_attribute($key_field);
+	my $key_value = $obj->$key_field;
+	$key_value    = $key_attr->serializer->($key_value) if $key_attr->serializer;
 
-    return $self->_delete($obj->meta->table_name, $key_field, $key_value);
+	return $self->_delete($obj->meta->table_name, $key_field, $key_value);
 }
 
 sub _select { confess "Method must be subclassed" }
