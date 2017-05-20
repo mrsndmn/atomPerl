@@ -139,5 +139,7 @@ sub _delete {
 # no Mouse;
 # __PACKAGE__->meta->make_immutable();
 
+ no Mouse::Role;
+
 1;
 
