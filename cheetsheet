@@ -1,0 +1,75 @@
+# dancer2
+
+# xs
+    h2xs -n path::name -b 5.18.0
+
+
+# config
+    use YAML::Tiny;
+        my $conf = YAML::Tiny->read( "$binary_path/../etc/config.yml" )->[0];
+
+#Postgres
+use DBI;
+
+my $dbname = ;
+$dbh =  DBI->connect(
+    "dbi:Pg:dbname=$dbname;host=$host;port=$port;",
+    $username,
+    $password,
+    { RaiseError => 1 },
+) or die "Cant connect to db!";
+    
+# SQlite
+use DBI;
+
+my $dbname = ;
+$dbh =  DBI->connect(
+    "dbi:SQLite:dbname=$dbname", '', '', { RaiseError => 1 },
+    # Foreign key constraints are disabled by default in sqlite
+    "PRAGMA foreign_keys = ON;"
+) or die "Cant connect to db!";
+    
+
+# встроенные переменные
+http://citforum.ru/internet/perl_tut/sysvar.shtml
+# m{-?} операторы
+http://blog.perl5doc.ru/perlfunc/2010/07/perlfunc-X.html
+
+# ae http server 
+https://github.com/Mons/AnyEvent-HTTP-Server-II/blob/master/README
+
+
+# XS
+# TYPEMAP
+http://perldoc.perl.org/perlxstypemap.html
+# API
+http://perldoc.perl.org/perlapi.html
+# guts
+http://perldoc.perl.org/perlguts.html
+# xs
+http://perldoc.perl.org/perlxs.html
+
+
+# WEB
+# селекторы
+https://learn.javascript.ru/css-selectors
+# Web::Query
+https://metacpan.org/pod/Web::Query
+# dancer
+dancer2 -a `project_name`
+https://metacpan.org/pod/Dancer2
+# CSRF
+use Dancer2::Plugin::CSRF;
+https://metacpan.org/pod/Dancer2::Plugin::CSRF
+# HTML::Entities
+use HTML::Entities;
+https://metacpan.org/pod/HTML::Entities
+
+
+# crypt
+use Digest::MD5 qw(md5_hex);
+use Digest::CRC qw(crc32);
+
+
+# todo 
+переопределение операторов

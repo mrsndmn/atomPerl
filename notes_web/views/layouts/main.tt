@@ -3,39 +3,44 @@
 <html lang="en">
 
 <head>
-    <meta charset="<% settings.charset %>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>
-        <% title || 'Atom notes' %>
-    </title>
-    <link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
-    <style>
+	<meta charset="<% settings.charset %>">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+	<title>
+		<% title || 'Atom notes' %>
+	</title>
+	<link rel="stylesheet" href="<% request.uri_base %>/css/style.css">
+	<style>
 
-    </style>
+	</style>
 
-    <!-- Grab jQuery from a CDN, fall back to local if necessary -->
-    <script type="text/javascript">
-        /* <![CDATA[ */
-        !window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"><\/script>')
+	<!-- Grab jQuery from a CDN, fall back to local if necessary -->
+	<script type="text/javascript">
+		/* <![CDATA[ */
+		!window.jQuery && document.write('<script type="text/javascript" src="<% request.uri_base %>/javascripts/jquery.js"><\/script>')
 /* ]]> */
-    </script>
+	</script>
 
 </head>
 
 <body>
-    <% IF err %><p class="error"> <b>ERROR: </b>  <% err %> </p> <% END %>
-    <% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>
+	<% IF err %><p class="error"> <b>ERROR: </b>  <% err %> </p> <% END %>
+	<% IF msg %><p class="msg" style="font-size: 17px;color: green;"><b><% msg %></b></p> <% END %>
 
-    <div align="center">
-        <h1><a href="/">Web notes</a></h1>
-    </div>
-         <div align="center">
+	<div align="center">
+		<h1><a href="/">Web notes</a></h1>
+	</div>
+		 <div align="center">
 
-            <% content %>
-         </div>
-    <div id="footer">
-        <!-- Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %> -->
-    </div>
+			<% content %>
+		 </div>
+	<div id="footer">
+		<!-- Powered by <a href="http://perldancer.org/">Dancer2</a> <% dancer_version %> -->
+	</div>
+
+	<div id="footer">
+		<img src="/images/perldancer.jpg" alt="oops">
+	</div>
+
 </body>
 
 </html>
