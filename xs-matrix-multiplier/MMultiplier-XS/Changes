@@ -1,0 +1,6 @@
+Revision history for Perl extension MMultiplier::XS.
+
+0.01  Sun May 21 11:30:22 2017
+	- original version; created by h2xs 1.23 with options
+		-n MMultiplier::XS
+
