@@ -1,1 +1,0 @@
-TEST_VERBOSE=1
