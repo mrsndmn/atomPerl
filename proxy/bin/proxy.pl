@@ -139,7 +139,7 @@ $g = tcp_server undef, 8081,
 
 $cv->recv;
 
-warn "in the end";
+# warn "in the end";
 
 sub head_request {
     my $page = shift;
