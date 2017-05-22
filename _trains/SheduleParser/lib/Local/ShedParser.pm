@@ -47,8 +47,9 @@ sub parse {
 							my $lsn = {};
 							my ($i, $elem) = @_;			
 							# warn encode('utf8', $elem->as_html()."\n\n\n");
-							$lsn->{'time'} = $elem->find('.lesson-time')->text;
-							my $str = $lsn->{'name'} = $elem->find('.lesson')->text;
+							$lsn->{'time'} = $elem->find('.lesson-time')->text or die;
+							# warn $lsn->{time};
+							my $str = $elem->find('.lesson')->text;
 							$str =~ /^\s*
 								(?<room>\w-\d{3} | \w{3}\.\d* | \d{3})
 								(?<type>\w{3})	\s*
@@ -58,11 +59,11 @@ sub parse {
 								\s*$
 							/x;
 							warn encode('utf8', $str) if ! scalar %+;
-							%$lsn = ( map { encode('utf8', $_) } %+ );
+							%$lsn = ( map { encode('utf8', $_) } %+, %$lsn);
 							push @day, $lsn;
 						}
 					);
-				warn "\n==========\n";
+				# warn "\n==========\n";
 				push @lessons, \@day;
 			}
 		);
