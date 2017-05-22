@@ -38,18 +38,36 @@ sub parse {
 			sub {
 				# list-group
 				my ($i, $elem) = @_;
-
+				my @day;
 				$elem->find(".list-group-item")
 					->each(
 						sub {
 							# list-group-item
+
+							my $lsn = {};
 							my ($i, $elem) = @_;			
-							warn encode('utf8', $elem->as_html()."\n\n\n");
+							# warn encode('utf8', $elem->as_html()."\n\n\n");
+							$lsn->{'time'} = $elem->find('.lesson-time')->text;
+							my $str = $lsn->{'name'} = $elem->find('.lesson')->text;
+							$str =~ /^\s*
+								(?<room>\w-\d{3} | \w{3}\.\d* | \d{3})
+								(?<type>\w{3})	\s*
+								(?<subject> .*? ) \s*
+								(?<teacher>\w*?\s\w\.\w\.)? \s*
+								\( (?<date> \d{2}\.\d{2}\.\d{4} ) \)
+								\s*$
+							/x;
+							warn encode('utf8', $str) if ! scalar %+;
+							%$lsn = ( map { encode('utf8', $_) } %+ );
+							push @day, $lsn;
 						}
-					)
+					);
+				warn "\n==========\n";
+				push @lessons, \@day;
 			}
 		);
-
+	
+	p @lessons;
 	# p @wday;
 	say join "\n\n", (@lessons);
 
