@@ -48,5 +48,18 @@ T_AVREF
 
 OUTPUT
 T_AVREF
-	croak(\"Unimplemented output $type\");
+	{	
+		//sdsdsdasdas
+		sv_dump($arg); // $ntt $ntype
+		if (!SvOK($arg) || !SvROK($arg)) croak(\"Ref?\");
+		$type M = ($type)SvRV($arg);
+		// printf(\"%d\", M->width);
+		croak (\"catched!!\");// $var $arg $type
+		
+		// for(unsigned i = 0; i < ; ++i) {
+		// 	/* code */
+		// }
+		
+
+	}	
 

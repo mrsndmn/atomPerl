@@ -17,7 +17,7 @@ MODULE = MMultiplier::XS		PACKAGE = MMultiplier::XS
 
 INCLUDE: const-xs.inc
 
-void doIt (MATRIX* A, MATRIX* B)
+SV* doIt (MATRIX* A, MATRIX* B)
 CODE:
     // printf("IN XS\n\n");
     // printf("%d %d\n%d %d",A->width, A->heigth,B->width, B->heigth);
@@ -36,10 +36,15 @@ CODE:
             for (int k =0; k < A->width; ++k) {
                 C->cell[i][j] += A->cell[i][k] * B->cell[k][j];
             }
-            printf("%d ", C->cell[i][j]);
+            // printf("%d ", C->cell[i][j]);
         }   
-        printf("\n");
+        // printf("\n");
     }
+
+    RETVAL = C;
+
+    OUTPUT:
+        RETVAL
 
 
     
