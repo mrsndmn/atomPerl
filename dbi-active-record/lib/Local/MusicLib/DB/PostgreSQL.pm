@@ -27,7 +27,7 @@ sub _build_connection_params {
     warn "define db configuration in config\nit's here: $directory../etc/config.yml\n" unless defined $dbname && $username && $password;
 
     return [
-        "dbi:Pg:dbname=$dbname;",
+        "dbi:Pg:dbname=$dbname;host=$host",
         $username,
         $password,
         { RaiseError => 1 },
