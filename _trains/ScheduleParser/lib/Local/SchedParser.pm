@@ -9,7 +9,9 @@ use Encode qw(encode decode);
 
 use Web::Query;
 use utf8;
+# use encoding 'UTF-8';
 # use URI;
+use Devel::Peek;
 
 sub parse {
 	my ($self, $url) = @_;
@@ -25,12 +27,34 @@ sub parse {
 				my ($i, $elem) = @_;
 				my $text = encode('utf8', $elem->text());
 
+
 				push @week, map {decode "utf8", $_ } ( $text =~ / .* , \s (.+) \s $/x );
+				# Dump decode "utf8", $text;
 			}
 		);
 	# p @week;
-
+	# @week = map { encode('utf8', $_) } @week;
 	my @lessons;
+
+	my %month = (
+		январь => 1,
+		февраль => 2,
+		март => 3,
+		арпель => 4,
+		май => 5,
+		июнь => 6,
+		июль => 7,
+		август => 8,
+		сентябрь => 9,
+		октябрь => 10,
+		ноябрь => 11,
+		декабрь => 12,
+	);
+	binmode (STDOUT, ':encoding(UTF-8)');
+	p %month;
+	$, = ", ";
+	# Dump("август");
+	warn $month{"август"};
 
 	$wq->find('.list-group')
 		->each( 
@@ -50,9 +74,14 @@ sub parse {
 							$elem->find('.lesson')->each( sub {
 								my ($i, $elem) = @_;			
 								
+								my $d = $week[ (scalar @day) ];
+								$d =~ s/(\s (\w+) \s)/my $s = $2; print $2; warn $s/ex;
+								p $d;
+								# say $d;
+
 								my $lsn = {
 									time => $time,
-									date => $week[ (scalar @day) ],
+									date => $d,
 								};
 								
 
@@ -64,11 +93,11 @@ sub parse {
 									(?: Подгруппа \s (?<subgroup> \d ) )? \s*
 									(?<teacher>\w+?\s(?:\w\.){1,2})? \s*
 									#						     				--
-									(?: \( (?<date> (?:\d{2}\.){2}\d{4} (?: \s \x{2014} \s (?:\d{2}\.){2}\d{4} )? ) \) )?
+									(?: \( (?<date1> (?:\d{2}\.){2}\d{4} (?: \s \x{2014} \s (?:\d{2}\.){2}\d{4} )? ) \) )?
 									\s*$
 								/x;
 								# warn encode('utf8', $str);;# if ! scalar %+;
-								%$lsn = ( map { encode('utf8', $_) } %+, %$lsn);
+								# %$lsn = map { encode('utf8', $_) } %+, %$lsn;
 								push @day, $lsn;
 							} );
 						}
@@ -78,7 +107,7 @@ sub parse {
 			}
 		);
 	
-	p @lessons;
+	# p @lessons;
 
 	# p @wday;
 	say join "\n\n", (@lessons);
