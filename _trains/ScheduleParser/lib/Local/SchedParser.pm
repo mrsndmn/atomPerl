@@ -80,10 +80,6 @@ sub parse {
 	
 	p @lessons;
 
-	# for my $day (@lessons) {
-	# 	for my $lsn
-	# }
-
 	# p @wday;
 	say join "\n\n", (@lessons);
 	return \@lessons;
