@@ -28,30 +28,30 @@
 
 # --- MakeMaker const_config section:
 
-# These definitions are from config.sh (via /usr/lib64/perl5/Config.pm).
+# These definitions are from config.sh (via /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/Config.pm).
 # They may have been overridden via Makefile.PL or on the command line.
 AR = ar
-CC = gcc
+CC = cc
 CCCDLFLAGS = -fPIC
-CCDLFLAGS = -Wl,--enable-new-dtags -Wl,-z,relro 
+CCDLFLAGS = -Wl,-E
 DLEXT = so
 DLSRC = dl_dlopen.xs
 EXE_EXT = 
 FULL_AR = /usr/bin/ar
-LD = gcc
-LDDLFLAGS = -shared -Wl,-z,relro  -L/usr/local/lib -fstack-protector-strong
-LDFLAGS = -Wl,-z,relro  -fstack-protector-strong -L/usr/local/lib
+LD = cc
+LDDLFLAGS = -shared -O2 -L/usr/local/lib -fstack-protector
+LDFLAGS =  -fstack-protector -L/usr/local/lib
 LIBC = libc-2.24.so
 LIB_EXT = .a
 OBJ_EXT = .o
 OSNAME = linux
-OSVERS = 4.10.1-1.fc25.x86_64
+OSVERS = 4.9.13-200.fc25.x86_64
 RANLIB = :
-SITELIBEXP = /usr/local/share/perl5
-SITEARCHEXP = /usr/local/lib64/perl5
+SITELIBEXP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/site_perl/5.20.1
+SITEARCHEXP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/site_perl/5.20.1/x86_64-linux
 SO = so
-VENDORARCHEXP = /usr/lib64/perl5/vendor_perl
-VENDORLIBEXP = /usr/share/perl5/vendor_perl
+VENDORARCHEXP = 
+VENDORLIBEXP = 
 
 
 # --- MakeMaker constants section:
@@ -74,9 +74,9 @@ INST_LIB = blib/lib
 INST_MAN1DIR = blib/man1
 INST_MAN3DIR = blib/man3
 MAN1EXT = 1
-MAN3EXT = 3pm
+MAN3EXT = 3
 INSTALLDIRS = site
-INSTALL_BASE = /home/mrsndmn/perl5
+INSTALL_BASE = /home/SndmnNote/perl5
 DESTDIR = 
 PREFIX = $(INSTALL_BASE)
 INSTALLPRIVLIB = $(INSTALL_BASE)/lib/perl5
@@ -85,11 +85,11 @@ INSTALLSITELIB = $(INSTALL_BASE)/lib/perl5
 DESTINSTALLSITELIB = $(DESTDIR)$(INSTALLSITELIB)
 INSTALLVENDORLIB = $(INSTALL_BASE)/lib/perl5
 DESTINSTALLVENDORLIB = $(DESTDIR)$(INSTALLVENDORLIB)
-INSTALLARCHLIB = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
+INSTALLARCHLIB = $(INSTALL_BASE)/lib/perl5/x86_64-linux
 DESTINSTALLARCHLIB = $(DESTDIR)$(INSTALLARCHLIB)
-INSTALLSITEARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
+INSTALLSITEARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux
 DESTINSTALLSITEARCH = $(DESTDIR)$(INSTALLSITEARCH)
-INSTALLVENDORARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux-thread-multi
+INSTALLVENDORARCH = $(INSTALL_BASE)/lib/perl5/x86_64-linux
 DESTINSTALLVENDORARCH = $(DESTDIR)$(INSTALLVENDORARCH)
 INSTALLBIN = $(INSTALL_BASE)/bin
 DESTINSTALLBIN = $(DESTDIR)$(INSTALLBIN)
@@ -115,18 +115,18 @@ INSTALLSITEMAN3DIR = $(INSTALL_BASE)/man/man3
 DESTINSTALLSITEMAN3DIR = $(DESTDIR)$(INSTALLSITEMAN3DIR)
 INSTALLVENDORMAN3DIR = $(INSTALL_BASE)/man/man3
 DESTINSTALLVENDORMAN3DIR = $(DESTDIR)$(INSTALLVENDORMAN3DIR)
-PERL_LIB = /usr/share/perl5
-PERL_ARCHLIB = /usr/lib64/perl5
-PERL_ARCHLIBDEP = /usr/lib64/perl5
+PERL_LIB = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1
+PERL_ARCHLIB = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux
+PERL_ARCHLIBDEP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux
 LIBPERL_A = libperl.a
 FIRST_MAKEFILE = Makefile
 MAKEFILE_OLD = Makefile.old
 MAKE_APERL_FILE = Makefile.aperl
 PERLMAINCC = $(CC)
-PERL_INC = /usr/lib64/perl5/CORE
-PERL_INCDEP = /usr/lib64/perl5/CORE
-PERL = "/usr/bin/perl"
-FULLPERL = "/usr/bin/perl"
+PERL_INC = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/CORE
+PERL_INCDEP = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux/CORE
+PERL = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
+FULLPERL = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
 ABSPERL = $(PERL)
 PERLRUN = $(PERL)
 FULLPERLRUN = $(FULLPERL)
@@ -139,7 +139,7 @@ PERM_DIR = 755
 PERM_RW = 644
 PERM_RWX = 755
 
-MAKEMAKER   = /usr/share/perl5/vendor_perl/ExtUtils/MakeMaker.pm
+MAKEMAKER   = /home/SndmnNote/perl5/lib/perl5/ExtUtils/MakeMaker.pm
 MM_VERSION  = 7.24
 MM_REVISION = 72400
 
@@ -205,12 +205,12 @@ AUTOSPLITFILE = $(ABSPERLRUN)  -e 'use AutoSplit;  autosplit($$$$ARGV[0], $$$$AR
 
 # --- MakeMaker tool_xsubpp section:
 
-XSUBPPDIR = /usr/share/perl5/vendor_perl/ExtUtils
+XSUBPPDIR = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/ExtUtils
 XSUBPP = "$(XSUBPPDIR)$(DFSEP)xsubpp"
 XSUBPPRUN = $(PERLRUN) $(XSUBPP)
 XSPROTOARG = 
-XSUBPPDEPS = /usr/share/perl5/ExtUtils/typemap typemap /usr/share/perl5/vendor_perl/ExtUtils$(DFSEP)xsubpp
-XSUBPPARGS = -typemap '/usr/share/perl5/ExtUtils/typemap' -typemap '/mnt/Data/WorkSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/typemap'
+XSUBPPDEPS = /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/ExtUtils/typemap typemap /home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/ExtUtils$(DFSEP)xsubpp
+XSUBPPARGS = -typemap '/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/ExtUtils/typemap' -typemap '/mnt/Data/workSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/typemap'
 XSUBPP_EXTRA_ARGS =
 
 
@@ -278,8 +278,8 @@ DISTVNAME = MMultiplier-XS-0.01
 
 # --- MakeMaker cflags section:
 
-CCFLAGS = -D_REENTRANT -D_GNU_SOURCE -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -fwrapv -fno-strict-aliasing -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
-OPTIMIZE = -g
+CCFLAGS = -fwrapv -fno-strict-aliasing -pipe -fstack-protector -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
+OPTIMIZE = -O2
 PERLTYPE = 
 MPOLLUTE = 
 
@@ -321,7 +321,7 @@ PASTHRU = LIBPERL_A="$(LIBPERL_A)"\
 # --- MakeMaker c_o section:
 
 .c.i:
-	gcc  -E -c $(PASTHRU_INC) $(INC) \
+	cc  -E -c $(PASTHRU_INC) $(INC) \
 	$(CCFLAGS) $(OPTIMIZE) \
 	$(PERLTYPE) $(MPOLLUTE) $(DEFINE_VERSION) \
 	$(XS_DEFINE_VERSION) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) $*.c > $*.i
@@ -475,7 +475,7 @@ INST_DYNAMIC_FIX =
 $(INST_DYNAMIC) : $(OBJECT) $(MYEXTLIB) $(INST_ARCHAUTODIR)$(DFSEP).exists $(EXPORT_LIST) $(PERL_ARCHIVEDEP) $(PERL_ARCHIVE_AFTER) $(INST_DYNAMIC_DEP)
 	$(RM_F) $@
 	$(LD)  $(LDDLFLAGS) $(LDFROM) $(OTHERLDFLAGS) -o $@ $(MYEXTLIB) \
-	  $(PERL_ARCHIVE) $(LDLOADLIBS) -lperl $(PERL_ARCHIVE_AFTER) $(EXPORT_LIST) \
+	  $(PERL_ARCHIVE) $(LDLOADLIBS) $(PERL_ARCHIVE_AFTER) $(EXPORT_LIST) \
 	  $(INST_DYNAMIC_FIX)
 	$(CHMOD) $(PERM_RWX) $@
 
@@ -587,7 +587,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) 'configure_requires:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  ExtUtils::MakeMaker: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'dynamic_config: 1' >> META_new.yml
-	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150005'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'generated_by: '\''ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'license: unknown' >> META_new.yml
 	$(NOECHO) $(ECHO) 'meta-spec:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  url: http://module-build.sourceforge.net/META-spec-v1.4.html' >> META_new.yml
@@ -599,7 +599,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires: {}' >> META_new.yml
 	$(NOECHO) $(ECHO) 'version: '\''0.01'\''' >> META_new.yml
-	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.012'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
 	$(NOECHO) $(ECHO) '{' > META_new.json
@@ -608,7 +608,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      "MrSndmn <mrsndmn@localdomain>"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
 	$(NOECHO) $(ECHO) '   "dynamic_config" : 1,' >> META_new.json
-	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150005",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "generated_by" : "ExtUtils::MakeMaker version 7.24, CPAN::Meta::Converter version 2.150010",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "license" : [' >> META_new.json
 	$(NOECHO) $(ECHO) '      "unknown"' >> META_new.json
 	$(NOECHO) $(ECHO) '   ],' >> META_new.json
@@ -886,8 +886,6 @@ PERL_HDRS = \
         $(PERL_INCDEP)/cop.h            \
         $(PERL_INCDEP)/cv.h            \
         $(PERL_INCDEP)/dosish.h            \
-        $(PERL_INCDEP)/dquote_inline.h            \
-        $(PERL_INCDEP)/ebcdic_tables.h            \
         $(PERL_INCDEP)/embed.h            \
         $(PERL_INCDEP)/embedvar.h            \
         $(PERL_INCDEP)/fakesdio.h            \
@@ -900,7 +898,6 @@ PERL_HDRS = \
         $(PERL_INCDEP)/hv_func.h            \
         $(PERL_INCDEP)/inline.h            \
         $(PERL_INCDEP)/intrpvar.h            \
-        $(PERL_INCDEP)/invlist_inline.h            \
         $(PERL_INCDEP)/iperlsys.h            \
         $(PERL_INCDEP)/keywords.h            \
         $(PERL_INCDEP)/l1_char_class_tab.h            \
@@ -922,7 +919,6 @@ PERL_HDRS = \
         $(PERL_INCDEP)/patchlevel.h            \
         $(PERL_INCDEP)/perl.h            \
         $(PERL_INCDEP)/perlapi.h            \
-        $(PERL_INCDEP)/perldtrace.h            \
         $(PERL_INCDEP)/perlio.h            \
         $(PERL_INCDEP)/perliol.h            \
         $(PERL_INCDEP)/perlsdio.h            \
@@ -979,8 +975,8 @@ $(FIRST_MAKEFILE) : Makefile.PL $(CONFIGDEP)
 
 # --- MakeMaker makeaperl section ---
 MAP_TARGET    = perl
-FULLPERL      = "/usr/bin/perl"
-MAP_PERLINC   = "-Iblib/arch" "-Iblib/lib" "-I/usr/lib64/perl5" "-I/usr/share/perl5"
+FULLPERL      = "/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/bin/perl"
+MAP_PERLINC   = "-Iblib/arch" "-Iblib/lib" "-I/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1/x86_64-linux" "-I/home/SndmnNote/perl5/perlbrew/perls/perl-5.20.1/lib/5.20.1"
 
 $(MAP_TARGET) :: $(MAKE_APERL_FILE)
 	$(MAKE) $(USEMAKEFILE) $(MAKE_APERL_FILE) $@
@@ -1021,10 +1017,10 @@ testdb_dynamic :: dynamic pure_all
 subdirs-test_static :: static pure_all
 
 test_static :: subdirs-test_static $(MAP_TARGET)
-	PERL_DL_NONLAZY=1 "/mnt/Data/WorkSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/$(MAP_TARGET)" $(MAP_PERLINC) "-MExtUtils::Command::MM" "-MTest::Harness" "-e" "undef *Test::Harness::Switches; test_harness($(TEST_VERBOSE), '$(INST_LIB)', '$(INST_ARCHLIB)')" $(TEST_FILES)
+	PERL_DL_NONLAZY=1 "/mnt/Data/workSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/$(MAP_TARGET)" $(MAP_PERLINC) "-MExtUtils::Command::MM" "-MTest::Harness" "-e" "undef *Test::Harness::Switches; test_harness($(TEST_VERBOSE), '$(INST_LIB)', '$(INST_ARCHLIB)')" $(TEST_FILES)
 
 testdb_static :: static pure_all $(MAP_TARGET)
-	PERL_DL_NONLAZY=1 "/mnt/Data/WorkSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/$(MAP_TARGET)" $(MAP_PERLINC) "-I$(INST_LIB)" "-I$(INST_ARCHLIB)" $(TEST_FILE)
+	PERL_DL_NONLAZY=1 "/mnt/Data/workSpace/perl/atomPerl/xs-matrix-multiplier/MMultiplier-XS/$(MAP_TARGET)" $(MAP_PERLINC) "-I$(INST_LIB)" "-I$(INST_ARCHLIB)" $(TEST_FILE)
 
 
 
@@ -1035,7 +1031,7 @@ ppd :
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Perl extension for blah blah blah</ABSTRACT>' >> MMultiplier-XS.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>MrSndmn &lt;mrsndmn@localdomain&gt;</AUTHOR>' >> MMultiplier-XS.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> MMultiplier-XS.ppd
-	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-thread-multi-5.24" />' >> MMultiplier-XS.ppd
+	$(NOECHO) $(ECHO) '        <ARCHITECTURE NAME="x86_64-linux-5.20" />' >> MMultiplier-XS.ppd
 	$(NOECHO) $(ECHO) '        <CODEBASE HREF="" />' >> MMultiplier-XS.ppd
 	$(NOECHO) $(ECHO) '    </IMPLEMENTATION>' >> MMultiplier-XS.ppd
 	$(NOECHO) $(ECHO) '</SOFTPKG>' >> MMultiplier-XS.ppd

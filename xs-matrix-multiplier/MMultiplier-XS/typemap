@@ -49,17 +49,27 @@ T_AVREF
 OUTPUT
 T_AVREF
 	{	
-		//sdsdsdasdas
-		sv_dump($arg); // $ntt $ntype
-		if (!SvOK($arg) || !SvROK($arg)) croak(\"Ref?\");
-		$type M = ($type)SvRV($arg);
-		// printf(\"%d\", M->width);
-		croak (\"catched!!\");// $var $arg $type
-		
-		// for(unsigned i = 0; i < ; ++i) {
-		// 	/* code */
-		// }
-		
+		// in XS.c, ST 0 already mortal
+		//	ST(0) = sv_newmortal();
 
+		//RETVAL ST(0) MATRIX *
+		// \$var \$arg \$type
+		
+		// printf(\"%d\\n\", $var->width);
+		// printf(\"%d\\n\", $var->heigth);
+
+		AV *array = (AV*)newAV();
+
+		for (int i = 0; i < $var->heigth; i++) {
+			AV *inner = (AV*)newAV();		
+			for (int j = 0; j < $var->heigth; j++) {
+				av_push(inner, (SV*)newSViv($var->cell[i][j]));
+			}
+			av_push(array, (SV*)newRV((SV*)inner));
+			free($var->cell[i]);
+		}
+		free($var->cell);		
+		// sv_dump((SV*)array);
+		sv_setsv($arg, (SV*)newRV_noinc((SV*)array));
 	}	
 
