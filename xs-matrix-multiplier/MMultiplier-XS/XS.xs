@@ -41,6 +41,14 @@ CODE:
         // printf("\n");
     }
 
+    for (int i = 0; i < A->heigth; i++)
+        free(A->cell[i]);
+
+    for (int i = 0; i < B->heigth; i++) 
+        free(B->cell[i]);
+
+    free(A->cell);
+    free(B->cell);
     
     RETVAL = C;
     OUTPUT:

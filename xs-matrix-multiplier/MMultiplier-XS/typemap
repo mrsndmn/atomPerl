@@ -68,9 +68,9 @@ T_AVREF
 				av_push(inner, (SV*)newSViv($var->cell[i][j]));
 			}
 			av_push(array, (SV*)newRV((SV*)inner));
-			// free($var->cell[i]);
+			free($var->cell[i]);
 		}
-		// free($var->cell);		
+		free($var->cell);	
 		// sv_dump((SV*)array);
 		sv_setsv($arg, (SV*)newRV_noinc((SV*)array));
 	}	
