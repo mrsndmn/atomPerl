@@ -288,6 +288,7 @@ XS_EUPXS(XS_MMultiplier__XS_doIt)
 	MATRIX *	B;
 
 	{
+		int checkpoint = PL_sv_count;
 		if (!SvOK(ST(0)) || !SvROK(ST(0))) croak("Ref?");
 		AV *tm__p = (AV*)SvRV(ST(0));
 		if (SvTYPE(tm__p)!=SVt_PVAV) croak("Not ARRAY");
@@ -326,6 +327,7 @@ XS_EUPXS(XS_MMultiplier__XS_doIt)
 ;
 
 	{
+		int checkpoint = PL_sv_count;
 		if (!SvOK(ST(1)) || !SvROK(ST(1))) croak("Ref?");
 		AV *tm__p = (AV*)SvRV(ST(1));
 		if (SvTYPE(tm__p)!=SVt_PVAV) croak("Not ARRAY");
@@ -387,8 +389,7 @@ XS_EUPXS(XS_MMultiplier__XS_doIt)
 
 
     RETVAL = C;
-
-#line 392 "XS.c"
+#line 393 "XS.c"
 	ST(0) = sv_newmortal();
 	{
 		// in XS.c, ST 0 already mortal

@@ -43,7 +43,6 @@ CODE:
 
     
     RETVAL = C;
-
     OUTPUT:
         RETVAL
 

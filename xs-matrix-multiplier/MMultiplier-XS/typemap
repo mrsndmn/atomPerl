@@ -3,7 +3,8 @@ MATRIX*		T_AVREF
 
 INPUT
 T_AVREF
-	{
+	{	
+		int checkpoint = PL_sv_count;
 		if (!SvOK($arg) || !SvROK($arg)) croak(\"Ref?\");
 		AV *tm__p = (AV*)SvRV($arg);
 
@@ -43,6 +44,7 @@ T_AVREF
 			// printf(\"\\n\");
 		}
 		$var = ($type)m;
+
 	}
 
 
