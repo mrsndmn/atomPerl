@@ -8,6 +8,6 @@ make > /dev/null;
 echo "TEST_VERBOSE=1" >> ./Makefile;
 make test;
 
-# make clean > /dev/null;
+make clean > /dev/null;
 rm -rf Makefile.old;
 

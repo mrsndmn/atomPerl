@@ -1,6 +1,6 @@
 package MMultiplier::XS;
 
-use 5.020;
+use 5.024;
 use strict;
 use warnings;
 use Carp;

@@ -38,9 +38,12 @@ my $matrix_c = [
 [6961, 7222, 7483, 7744, 8005,  8266],
 [8521, 8842, 9163, 9484, 9805, 10126]
 ];
-
-my $ans = MMultiplier::XS::doIt($matrix_a, $matrix_b) for 1..100; # just 0m0.236s while pure perl 0m1.286s
+my $ans;
+#  $ans = MMultiplier::XS::doIt($matrix_a, $matrix_b) for 1..100; # just 0m0.236s while pure perl 0m1.286s
 use DDP;
+
+$ans = MMultiplier::XS::doIt($matrix_a, $matrix_b) for 1..100;
+
 # p $ans;
 is_deeply($ans, $matrix_c, "milti ok");
 

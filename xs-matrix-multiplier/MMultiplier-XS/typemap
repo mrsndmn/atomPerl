@@ -4,14 +4,13 @@ MATRIX*		T_AVREF
 INPUT
 T_AVREF
 	{	
-		int checkpoint = PL_sv_count;
 		if (!SvOK($arg) || !SvROK($arg)) croak(\"Ref?\");
 		AV *tm__p = (AV*)SvRV($arg);
 
 		if (SvTYPE(tm__p)!=SVt_PVAV) croak(\"Not ARRAY\");
 		AV* tm_p = (AV*)tm__p;
 		
-		$type m = malloc(sizeof(MATRIX));
+		$type m = (MATRIX*)malloc(sizeof(MATRIX));
 
 		SV **first =  av_fetch (tm_p, 0, 0);
 		// sv_dump(tm_p);
@@ -25,7 +24,7 @@ T_AVREF
 		m->heigth = heigth+1;
 		m->width = width+1;
 		// printf(\"h: %d \\nw: %d\\n\",m->heigth, m->width);
-		m->cell = (int**)malloc(heigth * sizeof(int*));
+		m->cell = (int**)malloc(m->heigth * sizeof(int*));
 
 		for (int i =0; i <= heigth; ++i) {
 			SV **_next =  av_fetch (tm_p, i, 0);
@@ -33,7 +32,7 @@ T_AVREF
 			AV *next = (AV*)SvRV(*_next);
 			if (av_len(next) != width) croak(\"matrix must be rectangular \", av_len(next),\" \", width);
 
-			m->cell[i] = (int*)malloc(width * sizeof(int));
+			m->cell[i] = (int*)malloc(m->width * sizeof(int));
 			
 			for (int j = 0; j <= width; ++j) {
 				SV **_value =  av_fetch (next, j, 0);
@@ -51,6 +50,7 @@ T_AVREF
 OUTPUT
 T_AVREF
 	{	
+
 		// in XS.c, ST 0 already mortal
 		//	ST(0) = sv_newmortal();
 
@@ -68,9 +68,9 @@ T_AVREF
 				av_push(inner, (SV*)newSViv($var->cell[i][j]));
 			}
 			av_push(array, (SV*)newRV((SV*)inner));
-			free($var->cell[i]);
+			// free($var->cell[i]);
 		}
-		free($var->cell);		
+		// free($var->cell);		
 		// sv_dump((SV*)array);
 		sv_setsv($arg, (SV*)newRV_noinc((SV*)array));
 	}	
